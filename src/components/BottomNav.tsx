@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Home, Search, ShoppingCart, User, ClipboardList } from "lucide-react";
+import { useCart } from "@/contexts/CartContext";
 
 const navItems = [
   { label: "Accueil", icon: Home, path: "/" },
@@ -13,6 +14,7 @@ const navItems = [
 const BottomNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { totalItems } = useCart();
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-t from-background via-background/95 to-background/90 backdrop-blur-xl border-t border-border/50 px-2 py-2 safe-area-bottom">
@@ -28,7 +30,14 @@ const BottomNav = () => {
                 active ? "text-primary" : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              <item.icon className="h-5 w-5" />
+              <div className="relative">
+                <item.icon className="h-5 w-5" />
+                {item.badge && totalItems > 0 && (
+                  <span className="absolute -top-1.5 -right-2 bg-primary text-primary-foreground text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                    {totalItems > 9 ? "9+" : totalItems}
+                  </span>
+                )}
+              </div>
               <span className="text-[10px] font-semibold uppercase tracking-wider">{item.label}</span>
               {active && <div className="absolute -bottom-2 w-5 h-0.5 bg-primary rounded-full" />}
             </Button>

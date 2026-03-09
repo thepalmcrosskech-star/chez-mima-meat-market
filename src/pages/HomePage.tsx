@@ -4,6 +4,9 @@ import { Heart, Bell, Plus, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
+import { useCart } from "@/contexts/CartContext";
+import { toast } from "@/hooks/use-toast";
+import QuantityDialog from "@/components/QuantityDialog";
 import logo from "@/assets/logo.jpeg";
 import BottomNav from "@/components/BottomNav";
 
@@ -32,11 +35,14 @@ const formatPrice = (price: number) => {
 
 const HomePage = () => {
   const navigate = useNavigate();
+  const { addItem } = useCart();
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [authChecked, setAuthChecked] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [quantityDialogOpen, setQuantityDialogOpen] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -74,6 +80,19 @@ const HomePage = () => {
     }
     if (productsRes.data) setProducts(productsRes.data);
     setLoading(false);
+  };
+
+  const handleAddToCart = (product: Product) => {
+    setSelectedProduct(product);
+    setQuantityDialogOpen(true);
+  };
+
+  const handleConfirmAdd = (product: Product, quantity: number) => {
+    addItem(
+      { id: product.id, name: product.name, price: product.price, unit_type: product.unit_type, image_url: product.image_url },
+      quantity
+    );
+    toast({ title: "Ajouté au panier", description: `${quantity} ${product.unit_type === "kg" ? "kg" : "×"} ${product.name}` });
   };
 
   const filteredProducts = selectedCategory
@@ -157,7 +176,7 @@ const HomePage = () => {
       <section className="px-4">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-2xl font-bold text-foreground">Nos Meilleurs Produits</h3>
-          <Button variant="link" className="text-primary font-semibold">
+          <Button variant="link" className="text-primary font-semibold" onClick={() => navigate("/search")}>
             Voir tout
           </Button>
         </div>
@@ -216,6 +235,7 @@ const HomePage = () => {
                     <Button 
                       size="icon" 
                       className="bg-primary hover:bg-primary/90 rounded-full w-8 h-8 hover-scale"
+                      onClick={() => handleAddToCart(product)}
                     >
                       <Plus className="h-4 w-4" />
                     </Button>
@@ -226,6 +246,13 @@ const HomePage = () => {
           )}
         </div>
       </section>
+
+      <QuantityDialog
+        product={selectedProduct}
+        open={quantityDialogOpen}
+        onOpenChange={setQuantityDialogOpen}
+        onConfirm={handleConfirmAdd}
+      />
 
       <BottomNav />
     </div>
