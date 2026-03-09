@@ -215,11 +215,25 @@ const AdminDashboard = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="gradient-hero text-primary-foreground p-6 rounded-b-3xl">
-        <div className="flex items-center gap-4 mb-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/")} className="text-primary-foreground hover:bg-white/20">
-            <ArrowLeft className="h-6 w-6" />
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon" onClick={() => navigate("/")} className="text-primary-foreground hover:bg-white/20">
+              <ArrowLeft className="h-6 w-6" />
+            </Button>
+            <h1 className="text-2xl font-bold">Panel Admin</h1>
+          </div>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={async () => {
+              await supabase.auth.signOut();
+              navigate("/login");
+            }} 
+            className="text-primary-foreground hover:bg-white/20 gap-2"
+          >
+            <LogOut className="h-4 w-4" />
+            Déconnexion
           </Button>
-          <h1 className="text-2xl font-bold">Panel Admin</h1>
         </div>
         <p className="text-white/80">Gestion des livreurs et paramètres</p>
       </div>
