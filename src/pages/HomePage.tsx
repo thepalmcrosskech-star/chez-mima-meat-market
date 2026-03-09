@@ -1,0 +1,216 @@
+import { useState } from "react";
+import { Heart, Bell, Search, ShoppingCart, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+
+const HomePage = () => {
+  const [selectedCategory, setSelectedCategory] = useState("Bœuf");
+
+  const categories = ["Bœuf", "Veau", "Volaille", "Charcuterie"];
+
+  const products = [
+    {
+      id: 1,
+      name: "Entrecôte Premium",
+      description: "Origine France",
+      price: "25,00€",
+      unit: "/kg",
+      image: "/placeholder.svg",
+      featured: true,
+    },
+    {
+      id: 2,
+      name: "Filet de Bœuf",
+      description: "Extra Tendre",
+      price: "38,50€",
+      unit: "/kg",
+      image: "/placeholder.svg",
+      featured: true,
+    },
+    {
+      id: 3,
+      name: "Bavette d'Aloyau",
+      description: "Goût intense",
+      price: "19,90€",
+      unit: "/kg",
+      image: "/placeholder.svg",
+      featured: false,
+    },
+    {
+      id: 4,
+      name: "Rumsteck Fondant",
+      description: "Parfait à griller",
+      price: "22,00€",
+      unit: "/kg",
+      image: "/placeholder.svg",
+      featured: false,
+    },
+  ];
+
+  return (
+    <div className="min-h-screen bg-background pb-20">
+      {/* Header */}
+      <header className="sticky top-0 z-50 bg-gradient-to-b from-background via-background/95 to-background/90 backdrop-blur-md px-4 py-4 flex items-center justify-between border-b border-border/50">
+        <h1 className="text-2xl font-extrabold tracking-tighter text-foreground gradient-text">
+          CHEZ MIMA
+        </h1>
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon" className="relative hover-scale">
+            <Bell className="h-5 w-5" />
+            <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full border border-background notification-pulse"></span>
+          </Button>
+        </div>
+      </header>
+
+      {/* Hero Banner */}
+      <section className="px-4 py-6">
+        <Card className="relative w-full h-56 rounded-2xl overflow-hidden group border-0 shadow-2xl">
+          <div className="absolute inset-0 bg-gradient-hero"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-transparent"></div>
+          <div className="relative h-full flex flex-col justify-center px-6 text-white">
+            <div className="bg-primary/90 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 rounded-full w-fit mb-4 animate-fade-in">
+              OFFRE DU JOUR
+            </div>
+            <h2 className="text-4xl font-bold leading-tight mb-2 animate-slide-up">
+              Côte de<br />
+              Bœuf<br />
+              Maturée
+            </h2>
+            <p className="text-white/90 text-lg mb-6 animate-slide-up animation-delay-200">
+              Sélection Premium<br />d'exception
+            </p>
+            <Button className="bg-primary hover:bg-primary/90 text-white w-fit px-8 py-3 font-bold rounded-xl transition-all duration-300 hover-scale">
+              Commander
+            </Button>
+          </div>
+          <div className="absolute top-4 right-4 opacity-20">
+            <div className="w-32 h-32 rounded-full bg-gradient-to-br from-primary via-red-500 to-red-700 animate-pulse"></div>
+          </div>
+        </Card>
+      </section>
+
+      {/* Categories */}
+      <section className="px-4 mb-6">
+        <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+          {categories.map((category) => (
+            <Button
+              key={category}
+              variant={selectedCategory === category ? "default" : "secondary"}
+              className={`rounded-full px-6 py-2 text-sm font-bold whitespace-nowrap transition-all duration-300 ${
+                selectedCategory === category
+                  ? "bg-primary text-primary-foreground shadow-lg scale-105"
+                  : "bg-secondary text-secondary-foreground hover:bg-secondary/80 hover-scale"
+              }`}
+              onClick={() => setSelectedCategory(category)}
+            >
+              {category}
+            </Button>
+          ))}
+        </div>
+      </section>
+
+      {/* Products Section */}
+      <section className="px-4">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-2xl font-bold text-foreground">Nos Meilleurs Produits</h3>
+          <Button variant="link" className="text-primary font-semibold">
+            Voir tout
+          </Button>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          {products.map((product, index) => (
+            <Card
+              key={product.id}
+              className={`relative overflow-hidden rounded-2xl border-0 shadow-lg hover:shadow-2xl transition-all duration-500 hover-scale group ${
+                product.featured ? "bg-gradient-card-premium" : "bg-card"
+              }`}
+              style={{ animationDelay: `${index * 100}ms` }}
+            >
+              <div className="absolute top-3 right-3 z-10">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background/90 transition-colors"
+                >
+                  <Heart className="h-4 w-4 text-muted-foreground hover:text-primary transition-colors" />
+                </Button>
+              </div>
+
+              <div className="aspect-square bg-gradient-to-br from-muted/20 to-muted/40 flex items-center justify-center relative overflow-hidden">
+                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-primary/40 animate-pulse"></div>
+                {product.featured && (
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                )}
+              </div>
+
+              <div className="p-4">
+                <h4 className="font-bold text-card-foreground mb-1 group-hover:text-primary transition-colors">
+                  {product.name}
+                </h4>
+                <p className="text-sm text-muted-foreground mb-3">{product.description}</p>
+                
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-lg font-bold text-primary">{product.price}</span>
+                    <span className="text-sm text-muted-foreground">{product.unit}</span>
+                  </div>
+                  <Button 
+                    size="icon" 
+                    className="bg-primary hover:bg-primary/90 rounded-full w-8 h-8 hover-scale"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      {/* Bottom Navigation */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-background via-background/95 to-background/90 backdrop-blur-xl border-t border-border/50 px-4 py-3">
+        <div className="flex items-center justify-around max-w-sm mx-auto">
+          <Button
+            variant="ghost"
+            className="flex flex-col items-center gap-1 text-primary hover:text-primary/80"
+          >
+            <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
+              <div className="w-3 h-3 rounded bg-primary"></div>
+            </div>
+            <span className="text-xs font-semibold uppercase tracking-wider">Home</span>
+          </Button>
+          
+          <Button
+            variant="ghost"
+            className="flex flex-col items-center gap-1 text-muted-foreground hover:text-foreground"
+          >
+            <Search className="h-5 w-5" />
+            <span className="text-xs font-semibold uppercase tracking-wider">Search</span>
+          </Button>
+          
+          <Button
+            variant="ghost"
+            className="flex flex-col items-center gap-1 text-muted-foreground hover:text-foreground relative"
+          >
+            <ShoppingCart className="h-5 w-5" />
+            <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-primary-foreground text-xs rounded-full flex items-center justify-center font-bold">
+              3
+            </span>
+            <span className="text-xs font-semibold uppercase tracking-wider">Cart</span>
+          </Button>
+          
+          <Button
+            variant="ghost"
+            className="flex flex-col items-center gap-1 text-muted-foreground hover:text-foreground"
+          >
+            <div className="w-5 h-5 rounded-full bg-muted"></div>
+            <span className="text-xs font-semibold uppercase tracking-wider">Profile</span>
+          </Button>
+        </div>
+      </nav>
+    </div>
+  );
+};
+
+export default HomePage;
