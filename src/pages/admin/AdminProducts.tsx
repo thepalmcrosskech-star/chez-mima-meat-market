@@ -278,7 +278,7 @@ const AdminProducts = () => {
                       )}
                       <div>
                         <p className="font-medium">{p.name}</p>
-                        <p className="text-xs text-muted-foreground">{p.unit_type}</p>
+                        <p className="text-xs text-muted-foreground">{p.unit_type === 'weight' ? 'Kg' : 'Pièce'}</p>
                       </div>
                     </div>
                   </TableCell>
