@@ -186,7 +186,7 @@ const HomePage = () => {
             className="flex flex-col items-center gap-1 text-muted-foreground hover:text-foreground"
           >
             <Search className="h-5 w-5" />
-            <span className="text-xs font-semibold uppercase tracking-wider">Search</span>
+            <span className="text-xs font-semibold uppercase tracking-wider">Recherche</span>
           </Button>
           
           <Button
