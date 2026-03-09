@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
+import logo from "@/assets/logo.jpeg";
 
 const LoginPage = () => {
   const [mode, setMode] = useState<"login" | "register">("login");
@@ -52,47 +53,47 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <div className="w-full max-w-md space-y-8">
-        {/* Logo / Title */}
-        <div className="text-center">
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">
-            CHEZ MIMA
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Boucherie & Traiteur Premium
-          </p>
+      <div className="w-full max-w-sm space-y-8">
+
+        {/* Logo */}
+        <div className="flex justify-center">
+          <img
+            src={logo}
+            alt="Chez Mima"
+            className="w-52 h-52 object-contain rounded-full"
+          />
         </div>
 
         {/* Switcher */}
-        <div className="flex rounded-lg bg-muted p-1">
+        <div className="flex rounded-xl bg-muted p-1">
           <button
             type="button"
             onClick={() => setMode("login")}
-            className={`flex-1 rounded-md py-2.5 text-sm font-semibold transition-all ${
+            className={`flex-1 rounded-lg py-3 text-sm font-bold tracking-widest uppercase transition-all ${
               mode === "login"
-                ? "bg-primary text-primary-foreground shadow-sm"
+                ? "bg-primary text-primary-foreground shadow"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            CONNEXION
+            Connexion
           </button>
           <button
             type="button"
             onClick={() => setMode("register")}
-            className={`flex-1 rounded-md py-2.5 text-sm font-semibold transition-all ${
+            className={`flex-1 rounded-lg py-3 text-sm font-bold tracking-widest uppercase transition-all ${
               mode === "register"
-                ? "bg-primary text-primary-foreground shadow-sm"
+                ? "bg-primary text-primary-foreground shadow"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            S'INSCRIRE
+            S'inscrire
           </button>
         </div>
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           {mode === "register" && (
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <Label htmlFor="name">Nom complet</Label>
               <Input
                 id="name"
@@ -105,7 +106,7 @@ const LoginPage = () => {
             </div>
           )}
 
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
@@ -117,7 +118,7 @@ const LoginPage = () => {
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label htmlFor="password">Mot de passe</Label>
             <Input
               id="password"
@@ -130,7 +131,11 @@ const LoginPage = () => {
             />
           </div>
 
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button
+            type="submit"
+            className="w-full mt-2 font-bold tracking-wider uppercase"
+            disabled={loading}
+          >
             {loading
               ? "Chargement..."
               : mode === "login"
