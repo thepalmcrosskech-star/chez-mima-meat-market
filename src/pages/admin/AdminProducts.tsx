@@ -264,8 +264,7 @@ const AdminProducts = () => {
               <TableRow>
                 <TableHead>Produit</TableHead>
                 <TableHead>Prix</TableHead>
-                <TableHead>Stock</TableHead>
-                <TableHead>Statut</TableHead>
+                <TableHead>Disponibilité</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -286,11 +285,13 @@ const AdminProducts = () => {
                     </div>
                   </TableCell>
                   <TableCell className="font-semibold text-primary">{formatPrice(p.price)}</TableCell>
-                  <TableCell>{p.stock_quantity}</TableCell>
                   <TableCell>
-                    <Badge variant={p.is_active ? "default" : "secondary"} className="cursor-pointer" onClick={() => toggleActive(p)}>
-                      {p.is_active ? "Actif" : "Inactif"}
-                    </Badge>
+                    <div className="flex items-center gap-2">
+                      <Switch checked={p.is_active ?? true} onCheckedChange={() => toggleActive(p)} />
+                      <span className={`text-xs font-medium ${p.is_active ? "text-green-500" : "text-muted-foreground"}`}>
+                        {p.is_active ? "Disponible" : "Indisponible"}
+                      </span>
+                    </div>
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-1">
@@ -301,7 +302,7 @@ const AdminProducts = () => {
                 </TableRow>
               ))}
               {filtered.length === 0 && (
-                <TableRow><TableCell colSpan={5} className="text-center py-8 text-muted-foreground">Aucun produit</TableCell></TableRow>
+                <TableRow><TableCell colSpan={4} className="text-center py-8 text-muted-foreground">Aucun produit</TableCell></TableRow>
               )}
             </TableBody>
           </Table>
