@@ -178,7 +178,7 @@ const HomePage = () => {
             <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
               <div className="w-3 h-3 rounded bg-primary"></div>
             </div>
-            <span className="text-xs font-semibold uppercase tracking-wider">Home</span>
+            <span className="text-xs font-semibold uppercase tracking-wider">Accueil</span>
           </Button>
           
           <Button
