@@ -66,7 +66,7 @@ const AdminProducts = () => {
   };
 
   const resetForm = () => {
-    setName(""); setDescription(""); setPrice(""); setUnitType("kg");
+    setName(""); setDescription(""); setPrice(""); setUnitType("weight");
     setCategoryId(""); setImageUrl(""); setImagePreview(""); setStockQuantity("0"); setIsActive(true);
     setEditingProduct(null);
   };
