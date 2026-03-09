@@ -13,7 +13,7 @@ const HomePage = () => {
       id: 1,
       name: "Entrecôte Premium",
       description: "Origine France",
-      price: "25,00€",
+      price: "250,00 MAD",
       unit: "/kg",
       image: "/placeholder.svg",
       featured: true,
@@ -22,7 +22,7 @@ const HomePage = () => {
       id: 2,
       name: "Filet de Bœuf",
       description: "Extra Tendre",
-      price: "38,50€",
+      price: "385,00 MAD",
       unit: "/kg",
       image: "/placeholder.svg",
       featured: true,
@@ -31,7 +31,7 @@ const HomePage = () => {
       id: 3,
       name: "Bavette d'Aloyau",
       description: "Goût intense",
-      price: "19,90€",
+      price: "199,00 MAD",
       unit: "/kg",
       image: "/placeholder.svg",
       featured: false,
@@ -40,7 +40,7 @@ const HomePage = () => {
       id: 4,
       name: "Rumsteck Fondant",
       description: "Parfait à griller",
-      price: "22,00€",
+      price: "220,00 MAD",
       unit: "/kg",
       image: "/placeholder.svg",
       featured: false,
@@ -178,7 +178,7 @@ const HomePage = () => {
             <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
               <div className="w-3 h-3 rounded bg-primary"></div>
             </div>
-            <span className="text-xs font-semibold uppercase tracking-wider">Home</span>
+            <span className="text-xs font-semibold uppercase tracking-wider">Accueil</span>
           </Button>
           
           <Button
@@ -186,7 +186,7 @@ const HomePage = () => {
             className="flex flex-col items-center gap-1 text-muted-foreground hover:text-foreground"
           >
             <Search className="h-5 w-5" />
-            <span className="text-xs font-semibold uppercase tracking-wider">Search</span>
+            <span className="text-xs font-semibold uppercase tracking-wider">Recherche</span>
           </Button>
           
           <Button
@@ -197,7 +197,7 @@ const HomePage = () => {
             <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-primary-foreground text-xs rounded-full flex items-center justify-center font-bold">
               3
             </span>
-            <span className="text-xs font-semibold uppercase tracking-wider">Cart</span>
+            <span className="text-xs font-semibold uppercase tracking-wider">Panier</span>
           </Button>
           
           <Button
@@ -205,7 +205,7 @@ const HomePage = () => {
             className="flex flex-col items-center gap-1 text-muted-foreground hover:text-foreground"
           >
             <div className="w-5 h-5 rounded-full bg-muted"></div>
-            <span className="text-xs font-semibold uppercase tracking-wider">Profile</span>
+            <span className="text-xs font-semibold uppercase tracking-wider">Profil</span>
           </Button>
         </div>
       </nav>

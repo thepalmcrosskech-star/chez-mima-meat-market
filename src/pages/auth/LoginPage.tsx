@@ -21,10 +21,25 @@ const LoginPage = () => {
 
     try {
       if (mode === "login") {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
+        
+        // Check role and redirect accordingly
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", data.user.id)
+          .single();
+
         toast({ title: "Connexion réussie", description: "Bienvenue !" });
-        navigate("/");
+        
+        if (profile?.role === "admin") {
+          navigate("/admin");
+        } else if (profile?.role === "driver") {
+          navigate("/driver");
+        } else {
+          navigate("/");
+        }
       } else {
         const { error } = await supabase.auth.signUp({
           email,
