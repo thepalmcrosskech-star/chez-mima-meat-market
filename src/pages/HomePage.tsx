@@ -205,7 +205,7 @@ const HomePage = () => {
             className="flex flex-col items-center gap-1 text-muted-foreground hover:text-foreground"
           >
             <div className="w-5 h-5 rounded-full bg-muted"></div>
-            <span className="text-xs font-semibold uppercase tracking-wider">Profile</span>
+            <span className="text-xs font-semibold uppercase tracking-wider">Profil</span>
           </Button>
         </div>
       </nav>
