@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Heart, Bell, Search, ShoppingCart, Plus, Loader2 } from "lucide-react";
+import { Heart, Bell, Plus, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/logo.jpeg";
+import BottomNav from "@/components/BottomNav";
 
 interface Category {
   id: string;
@@ -226,47 +227,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-background via-background/95 to-background/90 backdrop-blur-xl border-t border-border/50 px-4 py-3">
-        <div className="flex items-center justify-around max-w-sm mx-auto">
-          <Button
-            variant="ghost"
-            className="flex flex-col items-center gap-1 text-primary hover:text-primary/80"
-          >
-            <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
-              <div className="w-3 h-3 rounded bg-primary"></div>
-            </div>
-            <span className="text-xs font-semibold uppercase tracking-wider">Accueil</span>
-          </Button>
-          
-          <Button
-            variant="ghost"
-            className="flex flex-col items-center gap-1 text-muted-foreground hover:text-foreground"
-          >
-            <Search className="h-5 w-5" />
-            <span className="text-xs font-semibold uppercase tracking-wider">Recherche</span>
-          </Button>
-          
-          <Button
-            variant="ghost"
-            className="flex flex-col items-center gap-1 text-muted-foreground hover:text-foreground relative"
-          >
-            <ShoppingCart className="h-5 w-5" />
-            <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-primary-foreground text-xs rounded-full flex items-center justify-center font-bold">
-              3
-            </span>
-            <span className="text-xs font-semibold uppercase tracking-wider">Panier</span>
-          </Button>
-          
-          <Button
-            variant="ghost"
-            className="flex flex-col items-center gap-1 text-muted-foreground hover:text-foreground"
-          >
-            <div className="w-5 h-5 rounded-full bg-muted"></div>
-            <span className="text-xs font-semibold uppercase tracking-wider">Profil</span>
-          </Button>
-        </div>
-      </nav>
+      <BottomNav />
     </div>
   );
 };
