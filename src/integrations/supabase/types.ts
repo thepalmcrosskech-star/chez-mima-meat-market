@@ -14,13 +14,390 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      app_settings: {
+        Row: {
+          id: string
+          key: string
+          updated_at: string | null
+          value: Json
+        }
+        Insert: {
+          id?: string
+          key: string
+          updated_at?: string | null
+          value: Json
+        }
+        Update: {
+          id?: string
+          key?: string
+          updated_at?: string | null
+          value?: Json
+        }
+        Relationships: []
+      }
+      categories: {
+        Row: {
+          created_at: string | null
+          emoji: string | null
+          id: string
+          image_url: string | null
+          name: string
+          sort_order: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          emoji?: string | null
+          id?: string
+          image_url?: string | null
+          name: string
+          sort_order?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          emoji?: string | null
+          id?: string
+          image_url?: string | null
+          name?: string
+          sort_order?: number | null
+        }
+        Relationships: []
+      }
+      delivery_zones: {
+        Row: {
+          color: string | null
+          created_at: string | null
+          delivery_fee: number
+          free_delivery_threshold: number | null
+          id: string
+          is_active: boolean | null
+          minimum_order: number
+          name: string
+          polygon: Json
+          sort_order: number | null
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string | null
+          delivery_fee: number
+          free_delivery_threshold?: number | null
+          id?: string
+          is_active?: boolean | null
+          minimum_order: number
+          name: string
+          polygon: Json
+          sort_order?: number | null
+        }
+        Update: {
+          color?: string | null
+          created_at?: string | null
+          delivery_fee?: number
+          free_delivery_threshold?: number | null
+          id?: string
+          is_active?: boolean | null
+          minimum_order?: number
+          name?: string
+          polygon?: Json
+          sort_order?: number | null
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          receiver_id: string
+          sender_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          receiver_id: string
+          sender_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          receiver_id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_receiver_id_fkey"
+            columns: ["receiver_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      order_items: {
+        Row: {
+          created_at: string | null
+          id: string
+          line_total: number
+          order_id: string
+          product_id: string | null
+          product_name: string
+          quantity: string
+          quantity_value: number
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          line_total: number
+          order_id: string
+          product_id?: string | null
+          product_name: string
+          quantity: string
+          quantity_value: number
+          unit_price: number
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          line_total?: number
+          order_id?: string
+          product_id?: string | null
+          product_name?: string
+          quantity?: string
+          quantity_value?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          created_at: string | null
+          delivery_address_id: string | null
+          delivery_address_snapshot: Json | null
+          delivery_fee: number
+          delivery_zone_id: string | null
+          id: string
+          notes: string | null
+          status: string
+          subtotal: number
+          total_price: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          delivery_address_id?: string | null
+          delivery_address_snapshot?: Json | null
+          delivery_fee?: number
+          delivery_zone_id?: string | null
+          id?: string
+          notes?: string | null
+          status?: string
+          subtotal: number
+          total_price: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          delivery_address_id?: string | null
+          delivery_address_snapshot?: Json | null
+          delivery_fee?: number
+          delivery_zone_id?: string | null
+          id?: string
+          notes?: string | null
+          status?: string
+          subtotal?: number
+          total_price?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_delivery_address_id_fkey"
+            columns: ["delivery_address_id"]
+            isOneToOne: false
+            referencedRelation: "user_addresses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_delivery_zone_id_fkey"
+            columns: ["delivery_zone_id"]
+            isOneToOne: false
+            referencedRelation: "delivery_zones"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          category_id: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean | null
+          name: string
+          price: number
+          stock_quantity: number
+          unit_type: string
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          name: string
+          price: number
+          stock_quantity?: number
+          unit_type: string
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          name?: string
+          price?: number
+          stock_quantity?: number
+          unit_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          name: string
+          phone: string | null
+          role: string
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id: string
+          name: string
+          phone?: string | null
+          role?: string
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          name?: string
+          phone?: string | null
+          role?: string
+        }
+        Relationships: []
+      }
+      user_addresses: {
+        Row: {
+          apartment: string | null
+          created_at: string | null
+          delivery_zone_id: string | null
+          full_address: string
+          id: string
+          instructions: string | null
+          is_default: boolean | null
+          label: string | null
+          latitude: number
+          longitude: number
+          user_id: string
+        }
+        Insert: {
+          apartment?: string | null
+          created_at?: string | null
+          delivery_zone_id?: string | null
+          full_address: string
+          id?: string
+          instructions?: string | null
+          is_default?: boolean | null
+          label?: string | null
+          latitude: number
+          longitude: number
+          user_id: string
+        }
+        Update: {
+          apartment?: string | null
+          created_at?: string | null
+          delivery_zone_id?: string | null
+          full_address?: string
+          id?: string
+          instructions?: string | null
+          is_default?: boolean | null
+          label?: string | null
+          latitude?: number
+          longitude?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_addresses_delivery_zone_id_fkey"
+            columns: ["delivery_zone_id"]
+            isOneToOne: false
+            referencedRelation: "delivery_zones"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_addresses_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_admin_role: { Args: { user_id: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
