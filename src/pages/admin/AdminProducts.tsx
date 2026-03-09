@@ -1,0 +1,229 @@
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "@/hooks/use-toast";
+import { Plus, Pencil, Trash2, Search } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+
+interface Product {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number;
+  unit_type: string;
+  image_url: string | null;
+  category_id: string | null;
+  is_active: boolean | null;
+  stock_quantity: number;
+}
+
+interface Category {
+  id: string;
+  name: string;
+}
+
+const AdminProducts = () => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+
+  // Form state
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [price, setPrice] = useState("");
+  const [unitType, setUnitType] = useState("kg");
+  const [categoryId, setCategoryId] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
+  const [stockQuantity, setStockQuantity] = useState("0");
+  const [isActive, setIsActive] = useState(true);
+
+  useEffect(() => { fetchData(); }, []);
+
+  const fetchData = async () => {
+    const [productsRes, categoriesRes] = await Promise.all([
+      supabase.from("products").select("*").order("name"),
+      supabase.from("categories").select("id, name").order("sort_order"),
+    ]);
+    if (productsRes.data) setProducts(productsRes.data);
+    if (categoriesRes.data) setCategories(categoriesRes.data);
+    setLoading(false);
+  };
+
+  const resetForm = () => {
+    setName(""); setDescription(""); setPrice(""); setUnitType("kg");
+    setCategoryId(""); setImageUrl(""); setStockQuantity("0"); setIsActive(true);
+    setEditingProduct(null);
+  };
+
+  const openEdit = (p: Product) => {
+    setEditingProduct(p);
+    setName(p.name); setDescription(p.description || ""); setPrice(String(p.price));
+    setUnitType(p.unit_type); setCategoryId(p.category_id || ""); setImageUrl(p.image_url || "");
+    setStockQuantity(String(p.stock_quantity)); setIsActive(p.is_active ?? true);
+    setIsDialogOpen(true);
+  };
+
+  const handleSave = async () => {
+    if (!name || !price) { toast({ title: "Erreur", description: "Nom et prix requis", variant: "destructive" }); return; }
+
+    const payload = {
+      name, description: description || null, price: parseFloat(price), unit_type: unitType,
+      category_id: categoryId || null, image_url: imageUrl || null,
+      stock_quantity: parseInt(stockQuantity) || 0, is_active: isActive,
+    };
+
+    try {
+      if (editingProduct) {
+        const { error } = await supabase.from("products").update(payload).eq("id", editingProduct.id);
+        if (error) throw error;
+        toast({ title: "Produit mis à jour" });
+      } else {
+        const { error } = await supabase.from("products").insert(payload);
+        if (error) throw error;
+        toast({ title: "Produit ajouté" });
+      }
+      setIsDialogOpen(false); resetForm(); fetchData();
+    } catch (e: any) {
+      toast({ title: "Erreur", description: e.message, variant: "destructive" });
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Supprimer ce produit ?")) return;
+    const { error } = await supabase.from("products").delete().eq("id", id);
+    if (error) toast({ title: "Erreur", description: error.message, variant: "destructive" });
+    else { toast({ title: "Produit supprimé" }); fetchData(); }
+  };
+
+  const toggleActive = async (p: Product) => {
+    await supabase.from("products").update({ is_active: !p.is_active }).eq("id", p.id);
+    fetchData();
+  };
+
+  const filtered = products.filter((p) => p.name.toLowerCase().includes(search.toLowerCase()));
+  const formatPrice = (n: number) => new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(n) + " MAD";
+
+  if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary" /></div>;
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">Produits</h1>
+        <Dialog open={isDialogOpen} onOpenChange={(o) => { setIsDialogOpen(o); if (!o) resetForm(); }}>
+          <DialogTrigger asChild>
+            <Button className="gap-2"><Plus className="h-4 w-4" /> Ajouter</Button>
+          </DialogTrigger>
+          <DialogContent className="max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>{editingProduct ? "Modifier le produit" : "Ajouter un produit"}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 mt-4">
+              <div><Label>Nom</Label><Input value={name} onChange={(e) => setName(e.target.value)} /></div>
+              <div><Label>Description</Label><Textarea value={description} onChange={(e) => setDescription(e.target.value)} /></div>
+              <div className="grid grid-cols-2 gap-4">
+                <div><Label>Prix</Label><Input type="number" value={price} onChange={(e) => setPrice(e.target.value)} /></div>
+                <div>
+                  <Label>Unité</Label>
+                  <Select value={unitType} onValueChange={setUnitType}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="kg">Kg</SelectItem>
+                      <SelectItem value="pièce">Pièce</SelectItem>
+                      <SelectItem value="lot">Lot</SelectItem>
+                      <SelectItem value="barquette">Barquette</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div>
+                <Label>Catégorie</Label>
+                <Select value={categoryId} onValueChange={setCategoryId}>
+                  <SelectTrigger><SelectValue placeholder="Sélectionner" /></SelectTrigger>
+                  <SelectContent>
+                    {categories.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div><Label>URL image</Label><Input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} /></div>
+              <div><Label>Stock</Label><Input type="number" value={stockQuantity} onChange={(e) => setStockQuantity(e.target.value)} /></div>
+              <div className="flex items-center gap-2">
+                <Switch checked={isActive} onCheckedChange={setIsActive} />
+                <Label>Actif</Label>
+              </div>
+              <Button onClick={handleSave} className="w-full">{editingProduct ? "Enregistrer" : "Ajouter"}</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input placeholder="Rechercher un produit..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10" />
+      </div>
+
+      <Card>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Produit</TableHead>
+                <TableHead>Prix</TableHead>
+                <TableHead>Stock</TableHead>
+                <TableHead>Statut</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filtered.map((p) => (
+                <TableRow key={p.id}>
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      {p.image_url ? (
+                        <img src={p.image_url} alt={p.name} className="w-10 h-10 rounded-lg object-cover" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-lg bg-accent flex items-center justify-center text-muted-foreground text-xs">IMG</div>
+                      )}
+                      <div>
+                        <p className="font-medium">{p.name}</p>
+                        <p className="text-xs text-muted-foreground">{p.unit_type}</p>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell className="font-semibold text-primary">{formatPrice(p.price)}</TableCell>
+                  <TableCell>{p.stock_quantity}</TableCell>
+                  <TableCell>
+                    <Badge variant={p.is_active ? "default" : "secondary"} className="cursor-pointer" onClick={() => toggleActive(p)}>
+                      {p.is_active ? "Actif" : "Inactif"}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-1">
+                      <Button variant="ghost" size="icon" onClick={() => openEdit(p)}><Pencil className="h-4 w-4" /></Button>
+                      <Button variant="ghost" size="icon" className="text-destructive" onClick={() => handleDelete(p.id)}><Trash2 className="h-4 w-4" /></Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+              {filtered.length === 0 && (
+                <TableRow><TableCell colSpan={5} className="text-center py-8 text-muted-foreground">Aucun produit</TableCell></TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+export default AdminProducts;
