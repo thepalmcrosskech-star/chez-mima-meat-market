@@ -118,10 +118,14 @@ const AdminProducts = () => {
   const handleSave = async () => {
     if (!name || !price) { toast({ title: "Erreur", description: "Nom et prix requis", variant: "destructive" }); return; }
 
+    const parsedPrice = parseFloat(String(price).replace(",", "."));
+    const parsedStock = parseInt(String(stockQuantity)) || 0;
+    if (isNaN(parsedPrice) || parsedPrice <= 0) { toast({ title: "Erreur", description: "Prix invalide", variant: "destructive" }); return; }
+
     const payload = {
-      name, description: description || null, price: parseFloat(price), unit_type: unitType,
+      name, description: description || null, price: parsedPrice, unit_type: unitType,
       category_id: categoryId || null, image_url: imageUrl || null,
-      stock_quantity: parseInt(stockQuantity) || 0, is_active: isActive,
+      stock_quantity: parsedStock, is_active: isActive,
     };
 
     try {
@@ -204,6 +208,7 @@ const AdminProducts = () => {
                   ref={fileInputRef}
                   type="file"
                   accept="image/*"
+                  capture="environment"
                   onChange={handleImageUpload}
                   className="hidden"
                 />
@@ -211,6 +216,9 @@ const AdminProducts = () => {
                   <div className="relative mt-2 rounded-lg overflow-hidden border border-border">
                     <img src={imagePreview} alt="Aperçu" className="w-full h-40 object-cover" />
                     <div className="absolute top-2 right-2 flex gap-1">
+                      <Button variant="secondary" size="icon" className="w-7 h-7 rounded-full bg-background/80 backdrop-blur-sm" onClick={() => fileInputRef.current?.click()}>
+                        <Upload className="h-4 w-4" />
+                      </Button>
                       <Button variant="secondary" size="icon" className="w-7 h-7 rounded-full bg-background/80 backdrop-blur-sm" onClick={removeImage}>
                         <X className="h-4 w-4" />
                       </Button>
@@ -228,7 +236,7 @@ const AdminProducts = () => {
                     className="mt-2 w-full h-32 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center gap-2 text-muted-foreground hover:border-primary hover:text-primary transition-colors"
                   >
                     <Upload className="h-6 w-6" />
-                    <span className="text-sm font-medium">Cliquer pour téléverser</span>
+                    <span className="text-sm font-medium">Cliquer pour téléverser ou prendre une photo</span>
                     <span className="text-xs">JPG, PNG, WebP</span>
                   </button>
                 )}
