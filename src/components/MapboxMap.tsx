@@ -12,7 +12,7 @@ async function getMapboxToken(): Promise<string> {
   if (envToken) { _cachedToken = envToken; return envToken; }
   // Fetch from edge function
   try {
-    const { data, error } = await supabase.functions.invoke("get-mapbox-token");
+    const { data } = await supabase.functions.invoke("get-mapbox-token");
     if (data?.token) { _cachedToken = data.token; return data.token; }
   } catch {}
   return "";
