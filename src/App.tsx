@@ -7,7 +7,15 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import NotFound from "./pages/NotFound";
 import LoginPage from "./pages/auth/LoginPage";
-import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminLayout from "./pages/admin/AdminLayout";
+import AdminOverview from "./pages/admin/AdminOverview";
+import AdminOrders from "./pages/admin/AdminOrders";
+import AdminProducts from "./pages/admin/AdminProducts";
+import AdminCategories from "./pages/admin/AdminCategories";
+import AdminDrivers from "./pages/admin/AdminDrivers";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminDeliveryZones from "./pages/admin/AdminDeliveryZones";
+import AdminSettings from "./pages/admin/AdminSettings";
 import DriverProfile from "./pages/driver/DriverProfile";
 import SplashScreen from "./components/SplashScreen";
 
@@ -17,10 +25,8 @@ const App = () => {
   const [showSplash, setShowSplash] = useState(false);
 
   useEffect(() => {
-    // Show splash only on mobile and first visit of the session
     const isMobile = window.innerWidth < 768;
     const hasSeenSplash = sessionStorage.getItem("splashShown");
-    
     if (isMobile && !hasSeenSplash) {
       setShowSplash(true);
     }
@@ -41,9 +47,17 @@ const App = () => {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route index element={<AdminOverview />} />
+              <Route path="orders" element={<AdminOrders />} />
+              <Route path="products" element={<AdminProducts />} />
+              <Route path="categories" element={<AdminCategories />} />
+              <Route path="drivers" element={<AdminDrivers />} />
+              <Route path="users" element={<AdminUsers />} />
+              <Route path="zones" element={<AdminDeliveryZones />} />
+              <Route path="settings" element={<AdminSettings />} />
+            </Route>
             <Route path="/driver" element={<DriverProfile />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
