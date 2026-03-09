@@ -242,10 +242,9 @@ const AdminProducts = () => {
                 )}
               </div>
 
-              <div><Label>Stock</Label><Input type="number" value={stockQuantity} onChange={(e) => setStockQuantity(e.target.value)} /></div>
               <div className="flex items-center gap-2">
                 <Switch checked={isActive} onCheckedChange={setIsActive} />
-                <Label>Actif</Label>
+                <Label>{isActive ? "Disponible" : "Indisponible"}</Label>
               </div>
               <Button onClick={handleSave} disabled={uploading} className="w-full">{editingProduct ? "Enregistrer" : "Ajouter"}</Button>
             </div>
