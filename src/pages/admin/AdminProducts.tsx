@@ -46,7 +46,7 @@ const AdminProducts = () => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
-  const [unitType, setUnitType] = useState("kg");
+  const [unitType, setUnitType] = useState("weight");
   const [categoryId, setCategoryId] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [imagePreview, setImagePreview] = useState("");
@@ -66,7 +66,7 @@ const AdminProducts = () => {
   };
 
   const resetForm = () => {
-    setName(""); setDescription(""); setPrice(""); setUnitType("kg");
+    setName(""); setDescription(""); setPrice(""); setUnitType("weight");
     setCategoryId(""); setImageUrl(""); setImagePreview(""); setStockQuantity("0"); setIsActive(true);
     setEditingProduct(null);
   };
@@ -183,10 +183,8 @@ const AdminProducts = () => {
                   <Select value={unitType} onValueChange={setUnitType}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="kg">Kg</SelectItem>
-                      <SelectItem value="pièce">Pièce</SelectItem>
-                      <SelectItem value="lot">Lot</SelectItem>
-                      <SelectItem value="barquette">Barquette</SelectItem>
+                      <SelectItem value="weight">Kg</SelectItem>
+                      <SelectItem value="piece">Pièce</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -280,7 +278,7 @@ const AdminProducts = () => {
                       )}
                       <div>
                         <p className="font-medium">{p.name}</p>
-                        <p className="text-xs text-muted-foreground">{p.unit_type}</p>
+                        <p className="text-xs text-muted-foreground">{p.unit_type === 'weight' ? 'Kg' : 'Pièce'}</p>
                       </div>
                     </div>
                   </TableCell>
