@@ -128,67 +128,68 @@ const HomePage = () => {
           </Button>
         </div>
 
-        {loading ? (
-          <div className="col-span-2 flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          </div>
-        ) : filteredProducts.length === 0 ? (
-          <div className="col-span-2 text-center py-12 text-muted-foreground">
-            Aucun produit dans cette catégorie
-          </div>
-        ) : (
-          filteredProducts.map((product, index) => (
-            <Card
-              key={product.id}
-              className="relative overflow-hidden rounded-2xl border-0 shadow-lg hover:shadow-2xl transition-all duration-500 hover-scale group bg-card"
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
-              <div className="absolute top-3 right-3 z-10">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background/90 transition-colors"
-                >
-                  <Heart className="h-4 w-4 text-muted-foreground hover:text-primary transition-colors" />
-                </Button>
-              </div>
-
-              <div className="aspect-square bg-gradient-to-br from-muted/20 to-muted/40 flex items-center justify-center relative overflow-hidden">
-                {product.image_url ? (
-                  <img
-                    src={product.image_url}
-                    alt={product.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-primary/40 animate-pulse"></div>
-                )}
-              </div>
-
-              <div className="p-4">
-                <h4 className="font-bold text-card-foreground mb-1 group-hover:text-primary transition-colors">
-                  {product.name}
-                </h4>
-                <p className="text-sm text-muted-foreground mb-3 line-clamp-1">
-                  {product.description || ""}
-                </p>
-                
-                <div className="flex items-center justify-between">
-                  <div>
-                    <span className="text-lg font-bold text-primary">{formatPrice(product.price)}</span>
-                    <span className="text-sm text-muted-foreground">/{product.unit_type}</span>
-                  </div>
-                  <Button 
-                    size="icon" 
-                    className="bg-primary hover:bg-primary/90 rounded-full w-8 h-8 hover-scale"
+        <div className="grid grid-cols-2 gap-4">
+          {loading ? (
+            <div className="col-span-2 flex items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : filteredProducts.length === 0 ? (
+            <div className="col-span-2 text-center py-12 text-muted-foreground">
+              Aucun produit dans cette catégorie
+            </div>
+          ) : (
+            filteredProducts.map((product, index) => (
+              <Card
+                key={product.id}
+                className="relative overflow-hidden rounded-2xl border-0 shadow-lg hover:shadow-2xl transition-all duration-500 hover-scale group bg-card"
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                <div className="absolute top-3 right-3 z-10">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background/90 transition-colors"
                   >
-                    <Plus className="h-4 w-4" />
+                    <Heart className="h-4 w-4 text-muted-foreground hover:text-primary transition-colors" />
                   </Button>
                 </div>
-              </div>
-            </Card>
-          ))
-        )}
+
+                <div className="aspect-square bg-gradient-to-br from-muted/20 to-muted/40 flex items-center justify-center relative overflow-hidden">
+                  {product.image_url ? (
+                    <img
+                      src={product.image_url}
+                      alt={product.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-primary/40 animate-pulse"></div>
+                  )}
+                </div>
+
+                <div className="p-4">
+                  <h4 className="font-bold text-card-foreground mb-1 group-hover:text-primary transition-colors">
+                    {product.name}
+                  </h4>
+                  <p className="text-sm text-muted-foreground mb-3 line-clamp-1">
+                    {product.description || ""}
+                  </p>
+                  
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-lg font-bold text-primary">{formatPrice(product.price)}</span>
+                      <span className="text-sm text-muted-foreground">/{product.unit_type}</span>
+                    </div>
+                    <Button 
+                      size="icon" 
+                      className="bg-primary hover:bg-primary/90 rounded-full w-8 h-8 hover-scale"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+            ))
+          )}
         </div>
       </section>
 
