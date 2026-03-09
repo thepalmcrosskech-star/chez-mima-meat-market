@@ -1,17 +1,19 @@
-import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ShoppingCart, Trash2, Plus, Minus } from "lucide-react";
+import { useCart } from "@/contexts/CartContext";
 import BottomNav from "@/components/BottomNav";
 
-// For now, static cart — will be connected to state management later
+const formatPrice = (n: number) =>
+  new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(n) + " MAD";
+
 const CartPage = () => {
-  const [cartItems, setCartItems] = useState<any[]>([]);
+  const navigate = useNavigate();
+  const { items, updateQuantity, removeItem, subtotal } = useCart();
 
-  const formatPrice = (n: number) =>
-    new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(n) + " MAD";
-
-  const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.qty, 0);
+  const getStep = (unitType: string) => unitType === "kg" ? 0.25 : 1;
+  const getMin = (unitType: string) => unitType === "kg" ? 0.25 : 1;
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -20,42 +22,63 @@ const CartPage = () => {
       </div>
 
       <div className="px-4 py-4">
-        {cartItems.length === 0 ? (
+        {items.length === 0 ? (
           <div className="text-center py-20">
             <ShoppingCart className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
             <h2 className="text-lg font-bold mb-2">Votre panier est vide</h2>
             <p className="text-muted-foreground text-sm mb-6">Ajoutez des produits pour commencer votre commande</p>
-            <Button onClick={() => window.location.href = "/"}>Parcourir les produits</Button>
+            <Button onClick={() => navigate("/")}>Parcourir les produits</Button>
           </div>
         ) : (
           <div className="space-y-4">
-            {cartItems.map((item, i) => (
-              <Card key={i} className="p-4 flex items-center gap-4">
-                <div className="w-16 h-16 rounded-lg bg-accent/30 flex items-center justify-center overflow-hidden shrink-0">
-                  {item.image_url ? (
-                    <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-8 h-8 rounded-full bg-primary/20" />
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-bold text-sm truncate">{item.name}</h4>
-                  <p className="text-primary font-semibold text-sm">{formatPrice(item.price)}</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button variant="secondary" size="icon" className="w-7 h-7 rounded-full">
-                    <Minus className="h-3 w-3" />
+            {items.map((item) => {
+              const step = getStep(item.unit_type);
+              const min = getMin(item.unit_type);
+              const displayQty = item.unit_type === "kg" ? `${item.quantity} kg` : `${item.quantity}`;
+              return (
+                <Card key={item.id} className="p-4 flex items-center gap-4">
+                  <div className="w-16 h-16 rounded-lg bg-accent/30 flex items-center justify-center overflow-hidden shrink-0">
+                    {item.image_url ? (
+                      <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-8 h-8 rounded-full bg-primary/20" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-bold text-sm truncate">{item.name}</h4>
+                    <p className="text-primary font-semibold text-sm">{formatPrice(item.price * item.quantity)}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      className="w-7 h-7 rounded-full"
+                      onClick={() => updateQuantity(item.id, +(item.quantity - step).toFixed(2))}
+                      disabled={item.quantity <= min}
+                    >
+                      <Minus className="h-3 w-3" />
+                    </Button>
+                    <span className="text-sm font-bold min-w-[40px] text-center">{displayQty}</span>
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      className="w-7 h-7 rounded-full"
+                      onClick={() => updateQuantity(item.id, +(item.quantity + step).toFixed(2))}
+                    >
+                      <Plus className="h-3 w-3" />
+                    </Button>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-destructive shrink-0"
+                    onClick={() => removeItem(item.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
                   </Button>
-                  <span className="text-sm font-bold w-6 text-center">{item.qty}</span>
-                  <Button variant="secondary" size="icon" className="w-7 h-7 rounded-full">
-                    <Plus className="h-3 w-3" />
-                  </Button>
-                </div>
-                <Button variant="ghost" size="icon" className="text-destructive shrink-0">
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </Card>
-            ))}
+                </Card>
+              );
+            })}
 
             <Card className="p-4 space-y-2">
               <div className="flex justify-between text-sm">

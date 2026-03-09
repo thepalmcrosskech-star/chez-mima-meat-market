@@ -4,6 +4,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Search, Plus, Heart, Loader2 } from "lucide-react";
+import { useCart } from "@/contexts/CartContext";
+import { toast } from "@/hooks/use-toast";
+import QuantityDialog from "@/components/QuantityDialog";
 import BottomNav from "@/components/BottomNav";
 
 interface Product {
@@ -26,15 +29,16 @@ const formatPrice = (price: number) =>
   new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(price) + " MAD";
 
 const SearchPage = () => {
+  const { addItem } = useCart();
   const [query, setQuery] = useState("");
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [quantityDialogOpen, setQuantityDialogOpen] = useState(false);
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  useEffect(() => { fetchData(); }, []);
 
   const fetchData = async () => {
     const [p, c] = await Promise.all([
@@ -44,6 +48,19 @@ const SearchPage = () => {
     if (p.data) setProducts(p.data);
     if (c.data) setCategories(c.data);
     setLoading(false);
+  };
+
+  const handleAddToCart = (product: Product) => {
+    setSelectedProduct(product);
+    setQuantityDialogOpen(true);
+  };
+
+  const handleConfirmAdd = (product: Product, quantity: number) => {
+    addItem(
+      { id: product.id, name: product.name, price: product.price, unit_type: product.unit_type, image_url: product.image_url },
+      quantity
+    );
+    toast({ title: "Ajouté au panier", description: `${quantity} ${product.unit_type === "kg" ? "kg" : "×"} ${product.name}` });
   };
 
   const filtered = products.filter((p) => {
@@ -100,7 +117,7 @@ const SearchPage = () => {
         ) : (
           <div className="grid grid-cols-2 gap-3">
             {filtered.map((product) => (
-              <Card key={product.id} className="overflow-hidden border-0 shadow-lg group bg-card">
+              <Card key={product.id} className="overflow-hidden border-0 shadow-lg group bg-card relative">
                 <div className="absolute top-2 right-2 z-10">
                   <Button variant="ghost" size="icon" className="w-7 h-7 rounded-full bg-background/80 backdrop-blur-sm">
                     <Heart className="h-3.5 w-3.5 text-muted-foreground" />
@@ -120,7 +137,13 @@ const SearchPage = () => {
                       <span className="text-sm font-bold text-primary">{formatPrice(product.price)}</span>
                       <span className="text-xs text-muted-foreground">/{product.unit_type}</span>
                     </div>
-                    <Button size="icon" className="rounded-full w-7 h-7"><Plus className="h-3.5 w-3.5" /></Button>
+                    <Button
+                      size="icon"
+                      className="rounded-full w-7 h-7"
+                      onClick={() => handleAddToCart(product)}
+                    >
+                      <Plus className="h-3.5 w-3.5" />
+                    </Button>
                   </div>
                 </div>
               </Card>
@@ -128,6 +151,13 @@ const SearchPage = () => {
           </div>
         )}
       </div>
+
+      <QuantityDialog
+        product={selectedProduct}
+        open={quantityDialogOpen}
+        onOpenChange={setQuantityDialogOpen}
+        onConfirm={handleConfirmAdd}
+      />
 
       <BottomNav />
     </div>
