@@ -40,7 +40,7 @@ const HomePage = () => {
       id: 4,
       name: "Rumsteck Fondant",
       description: "Parfait à griller",
-      price: "22,00€",
+      price: "220,00 MAD",
       unit: "/kg",
       image: "/placeholder.svg",
       featured: false,
