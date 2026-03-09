@@ -118,10 +118,14 @@ const AdminProducts = () => {
   const handleSave = async () => {
     if (!name || !price) { toast({ title: "Erreur", description: "Nom et prix requis", variant: "destructive" }); return; }
 
+    const parsedPrice = parseFloat(String(price).replace(",", "."));
+    const parsedStock = parseInt(String(stockQuantity)) || 0;
+    if (isNaN(parsedPrice) || parsedPrice <= 0) { toast({ title: "Erreur", description: "Prix invalide", variant: "destructive" }); return; }
+
     const payload = {
-      name, description: description || null, price: parseFloat(price), unit_type: unitType,
+      name, description: description || null, price: parsedPrice, unit_type: unitType,
       category_id: categoryId || null, image_url: imageUrl || null,
-      stock_quantity: parseInt(stockQuantity) || 0, is_active: isActive,
+      stock_quantity: parsedStock, is_active: isActive,
     };
 
     try {
