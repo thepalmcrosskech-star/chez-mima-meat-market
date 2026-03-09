@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Heart, Bell, Search, ShoppingCart, Plus, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
+import logo from "@/assets/logo.jpeg";
 
 interface Category {
   id: string;
@@ -28,14 +30,34 @@ const formatPrice = (price: number) => {
 };
 
 const HomePage = () => {
+  const navigate = useNavigate();
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate("/login");
+        return;
+      }
+      setAuthChecked(true);
+      fetchData();
+    };
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!session) {
+        navigate("/login");
+      }
+    });
+
+    checkAuth();
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
 
   const fetchData = async () => {
     const [categoriesRes, productsRes] = await Promise.all([
@@ -57,13 +79,24 @@ const HomePage = () => {
     ? products.filter((p) => p.category_id === selectedCategory)
     : products;
 
+  if (!authChecked) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background pb-20">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-gradient-to-b from-background via-background/95 to-background/90 backdrop-blur-md px-4 py-4 flex items-center justify-between border-b border-border/50">
-        <h1 className="text-2xl font-extrabold tracking-tighter text-foreground gradient-text">
-          CHEZ MIMA
-        </h1>
+      <header className="sticky top-0 z-50 bg-gradient-to-b from-background via-background/95 to-background/90 backdrop-blur-md px-4 py-3 flex items-center justify-between border-b border-border/50">
+        <div className="flex items-center gap-3">
+          <img src={logo} alt="Chez Mima" className="w-10 h-10 rounded-full object-cover border-2 border-primary" />
+          <h1 className="text-xl font-extrabold tracking-tighter text-foreground gradient-text">
+            CHEZ MIMA
+          </h1>
+        </div>
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" className="relative hover-scale">
             <Bell className="h-5 w-5" />
