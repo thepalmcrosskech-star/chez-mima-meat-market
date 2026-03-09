@@ -104,16 +104,16 @@ const HomePage = () => {
         <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
           {categories.map((category) => (
             <Button
-              key={category}
-              variant={selectedCategory === category ? "default" : "secondary"}
+              key={category.id}
+              variant={selectedCategory === category.id ? "default" : "secondary"}
               className={`rounded-full px-6 py-2 text-sm font-bold whitespace-nowrap transition-all duration-300 ${
-                selectedCategory === category
+                selectedCategory === category.id
                   ? "bg-primary text-primary-foreground shadow-lg scale-105"
                   : "bg-secondary text-secondary-foreground hover:bg-secondary/80 hover-scale"
               }`}
-              onClick={() => setSelectedCategory(category)}
+              onClick={() => setSelectedCategory(category.id)}
             >
-              {category}
+              {category.emoji} {category.name}
             </Button>
           ))}
         </div>
