@@ -1,51 +1,61 @@
-import { useState } from "react";
-import { Heart, Bell, Search, ShoppingCart, Plus } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Heart, Bell, Search, ShoppingCart, Plus, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { supabase } from "@/integrations/supabase/client";
+
+interface Category {
+  id: string;
+  name: string;
+  emoji: string | null;
+}
+
+interface Product {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number;
+  unit_type: string;
+  image_url: string | null;
+  category_id: string | null;
+}
+
+const formatPrice = (price: number) => {
+  return new Intl.NumberFormat("fr-MA", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(price) + " MAD";
+};
 
 const HomePage = () => {
-  const [selectedCategory, setSelectedCategory] = useState("Bœuf");
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const categories = ["Bœuf", "Veau", "Volaille", "Charcuterie"];
+  useEffect(() => {
+    fetchData();
+  }, []);
 
-  const products = [
-    {
-      id: 1,
-      name: "Entrecôte Premium",
-      description: "Origine France",
-      price: "250,00 MAD",
-      unit: "/kg",
-      image: "/placeholder.svg",
-      featured: true,
-    },
-    {
-      id: 2,
-      name: "Filet de Bœuf",
-      description: "Extra Tendre",
-      price: "385,00 MAD",
-      unit: "/kg",
-      image: "/placeholder.svg",
-      featured: true,
-    },
-    {
-      id: 3,
-      name: "Bavette d'Aloyau",
-      description: "Goût intense",
-      price: "199,00 MAD",
-      unit: "/kg",
-      image: "/placeholder.svg",
-      featured: false,
-    },
-    {
-      id: 4,
-      name: "Rumsteck Fondant",
-      description: "Parfait à griller",
-      price: "220,00 MAD",
-      unit: "/kg",
-      image: "/placeholder.svg",
-      featured: false,
-    },
-  ];
+  const fetchData = async () => {
+    const [categoriesRes, productsRes] = await Promise.all([
+      supabase.from("categories").select("*").order("sort_order"),
+      supabase.from("products").select("*").eq("is_active", true),
+    ]);
+
+    if (categoriesRes.data) {
+      setCategories(categoriesRes.data);
+      if (categoriesRes.data.length > 0) {
+        setSelectedCategory(categoriesRes.data[0].id);
+      }
+    }
+    if (productsRes.data) setProducts(productsRes.data);
+    setLoading(false);
+  };
+
+  const filteredProducts = selectedCategory
+    ? products.filter((p) => p.category_id === selectedCategory)
+    : products;
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -94,16 +104,16 @@ const HomePage = () => {
         <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
           {categories.map((category) => (
             <Button
-              key={category}
-              variant={selectedCategory === category ? "default" : "secondary"}
+              key={category.id}
+              variant={selectedCategory === category.id ? "default" : "secondary"}
               className={`rounded-full px-6 py-2 text-sm font-bold whitespace-nowrap transition-all duration-300 ${
-                selectedCategory === category
+                selectedCategory === category.id
                   ? "bg-primary text-primary-foreground shadow-lg scale-105"
                   : "bg-secondary text-secondary-foreground hover:bg-secondary/80 hover-scale"
               }`}
-              onClick={() => setSelectedCategory(category)}
+              onClick={() => setSelectedCategory(category.id)}
             >
-              {category}
+              {category.emoji} {category.name}
             </Button>
           ))}
         </div>
@@ -119,52 +129,67 @@ const HomePage = () => {
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          {products.map((product, index) => (
-            <Card
-              key={product.id}
-              className={`relative overflow-hidden rounded-2xl border-0 shadow-lg hover:shadow-2xl transition-all duration-500 hover-scale group ${
-                product.featured ? "bg-gradient-card-premium" : "bg-card"
-              }`}
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
-              <div className="absolute top-3 right-3 z-10">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background/90 transition-colors"
-                >
-                  <Heart className="h-4 w-4 text-muted-foreground hover:text-primary transition-colors" />
-                </Button>
-              </div>
-
-              <div className="aspect-square bg-gradient-to-br from-muted/20 to-muted/40 flex items-center justify-center relative overflow-hidden">
-                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-primary/40 animate-pulse"></div>
-                {product.featured && (
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-                )}
-              </div>
-
-              <div className="p-4">
-                <h4 className="font-bold text-card-foreground mb-1 group-hover:text-primary transition-colors">
-                  {product.name}
-                </h4>
-                <p className="text-sm text-muted-foreground mb-3">{product.description}</p>
-                
-                <div className="flex items-center justify-between">
-                  <div>
-                    <span className="text-lg font-bold text-primary">{product.price}</span>
-                    <span className="text-sm text-muted-foreground">{product.unit}</span>
-                  </div>
-                  <Button 
-                    size="icon" 
-                    className="bg-primary hover:bg-primary/90 rounded-full w-8 h-8 hover-scale"
+          {loading ? (
+            <div className="col-span-2 flex items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : filteredProducts.length === 0 ? (
+            <div className="col-span-2 text-center py-12 text-muted-foreground">
+              Aucun produit dans cette catégorie
+            </div>
+          ) : (
+            filteredProducts.map((product, index) => (
+              <Card
+                key={product.id}
+                className="relative overflow-hidden rounded-2xl border-0 shadow-lg hover:shadow-2xl transition-all duration-500 hover-scale group bg-card"
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                <div className="absolute top-3 right-3 z-10">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background/90 transition-colors"
                   >
-                    <Plus className="h-4 w-4" />
+                    <Heart className="h-4 w-4 text-muted-foreground hover:text-primary transition-colors" />
                   </Button>
                 </div>
-              </div>
-            </Card>
-          ))}
+
+                <div className="aspect-square bg-gradient-to-br from-muted/20 to-muted/40 flex items-center justify-center relative overflow-hidden">
+                  {product.image_url ? (
+                    <img
+                      src={product.image_url}
+                      alt={product.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-primary/40 animate-pulse"></div>
+                  )}
+                </div>
+
+                <div className="p-4">
+                  <h4 className="font-bold text-card-foreground mb-1 group-hover:text-primary transition-colors">
+                    {product.name}
+                  </h4>
+                  <p className="text-sm text-muted-foreground mb-3 line-clamp-1">
+                    {product.description || ""}
+                  </p>
+                  
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-lg font-bold text-primary">{formatPrice(product.price)}</span>
+                      <span className="text-sm text-muted-foreground">/{product.unit_type}</span>
+                    </div>
+                    <Button 
+                      size="icon" 
+                      className="bg-primary hover:bg-primary/90 rounded-full w-8 h-8 hover-scale"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+            ))
+          )}
         </div>
       </section>
 
