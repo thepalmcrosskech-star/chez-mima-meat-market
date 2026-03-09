@@ -183,10 +183,8 @@ const AdminProducts = () => {
                   <Select value={unitType} onValueChange={setUnitType}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="kg">Kg</SelectItem>
-                      <SelectItem value="pièce">Pièce</SelectItem>
-                      <SelectItem value="lot">Lot</SelectItem>
-                      <SelectItem value="barquette">Barquette</SelectItem>
+                      <SelectItem value="weight">Kg</SelectItem>
+                      <SelectItem value="piece">Pièce</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
