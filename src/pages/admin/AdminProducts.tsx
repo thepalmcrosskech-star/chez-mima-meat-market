@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, Upload, X, Loader2 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 
 interface Product {
@@ -30,6 +30,8 @@ interface Category {
   name: string;
 }
 
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+
 const AdminProducts = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -37,6 +39,8 @@ const AdminProducts = () => {
   const [search, setSearch] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Form state
   const [name, setName] = useState("");
@@ -45,6 +49,7 @@ const AdminProducts = () => {
   const [unitType, setUnitType] = useState("kg");
   const [categoryId, setCategoryId] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [imagePreview, setImagePreview] = useState("");
   const [stockQuantity, setStockQuantity] = useState("0");
   const [isActive, setIsActive] = useState(true);
 
@@ -62,7 +67,7 @@ const AdminProducts = () => {
 
   const resetForm = () => {
     setName(""); setDescription(""); setPrice(""); setUnitType("kg");
-    setCategoryId(""); setImageUrl(""); setStockQuantity("0"); setIsActive(true);
+    setCategoryId(""); setImageUrl(""); setImagePreview(""); setStockQuantity("0"); setIsActive(true);
     setEditingProduct(null);
   };
 
@@ -70,8 +75,44 @@ const AdminProducts = () => {
     setEditingProduct(p);
     setName(p.name); setDescription(p.description || ""); setPrice(String(p.price));
     setUnitType(p.unit_type); setCategoryId(p.category_id || ""); setImageUrl(p.image_url || "");
-    setStockQuantity(String(p.stock_quantity)); setIsActive(p.is_active ?? true);
+    setImagePreview(p.image_url || ""); setStockQuantity(String(p.stock_quantity)); setIsActive(p.is_active ?? true);
     setIsDialogOpen(true);
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Show preview immediately
+    const reader = new FileReader();
+    reader.onload = (ev) => setImagePreview(ev.target?.result as string);
+    reader.readAsDataURL(file);
+
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
+
+      const { error } = await supabase.storage.from("product-images").upload(fileName, file, {
+        cacheControl: "3600",
+        upsert: false,
+      });
+      if (error) throw error;
+
+      const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/product-images/${fileName}`;
+      setImageUrl(publicUrl);
+      toast({ title: "Image téléversée" });
+    } catch (err: any) {
+      toast({ title: "Erreur", description: err.message, variant: "destructive" });
+      setImagePreview("");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const removeImage = () => {
+    setImageUrl(""); setImagePreview("");
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleSave = async () => {
@@ -155,13 +196,50 @@ const AdminProducts = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <div><Label>URL image</Label><Input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} /></div>
+
+              {/* Image Upload */}
+              <div>
+                <Label>Image du produit</Label>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                />
+                {imagePreview ? (
+                  <div className="relative mt-2 rounded-lg overflow-hidden border border-border">
+                    <img src={imagePreview} alt="Aperçu" className="w-full h-40 object-cover" />
+                    <div className="absolute top-2 right-2 flex gap-1">
+                      <Button variant="secondary" size="icon" className="w-7 h-7 rounded-full bg-background/80 backdrop-blur-sm" onClick={removeImage}>
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    {uploading && (
+                      <div className="absolute inset-0 bg-background/60 flex items-center justify-center">
+                        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="mt-2 w-full h-32 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center gap-2 text-muted-foreground hover:border-primary hover:text-primary transition-colors"
+                  >
+                    <Upload className="h-6 w-6" />
+                    <span className="text-sm font-medium">Cliquer pour téléverser</span>
+                    <span className="text-xs">JPG, PNG, WebP</span>
+                  </button>
+                )}
+              </div>
+
               <div><Label>Stock</Label><Input type="number" value={stockQuantity} onChange={(e) => setStockQuantity(e.target.value)} /></div>
               <div className="flex items-center gap-2">
                 <Switch checked={isActive} onCheckedChange={setIsActive} />
                 <Label>Actif</Label>
               </div>
-              <Button onClick={handleSave} className="w-full">{editingProduct ? "Enregistrer" : "Ajouter"}</Button>
+              <Button onClick={handleSave} disabled={uploading} className="w-full">{editingProduct ? "Enregistrer" : "Ajouter"}</Button>
             </div>
           </DialogContent>
         </Dialog>
