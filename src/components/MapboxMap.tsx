@@ -1,9 +1,22 @@
 import { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
+import { supabase } from "@/integrations/supabase/client";
 
-// Mapbox token from env (public/publishable key)
-const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN || "";
+let _cachedToken: string | null = null;
+
+async function getMapboxToken(): Promise<string> {
+  if (_cachedToken) return _cachedToken;
+  // Try env first
+  const envToken = import.meta.env.VITE_MAPBOX_TOKEN;
+  if (envToken) { _cachedToken = envToken; return envToken; }
+  // Fetch from edge function
+  try {
+    const { data, error } = await supabase.functions.invoke("get-mapbox-token");
+    if (data?.token) { _cachedToken = data.token; return data.token; }
+  } catch {}
+  return "";
+}
 
 interface MapboxMapProps {
   center?: [number, number];
@@ -18,36 +31,40 @@ const MapboxMap = ({ center = [-7.5898, 33.5731], zoom = 12, className = "w-full
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    if (!mapContainer.current) return;
-    if (!MAPBOX_TOKEN) {
-      setError("Token Mapbox non configuré");
-      return;
-    }
+    let cancelled = false;
+    (async () => {
+      const token = await getMapboxToken();
+      if (cancelled) return;
+      if (!token) { setError("Token Mapbox non configuré"); return; }
+      if (!mapContainer.current) return;
 
-    mapboxgl.accessToken = MAPBOX_TOKEN;
+      mapboxgl.accessToken = token;
 
-    const map = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: "mapbox://styles/mapbox/dark-v11",
-      center,
-      zoom,
-      interactive,
-    });
+      const map = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: "mapbox://styles/mapbox/dark-v11",
+        center,
+        zoom,
+        interactive,
+      });
 
-    map.addControl(new mapboxgl.NavigationControl(), "top-right");
+      map.addControl(new mapboxgl.NavigationControl(), "top-right");
 
-    if (onClick) {
-      map.on("click", (e) => onClick({ lng: e.lngLat.lng, lat: e.lngLat.lat }));
-    }
+      if (onClick) {
+        map.on("click", (e) => onClick({ lng: e.lngLat.lng, lat: e.lngLat.lat }));
+      }
 
-    map.on("load", () => {
-      mapRef.current = map;
-      onMapReady?.(map);
-    });
+      map.on("load", () => {
+        mapRef.current = map;
+        setReady(true);
+        onMapReady?.(map);
+      });
+    })();
 
-    return () => map.remove();
+    return () => { cancelled = true; mapRef.current?.remove(); };
   }, []);
 
   if (error) {
@@ -61,5 +78,5 @@ const MapboxMap = ({ center = [-7.5898, 33.5731], zoom = 12, className = "w-full
   return <div ref={mapContainer} className={`${className} rounded-lg overflow-hidden`} />;
 };
 
-export { MapboxMap, MAPBOX_TOKEN };
+export { getMapboxToken };
 export default MapboxMap;
