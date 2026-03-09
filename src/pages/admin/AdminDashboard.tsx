@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { ArrowLeft, Users, Bike, Car, Truck, Plus, Pencil, Trash2, Star } from "lucide-react";
+import { ArrowLeft, Users, Bike, Car, Truck, Plus, Pencil, Trash2, Star, LogOut } from "lucide-react";
 
 interface Profile {
   id: string;
