@@ -46,7 +46,7 @@ const AdminProducts = () => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
-  const [unitType, setUnitType] = useState("kg");
+  const [unitType, setUnitType] = useState("weight");
   const [categoryId, setCategoryId] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [imagePreview, setImagePreview] = useState("");
