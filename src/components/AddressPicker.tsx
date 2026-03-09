@@ -19,16 +19,21 @@ const AddressPicker = ({ onSelect, defaultValue }: AddressPickerProps) => {
     defaultValue ? [defaultValue.longitude, defaultValue.latitude] : null
   );
   const [locating, setLocating] = useState(false);
+  const [token, setToken] = useState("");
   const markerRef = useRef<mapboxgl.Marker | null>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
+  useEffect(() => {
+    getMapboxToken().then(setToken);
+  }, []);
+
   const searchAddress = async (text: string) => {
-    if (text.length < 3 || !MAPBOX_TOKEN) return;
+    if (text.length < 3 || !token) return;
     setSearching(true);
     try {
       const res = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(text)}.json?access_token=${MAPBOX_TOKEN}&country=ma&language=fr&limit=5`
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(text)}.json?access_token=${token}&country=ma&language=fr&limit=5`
       );
       const data = await res.json();
       setSuggestions(data.features || []);
@@ -57,15 +62,14 @@ const AddressPicker = ({ onSelect, defaultValue }: AddressPickerProps) => {
   const handleMapClick = (lngLat: { lng: number; lat: number }) => {
     setSelectedCoords([lngLat.lng, lngLat.lat]);
     updateMarker([lngLat.lng, lngLat.lat]);
-    // Reverse geocode
     reverseGeocode(lngLat.lng, lngLat.lat);
   };
 
   const reverseGeocode = async (lng: number, lat: number) => {
-    if (!MAPBOX_TOKEN) return;
+    if (!token) return;
     try {
       const res = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${MAPBOX_TOKEN}&language=fr&limit=1`
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${token}&language=fr&limit=1`
       );
       const data = await res.json();
       const placeName = data.features?.[0]?.place_name || `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
