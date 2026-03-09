@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Heart, Bell, Search, ShoppingCart, Plus, Loader2 } from "lucide-react";
+import { Heart, Bell, Plus, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/logo.jpeg";
+import BottomNav from "@/components/BottomNav";
 
 interface Category {
   id: string;
