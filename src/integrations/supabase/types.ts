@@ -101,6 +101,50 @@ export type Database = {
         }
         Relationships: []
       }
+      driver_profiles: {
+        Row: {
+          created_at: string
+          id: string
+          license_plate: string | null
+          rating: number | null
+          status: string
+          total_deliveries: number | null
+          updated_at: string
+          user_id: string
+          vehicle_type: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          license_plate?: string | null
+          rating?: number | null
+          status?: string
+          total_deliveries?: number | null
+          updated_at?: string
+          user_id: string
+          vehicle_type?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          license_plate?: string | null
+          rating?: number | null
+          status?: string
+          total_deliveries?: number | null
+          updated_at?: string
+          user_id?: string
+          vehicle_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "driver_profiles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           content: string
