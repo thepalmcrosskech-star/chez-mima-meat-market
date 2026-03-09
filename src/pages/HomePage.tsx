@@ -22,7 +22,7 @@ const HomePage = () => {
       id: 2,
       name: "Filet de Bœuf",
       description: "Extra Tendre",
-      price: "38,50€",
+      price: "385,00 MAD",
       unit: "/kg",
       image: "/placeholder.svg",
       featured: true,
