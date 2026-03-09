@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { MapPin, Search, Loader2, Crosshair } from "lucide-react";
-import MapboxMap, { MAPBOX_TOKEN } from "@/components/MapboxMap";
+import MapboxMap, { getMapboxToken } from "@/components/MapboxMap";
 import mapboxgl from "mapbox-gl";
 
 interface AddressPickerProps {

@@ -10,7 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, MapPin } from "lucide-react";
-import MapboxMap, { MAPBOX_TOKEN } from "@/components/MapboxMap";
+import MapboxMap from "@/components/MapboxMap";
 import mapboxgl from "mapbox-gl";
 
 interface Zone {
