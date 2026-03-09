@@ -197,7 +197,7 @@ const HomePage = () => {
             <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-primary-foreground text-xs rounded-full flex items-center justify-center font-bold">
               3
             </span>
-            <span className="text-xs font-semibold uppercase tracking-wider">Cart</span>
+            <span className="text-xs font-semibold uppercase tracking-wider">Panier</span>
           </Button>
           
           <Button
