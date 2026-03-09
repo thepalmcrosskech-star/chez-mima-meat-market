@@ -13,7 +13,7 @@ const HomePage = () => {
       id: 1,
       name: "Entrecôte Premium",
       description: "Origine France",
-      price: "25,00€",
+      price: "250,00 MAD",
       unit: "/kg",
       image: "/placeholder.svg",
       featured: true,
