@@ -1,5 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 
+export const DEFAULT_FROM_EMAIL = "Chez Mima <contact@chezmima.app>";
+
 interface SendEmailParams {
   to: string;
   subject: string;
