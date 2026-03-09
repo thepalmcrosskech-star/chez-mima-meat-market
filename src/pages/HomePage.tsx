@@ -1,51 +1,61 @@
-import { useState } from "react";
-import { Heart, Bell, Search, ShoppingCart, Plus } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Heart, Bell, Search, ShoppingCart, Plus, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { supabase } from "@/integrations/supabase/client";
+
+interface Category {
+  id: string;
+  name: string;
+  emoji: string | null;
+}
+
+interface Product {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number;
+  unit_type: string;
+  image_url: string | null;
+  category_id: string | null;
+}
+
+const formatPrice = (price: number) => {
+  return new Intl.NumberFormat("fr-MA", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(price) + " MAD";
+};
 
 const HomePage = () => {
-  const [selectedCategory, setSelectedCategory] = useState("Bœuf");
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const categories = ["Bœuf", "Veau", "Volaille", "Charcuterie"];
+  useEffect(() => {
+    fetchData();
+  }, []);
 
-  const products = [
-    {
-      id: 1,
-      name: "Entrecôte Premium",
-      description: "Origine France",
-      price: "250,00 MAD",
-      unit: "/kg",
-      image: "/placeholder.svg",
-      featured: true,
-    },
-    {
-      id: 2,
-      name: "Filet de Bœuf",
-      description: "Extra Tendre",
-      price: "385,00 MAD",
-      unit: "/kg",
-      image: "/placeholder.svg",
-      featured: true,
-    },
-    {
-      id: 3,
-      name: "Bavette d'Aloyau",
-      description: "Goût intense",
-      price: "199,00 MAD",
-      unit: "/kg",
-      image: "/placeholder.svg",
-      featured: false,
-    },
-    {
-      id: 4,
-      name: "Rumsteck Fondant",
-      description: "Parfait à griller",
-      price: "220,00 MAD",
-      unit: "/kg",
-      image: "/placeholder.svg",
-      featured: false,
-    },
-  ];
+  const fetchData = async () => {
+    const [categoriesRes, productsRes] = await Promise.all([
+      supabase.from("categories").select("*").order("sort_order"),
+      supabase.from("products").select("*").eq("is_active", true),
+    ]);
+
+    if (categoriesRes.data) {
+      setCategories(categoriesRes.data);
+      if (categoriesRes.data.length > 0) {
+        setSelectedCategory(categoriesRes.data[0].id);
+      }
+    }
+    if (productsRes.data) setProducts(productsRes.data);
+    setLoading(false);
+  };
+
+  const filteredProducts = selectedCategory
+    ? products.filter((p) => p.category_id === selectedCategory)
+    : products;
 
   return (
     <div className="min-h-screen bg-background pb-20">
