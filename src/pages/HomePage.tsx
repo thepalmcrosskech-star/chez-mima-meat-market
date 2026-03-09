@@ -31,7 +31,7 @@ const HomePage = () => {
       id: 3,
       name: "Bavette d'Aloyau",
       description: "Goût intense",
-      price: "19,90€",
+      price: "199,00 MAD",
       unit: "/kg",
       image: "/placeholder.svg",
       featured: false,
