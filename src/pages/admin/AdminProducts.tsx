@@ -186,7 +186,7 @@ const AdminProducts = () => {
           <DialogTrigger asChild>
             <Button className="gap-2"><Plus className="h-4 w-4" /> Ajouter</Button>
           </DialogTrigger>
-          <DialogContent className="max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-h-[90vh]">
             <DialogHeader>
               <DialogTitle>{editingProduct ? "Modifier le produit" : "Ajouter un produit"}</DialogTitle>
             </DialogHeader>
