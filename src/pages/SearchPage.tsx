@@ -30,6 +30,7 @@ const formatPrice = (price: number) =>
   new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(price) + " MAD";
 
 const SearchPage = () => {
+  const navigate = useNavigate();
   const { addItem } = useCart();
   const [query, setQuery] = useState("");
   const [products, setProducts] = useState<Product[]>([]);
