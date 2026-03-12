@@ -187,12 +187,20 @@ const ProductPage = () => {
   };
 
   const isKg = product?.unit_type === "weight";
-  const WEIGHT_OPTIONS = [
-    { label: "250g", value: 0.25 },
-    { label: "500g", value: 0.5 },
-    { label: "750g", value: 0.75 },
-    { label: "1kg", value: 1 },
-  ];
+  const isCharcuterie = product?.category_id === CHARCUTERIE_CATEGORY_ID;
+  const WEIGHT_OPTIONS = isCharcuterie
+    ? [
+        { label: "100g", value: 0.1 },
+        { label: "200g", value: 0.2 },
+        { label: "300g", value: 0.3 },
+        { label: "500g", value: 0.5 },
+      ]
+    : [
+        { label: "250g", value: 0.25 },
+        { label: "500g", value: 0.5 },
+        { label: "750g", value: 0.75 },
+        { label: "1kg", value: 1 },
+      ];
   const displayQty = isKg ? `${quantity >= 1 ? quantity + " kg" : quantity * 1000 + "g"}` : `${quantity}`;
 
   const avgRating =
