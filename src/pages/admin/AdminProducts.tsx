@@ -247,6 +247,9 @@ const AdminProducts = () => {
                 )}
               </div>
 
+              <div><Label>🥩 Information produit</Label><Textarea placeholder="Origine, qualité, conservation..." value={productInfo} onChange={(e) => setProductInfo(e.target.value)} /></div>
+              <div><Label>🔥 Conseil de cuisson</Label><Textarea placeholder="Temps, température, astuces..." value={cookingTips} onChange={(e) => setCookingTips(e.target.value)} /></div>
+
               <div className="flex items-center gap-2">
                 <Switch checked={isActive} onCheckedChange={setIsActive} />
                 <Label>{isActive ? "Disponible" : "Indisponible"}</Label>
