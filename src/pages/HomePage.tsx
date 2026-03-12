@@ -167,7 +167,10 @@ const HomePage = () => {
                   ? "bg-primary text-primary-foreground shadow-lg scale-105"
                   : "bg-secondary text-secondary-foreground hover:bg-secondary/80 hover-scale"
               }`}
-              onClick={() => setSelectedCategory(category.id)}
+              onClick={() => {
+                setSelectedCategory(category.id);
+                setSearchParams({ cat: category.id }, { replace: true });
+              }}
             >
               {category.emoji} {category.name}
             </Button>
