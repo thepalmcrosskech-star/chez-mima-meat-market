@@ -25,6 +25,7 @@ interface Product {
   stock_quantity: number;
   product_info: string | null;
   cooking_tips: string | null;
+  conservation_tips: string | null;
 }
 
 interface Category {
