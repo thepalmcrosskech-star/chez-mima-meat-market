@@ -7,12 +7,10 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-interface EmailRequest {
-  to: string;
-  subject: string;
-  html: string;
-  from?: string;
-}
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const MAX_SUBJECT_LENGTH = 500;
+const MAX_HTML_LENGTH = 50000;
+const MAX_TO_LENGTH = 255;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -49,12 +47,43 @@ serve(async (req) => {
       throw new Error("RESEND_API_KEY is not configured");
     }
 
-    const { to, subject, html }: EmailRequest = await req.json();
+    const body = await req.json();
+    const to = typeof body.to === "string" ? body.to.trim() : "";
+    const subject = typeof body.subject === "string" ? body.subject.trim() : "";
+    const html = typeof body.html === "string" ? body.html : "";
 
+    // Validate required fields
     if (!to || !subject || !html) {
-      throw new Error("Missing required fields: to, subject, html");
+      return new Response(
+        JSON.stringify({ success: false, error: "Missing required fields: to, subject, html" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
+    // Validate email format
+    if (to.length > MAX_TO_LENGTH || !EMAIL_REGEX.test(to)) {
+      return new Response(
+        JSON.stringify({ success: false, error: "Invalid recipient email address" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Validate lengths
+    if (subject.length > MAX_SUBJECT_LENGTH) {
+      return new Response(
+        JSON.stringify({ success: false, error: "Subject too long" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (html.length > MAX_HTML_LENGTH) {
+      return new Response(
+        JSON.stringify({ success: false, error: "HTML content too long" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Always use fixed from address — never allow caller override
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
