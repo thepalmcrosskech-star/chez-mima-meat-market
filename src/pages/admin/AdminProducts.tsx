@@ -57,6 +57,9 @@ const AdminProducts = () => {
   const [isActive, setIsActive] = useState(true);
   const [productInfo, setProductInfo] = useState("");
   const [cookingTips, setCookingTips] = useState("");
+  const [conservationTips, setConservationTips] = useState("");
+  const [showCookingTips, setShowCookingTips] = useState(false);
+  const [showConservationTips, setShowConservationTips] = useState(false);
 
   useEffect(() => { fetchData(); }, []);
 
