@@ -11,6 +11,7 @@ interface Product {
   price: number;
   unit_type: string;
   image_url: string | null;
+  category_id?: string | null;
 }
 
 interface QuantityDialogProps {
