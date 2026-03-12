@@ -24,6 +24,8 @@ import {
 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 
+const CHARCUTERIE_CATEGORY_ID = "f6741cb2-ac67-47bb-900d-8d54fb05d1e6";
+
 interface Product {
   id: string;
   name: string;
@@ -34,6 +36,7 @@ interface Product {
   product_info: string | null;
   cooking_tips: string | null;
   conservation_tips: string | null;
+  category_id: string | null;
 }
 
 interface Review {
