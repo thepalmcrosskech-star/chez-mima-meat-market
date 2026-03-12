@@ -83,7 +83,7 @@ const ProductPage = () => {
   const [product, setProduct] = useState<Product | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState(0.25);
 
   // Review form
   const [userRating, setUserRating] = useState(0);
@@ -98,6 +98,12 @@ const ProductPage = () => {
       checkAuth();
     }
   }, [id]);
+
+  useEffect(() => {
+    if (product) {
+      setQuantity(product.unit_type === "weight" ? 0.25 : 1);
+    }
+  }, [product]);
 
   const checkAuth = async () => {
     const {
@@ -178,9 +184,13 @@ const ProductPage = () => {
   };
 
   const isKg = product?.unit_type === "weight";
-  const step = isKg ? 0.25 : 1;
-  const min = isKg ? 0.25 : 1;
-  const displayQty = isKg ? `${quantity} kg` : `${quantity}`;
+  const WEIGHT_OPTIONS = [
+    { label: "250g", value: 0.25 },
+    { label: "500g", value: 0.5 },
+    { label: "750g", value: 0.75 },
+    { label: "1kg", value: 1 },
+  ];
+  const displayQty = isKg ? `${quantity >= 1 ? quantity + " kg" : quantity * 1000 + "g"}` : `${quantity}`;
 
   const avgRating =
     reviews.length > 0
@@ -264,32 +274,45 @@ const ProductPage = () => {
         <Separator className="bg-border/50" />
 
         {/* Quantity Selector */}
-        <div className="flex items-center justify-between">
+        <div className="space-y-3">
           <span className="font-semibold text-foreground">Quantité</span>
-          <div className="flex items-center gap-4">
-            <Button
-              variant="secondary"
-              size="icon"
-              className="w-10 h-10 rounded-full"
-              onClick={() =>
-                setQuantity((q) => Math.max(min, +(q - step).toFixed(2)))
-              }
-              disabled={quantity <= min}
-            >
-              <Minus className="h-4 w-4" />
-            </Button>
-            <span className="text-xl font-bold min-w-[70px] text-center">
-              {displayQty}
-            </span>
-            <Button
-              variant="secondary"
-              size="icon"
-              className="w-10 h-10 rounded-full"
-              onClick={() => setQuantity((q) => +(q + step).toFixed(2))}
-            >
-              <Plus className="h-4 w-4" />
-            </Button>
-          </div>
+          {isKg ? (
+            <div className="grid grid-cols-4 gap-2">
+              {WEIGHT_OPTIONS.map((opt) => (
+                <Button
+                  key={opt.value}
+                  variant={quantity === opt.value ? "default" : "secondary"}
+                  className="py-5 text-base font-bold rounded-xl"
+                  onClick={() => setQuantity(opt.value)}
+                >
+                  {opt.label}
+                </Button>
+              ))}
+            </div>
+          ) : (
+            <div className="flex items-center justify-center gap-4">
+              <Button
+                variant="secondary"
+                size="icon"
+                className="w-10 h-10 rounded-full"
+                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                disabled={quantity <= 1}
+              >
+                <Minus className="h-4 w-4" />
+              </Button>
+              <span className="text-xl font-bold min-w-[70px] text-center">
+                {displayQty}
+              </span>
+              <Button
+                variant="secondary"
+                size="icon"
+                className="w-10 h-10 rounded-full"
+                onClick={() => setQuantity((q) => q + 1)}
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Add to Cart Button */}

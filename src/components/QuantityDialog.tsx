@@ -1,7 +1,7 @@
 import { forwardRef, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Plus, Minus, ShoppingCart } from "lucide-react";
+import { ShoppingCart, Plus, Minus } from "lucide-react";
 
 interface Product {
   id: string;
@@ -21,24 +21,30 @@ interface QuantityDialogProps {
 const formatPrice = (price: number) =>
   new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(price) + " MAD";
 
+const WEIGHT_OPTIONS = [
+  { label: "250g", value: 0.25 },
+  { label: "500g", value: 0.5 },
+  { label: "750g", value: 0.75 },
+  { label: "1kg", value: 1 },
+];
+
 const QuantityDialog = forwardRef<HTMLDivElement, QuantityDialogProps>(
   ({ product, open, onOpenChange, onConfirm }, ref) => {
-    const [quantity, setQuantity] = useState(1);
+    const [quantity, setQuantity] = useState(0.25);
+    const [pieceQty, setPieceQty] = useState(1);
 
     const handleOpen = (isOpen: boolean) => {
-      if (isOpen) setQuantity(1);
+      if (isOpen) {
+        setQuantity(0.25);
+        setPieceQty(1);
+      }
       onOpenChange(isOpen);
     };
 
     if (!product) return null;
 
-    const isKg = product.unit_type === "kg";
-    const step = isKg ? 0.25 : 1;
-    const min = isKg ? 0.25 : 1;
-    const displayQty = isKg ? `${quantity} kg` : `${quantity}`;
-
-    const decrease = () => setQuantity((q) => Math.max(min, +(q - step).toFixed(2)));
-    const increase = () => setQuantity((q) => +(q + step).toFixed(2));
+    const isWeight = product.unit_type === "weight" || product.unit_type === "kg";
+    const currentQty = isWeight ? quantity : pieceQty;
 
     return (
       <Dialog open={open} onOpenChange={handleOpen}>
@@ -63,43 +69,58 @@ const QuantityDialog = forwardRef<HTMLDivElement, QuantityDialogProps>(
               <div className="flex-1 min-w-0">
                 <h4 className="font-bold text-sm truncate">{product.name}</h4>
                 <p className="text-primary font-semibold text-sm">
-                  {formatPrice(product.price)}/{product.unit_type}
+                  {formatPrice(product.price)}/{isWeight ? "kg" : "pièce"}
                 </p>
               </div>
             </div>
 
             {/* Quantity selector */}
-            <div className="flex items-center gap-6">
-              <Button
-                variant="secondary"
-                size="icon"
-                className="w-12 h-12 rounded-full text-lg"
-                onClick={decrease}
-                disabled={quantity <= min}
-              >
-                <Minus className="h-5 w-5" />
-              </Button>
-              <span className="text-2xl font-bold min-w-[80px] text-center">{displayQty}</span>
-              <Button
-                variant="secondary"
-                size="icon"
-                className="w-12 h-12 rounded-full text-lg"
-                onClick={increase}
-              >
-                <Plus className="h-5 w-5" />
-              </Button>
-            </div>
+            {isWeight ? (
+              <div className="grid grid-cols-4 gap-2 w-full">
+                {WEIGHT_OPTIONS.map((opt) => (
+                  <Button
+                    key={opt.value}
+                    variant={quantity === opt.value ? "default" : "secondary"}
+                    className="py-6 text-base font-bold rounded-xl"
+                    onClick={() => setQuantity(opt.value)}
+                  >
+                    {opt.label}
+                  </Button>
+                ))}
+              </div>
+            ) : (
+              <div className="flex items-center gap-6">
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className="w-12 h-12 rounded-full text-lg"
+                  onClick={() => setPieceQty((q) => Math.max(1, q - 1))}
+                  disabled={pieceQty <= 1}
+                >
+                  <Minus className="h-5 w-5" />
+                </Button>
+                <span className="text-2xl font-bold min-w-[80px] text-center">{pieceQty}</span>
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className="w-12 h-12 rounded-full text-lg"
+                  onClick={() => setPieceQty((q) => q + 1)}
+                >
+                  <Plus className="h-5 w-5" />
+                </Button>
+              </div>
+            )}
 
             {/* Total */}
             <p className="text-muted-foreground text-sm">
-              Total: <span className="font-bold text-foreground">{formatPrice(product.price * quantity)}</span>
+              Total: <span className="font-bold text-foreground">{formatPrice(product.price * currentQty)}</span>
             </p>
 
             {/* Confirm */}
             <Button
               className="w-full py-6 text-base font-bold gap-2"
               onClick={() => {
-                onConfirm(product, quantity);
+                onConfirm(product, currentQty);
                 onOpenChange(false);
               }}
             >
