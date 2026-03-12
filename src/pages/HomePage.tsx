@@ -236,7 +236,7 @@ const HomePage = () => {
                     <Button 
                       size="icon" 
                       className="bg-primary hover:bg-primary/90 rounded-full w-8 h-8 hover-scale"
-                      onClick={() => handleAddToCart(product)}
+                      onClick={(e) => { e.stopPropagation(); handleAddToCart(product); }}
                     >
                       <Plus className="h-4 w-4" />
                     </Button>
