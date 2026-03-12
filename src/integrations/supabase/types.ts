@@ -350,6 +350,7 @@ export type Database = {
       products: {
         Row: {
           category_id: string | null
+          conservation_tips: string | null
           cooking_tips: string | null
           created_at: string | null
           description: string | null
@@ -364,6 +365,7 @@ export type Database = {
         }
         Insert: {
           category_id?: string | null
+          conservation_tips?: string | null
           cooking_tips?: string | null
           created_at?: string | null
           description?: string | null
@@ -378,6 +380,7 @@ export type Database = {
         }
         Update: {
           category_id?: string | null
+          conservation_tips?: string | null
           cooking_tips?: string | null
           created_at?: string | null
           description?: string | null
