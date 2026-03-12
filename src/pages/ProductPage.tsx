@@ -24,6 +24,8 @@ import {
 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 
+const CHARCUTERIE_CATEGORY_ID = "f6741cb2-ac67-47bb-900d-8d54fb05d1e6";
+
 interface Product {
   id: string;
   name: string;
@@ -34,6 +36,7 @@ interface Product {
   product_info: string | null;
   cooking_tips: string | null;
   conservation_tips: string | null;
+  category_id: string | null;
 }
 
 interface Review {
@@ -101,7 +104,8 @@ const ProductPage = () => {
 
   useEffect(() => {
     if (product) {
-      setQuantity(product.unit_type === "weight" ? 0.25 : 1);
+      const isCharc = product.category_id === CHARCUTERIE_CATEGORY_ID;
+      setQuantity(product.unit_type === "weight" ? (isCharc ? 0.1 : 0.25) : 1);
     }
   }, [product]);
 
@@ -184,12 +188,20 @@ const ProductPage = () => {
   };
 
   const isKg = product?.unit_type === "weight";
-  const WEIGHT_OPTIONS = [
-    { label: "250g", value: 0.25 },
-    { label: "500g", value: 0.5 },
-    { label: "750g", value: 0.75 },
-    { label: "1kg", value: 1 },
-  ];
+  const isCharcuterie = product?.category_id === CHARCUTERIE_CATEGORY_ID;
+  const WEIGHT_OPTIONS = isCharcuterie
+    ? [
+        { label: "100g", value: 0.1 },
+        { label: "200g", value: 0.2 },
+        { label: "300g", value: 0.3 },
+        { label: "500g", value: 0.5 },
+      ]
+    : [
+        { label: "250g", value: 0.25 },
+        { label: "500g", value: 0.5 },
+        { label: "750g", value: 0.75 },
+        { label: "1kg", value: 1 },
+      ];
   const displayQty = isKg ? `${quantity >= 1 ? quantity + " kg" : quantity * 1000 + "g"}` : `${quantity}`;
 
   const avgRating =
