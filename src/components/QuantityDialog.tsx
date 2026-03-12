@@ -53,6 +53,7 @@ const QuantityContent = ({
   const isCharcuterie = product.category_id === CHARCUTERIE_CATEGORY_ID;
   const WEIGHT_OPTIONS = isCharcuterie ? WEIGHT_OPTIONS_CHARCUTERIE : WEIGHT_OPTIONS_DEFAULT;
   const [quantity, setQuantity] = useState(isCharcuterie ? 0.1 : 0.25);
+  const [pieceQty, setPieceQty] = useState(1);
   const currentQty = isWeight ? quantity : pieceQty;
 
   return (
