@@ -305,9 +305,52 @@ export type Database = {
           },
         ]
       }
+      product_reviews: {
+        Row: {
+          comment: string | null
+          created_at: string | null
+          id: string
+          product_id: string
+          rating: number
+          user_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          product_id: string
+          rating: number
+          user_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          product_id?: string
+          rating?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_reviews_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_reviews_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           category_id: string | null
+          cooking_tips: string | null
           created_at: string | null
           description: string | null
           id: string
@@ -315,11 +358,13 @@ export type Database = {
           is_active: boolean | null
           name: string
           price: number
+          product_info: string | null
           stock_quantity: number
           unit_type: string
         }
         Insert: {
           category_id?: string | null
+          cooking_tips?: string | null
           created_at?: string | null
           description?: string | null
           id?: string
@@ -327,11 +372,13 @@ export type Database = {
           is_active?: boolean | null
           name: string
           price: number
+          product_info?: string | null
           stock_quantity?: number
           unit_type: string
         }
         Update: {
           category_id?: string | null
+          cooking_tips?: string | null
           created_at?: string | null
           description?: string | null
           id?: string
@@ -339,6 +386,7 @@ export type Database = {
           is_active?: boolean | null
           name?: string
           price?: number
+          product_info?: string | null
           stock_quantity?: number
           unit_type?: string
         }
