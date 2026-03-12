@@ -25,6 +25,7 @@ interface Product {
   stock_quantity: number;
   product_info: string | null;
   cooking_tips: string | null;
+  conservation_tips: string | null;
 }
 
 interface Category {
@@ -56,6 +57,9 @@ const AdminProducts = () => {
   const [isActive, setIsActive] = useState(true);
   const [productInfo, setProductInfo] = useState("");
   const [cookingTips, setCookingTips] = useState("");
+  const [conservationTips, setConservationTips] = useState("");
+  const [showCookingTips, setShowCookingTips] = useState(false);
+  const [showConservationTips, setShowConservationTips] = useState(false);
 
   useEffect(() => { fetchData(); }, []);
 
@@ -72,7 +76,8 @@ const AdminProducts = () => {
   const resetForm = () => {
     setName(""); setDescription(""); setPrice(""); setUnitType("weight");
     setCategoryId(""); setImageUrl(""); setImagePreview(""); setStockQuantity("0"); setIsActive(true);
-    setProductInfo(""); setCookingTips("");
+    setProductInfo(""); setCookingTips(""); setConservationTips("");
+    setShowCookingTips(false); setShowConservationTips(false);
     setEditingProduct(null);
   };
 
@@ -82,6 +87,9 @@ const AdminProducts = () => {
     setUnitType(p.unit_type); setCategoryId(p.category_id || ""); setImageUrl(p.image_url || "");
     setImagePreview(p.image_url || ""); setStockQuantity(String(p.stock_quantity)); setIsActive(p.is_active ?? true);
     setProductInfo(p.product_info || ""); setCookingTips(p.cooking_tips || "");
+    setConservationTips((p as any).conservation_tips || "");
+    setShowCookingTips(!!p.cooking_tips);
+    setShowConservationTips(!!(p as any).conservation_tips);
     setIsDialogOpen(true);
   };
 
@@ -132,7 +140,9 @@ const AdminProducts = () => {
       name, description: description || null, price: parsedPrice, unit_type: unitType,
       category_id: categoryId || null, image_url: imageUrl || null,
       stock_quantity: parsedStock, is_active: isActive,
-      product_info: productInfo || null, cooking_tips: cookingTips || null,
+      product_info: productInfo || null,
+      cooking_tips: showCookingTips ? (cookingTips || null) : null,
+      conservation_tips: showConservationTips ? (conservationTips || null) : null,
     };
 
     try {
@@ -247,8 +257,26 @@ const AdminProducts = () => {
                 )}
               </div>
 
-              <div><Label>🥩 Information produit</Label><Textarea placeholder="Origine, qualité, conservation..." value={productInfo} onChange={(e) => setProductInfo(e.target.value)} /></div>
-              <div><Label>🔥 Conseil de cuisson</Label><Textarea placeholder="Temps, température, astuces..." value={cookingTips} onChange={(e) => setCookingTips(e.target.value)} /></div>
+              <div><Label>🥩 Information produit</Label><Textarea placeholder="Origine, qualité..." value={productInfo} onChange={(e) => setProductInfo(e.target.value)} /></div>
+
+              {/* Toggleable tip sections */}
+              <div className="space-y-3 rounded-lg border border-border/50 p-4">
+                <p className="text-sm font-semibold text-foreground">Rubriques optionnelles</p>
+                <div className="flex items-center gap-3">
+                  <Switch checked={showCookingTips} onCheckedChange={setShowCookingTips} />
+                  <Label>🔥 Conseil de cuisson</Label>
+                </div>
+                {showCookingTips && (
+                  <Textarea placeholder="Temps, température, astuces..." value={cookingTips} onChange={(e) => setCookingTips(e.target.value)} />
+                )}
+                <div className="flex items-center gap-3">
+                  <Switch checked={showConservationTips} onCheckedChange={setShowConservationTips} />
+                  <Label>❄️ Conseil de conservation</Label>
+                </div>
+                {showConservationTips && (
+                  <Textarea placeholder="Durée, température de conservation..." value={conservationTips} onChange={(e) => setConservationTips(e.target.value)} />
+                )}
+              </div>
 
               <div className="flex items-center gap-2">
                 <Switch checked={isActive} onCheckedChange={setIsActive} />
