@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,7 @@ const formatPrice = (price: number) =>
   new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(price) + " MAD";
 
 const SearchPage = () => {
+  const navigate = useNavigate();
   const { addItem } = useCart();
   const [query, setQuery] = useState("");
   const [products, setProducts] = useState<Product[]>([]);
@@ -117,7 +119,7 @@ const SearchPage = () => {
         ) : (
           <div className="grid grid-cols-2 gap-3">
             {filtered.map((product) => (
-              <Card key={product.id} className="overflow-hidden border-0 shadow-lg group bg-card relative">
+              <Card key={product.id} className="overflow-hidden border-0 shadow-lg group bg-card relative cursor-pointer" onClick={() => navigate(`/product/${product.id}`)}>
                 <div className="absolute top-2 right-2 z-10">
                   <Button variant="ghost" size="icon" className="w-7 h-7 rounded-full bg-background/80 backdrop-blur-sm">
                     <Heart className="h-3.5 w-3.5 text-muted-foreground" />
@@ -140,7 +142,7 @@ const SearchPage = () => {
                     <Button
                       size="icon"
                       className="rounded-full w-7 h-7"
-                      onClick={() => handleAddToCart(product)}
+                      onClick={(e) => { e.stopPropagation(); handleAddToCart(product); }}
                     >
                       <Plus className="h-3.5 w-3.5" />
                     </Button>

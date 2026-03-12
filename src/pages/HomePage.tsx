@@ -194,8 +194,9 @@ const HomePage = () => {
             filteredProducts.map((product, index) => (
               <Card
                 key={product.id}
-                className="relative overflow-hidden rounded-2xl border-0 shadow-lg hover:shadow-2xl transition-all duration-500 hover-scale group bg-card"
+                className="relative overflow-hidden rounded-2xl border-0 shadow-lg hover:shadow-2xl transition-all duration-500 hover-scale group bg-card cursor-pointer"
                 style={{ animationDelay: `${index * 100}ms` }}
+                onClick={() => navigate(`/product/${product.id}`)}
               >
                 <div className="absolute top-3 right-3 z-10">
                   <Button
@@ -235,7 +236,7 @@ const HomePage = () => {
                     <Button 
                       size="icon" 
                       className="bg-primary hover:bg-primary/90 rounded-full w-8 h-8 hover-scale"
-                      onClick={() => handleAddToCart(product)}
+                      onClick={(e) => { e.stopPropagation(); handleAddToCart(product); }}
                     >
                       <Plus className="h-4 w-4" />
                     </Button>

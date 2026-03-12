@@ -23,6 +23,8 @@ interface Product {
   category_id: string | null;
   is_active: boolean | null;
   stock_quantity: number;
+  product_info: string | null;
+  cooking_tips: string | null;
 }
 
 interface Category {
@@ -52,6 +54,8 @@ const AdminProducts = () => {
   const [imagePreview, setImagePreview] = useState("");
   const [stockQuantity, setStockQuantity] = useState("0");
   const [isActive, setIsActive] = useState(true);
+  const [productInfo, setProductInfo] = useState("");
+  const [cookingTips, setCookingTips] = useState("");
 
   useEffect(() => { fetchData(); }, []);
 
@@ -68,6 +72,7 @@ const AdminProducts = () => {
   const resetForm = () => {
     setName(""); setDescription(""); setPrice(""); setUnitType("weight");
     setCategoryId(""); setImageUrl(""); setImagePreview(""); setStockQuantity("0"); setIsActive(true);
+    setProductInfo(""); setCookingTips("");
     setEditingProduct(null);
   };
 
@@ -76,6 +81,7 @@ const AdminProducts = () => {
     setName(p.name); setDescription(p.description || ""); setPrice(String(p.price));
     setUnitType(p.unit_type); setCategoryId(p.category_id || ""); setImageUrl(p.image_url || "");
     setImagePreview(p.image_url || ""); setStockQuantity(String(p.stock_quantity)); setIsActive(p.is_active ?? true);
+    setProductInfo(p.product_info || ""); setCookingTips(p.cooking_tips || "");
     setIsDialogOpen(true);
   };
 
@@ -126,6 +132,7 @@ const AdminProducts = () => {
       name, description: description || null, price: parsedPrice, unit_type: unitType,
       category_id: categoryId || null, image_url: imageUrl || null,
       stock_quantity: parsedStock, is_active: isActive,
+      product_info: productInfo || null, cooking_tips: cookingTips || null,
     };
 
     try {
@@ -239,6 +246,9 @@ const AdminProducts = () => {
                   </button>
                 )}
               </div>
+
+              <div><Label>🥩 Information produit</Label><Textarea placeholder="Origine, qualité, conservation..." value={productInfo} onChange={(e) => setProductInfo(e.target.value)} /></div>
+              <div><Label>🔥 Conseil de cuisson</Label><Textarea placeholder="Temps, température, astuces..." value={cookingTips} onChange={(e) => setCookingTips(e.target.value)} /></div>
 
               <div className="flex items-center gap-2">
                 <Switch checked={isActive} onCheckedChange={setIsActive} />
