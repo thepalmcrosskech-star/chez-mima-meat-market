@@ -178,9 +178,13 @@ const ProductPage = () => {
   };
 
   const isKg = product?.unit_type === "weight";
-  const step = isKg ? 0.25 : 1;
-  const min = isKg ? 0.25 : 1;
-  const displayQty = isKg ? `${quantity} kg` : `${quantity}`;
+  const WEIGHT_OPTIONS = [
+    { label: "250g", value: 0.25 },
+    { label: "500g", value: 0.5 },
+    { label: "750g", value: 0.75 },
+    { label: "1kg", value: 1 },
+  ];
+  const displayQty = isKg ? `${quantity >= 1 ? quantity + " kg" : quantity * 1000 + "g"}` : `${quantity}`;
 
   const avgRating =
     reviews.length > 0
