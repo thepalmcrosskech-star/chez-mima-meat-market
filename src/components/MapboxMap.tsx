@@ -7,10 +7,7 @@ let _cachedToken: string | null = null;
 
 async function getMapboxToken(): Promise<string> {
   if (_cachedToken) return _cachedToken;
-  // Try env first
-  const envToken = import.meta.env.VITE_MAPBOX_TOKEN;
-  if (envToken) { _cachedToken = envToken; return envToken; }
-  // Fetch from edge function
+  // Fetch from edge function (secure server-side only)
   try {
     const { data } = await supabase.functions.invoke("get-mapbox-token");
     if (data?.token) { _cachedToken = data.token; return data.token; }
