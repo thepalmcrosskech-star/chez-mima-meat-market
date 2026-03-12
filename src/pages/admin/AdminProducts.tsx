@@ -81,6 +81,7 @@ const AdminProducts = () => {
     setName(p.name); setDescription(p.description || ""); setPrice(String(p.price));
     setUnitType(p.unit_type); setCategoryId(p.category_id || ""); setImageUrl(p.image_url || "");
     setImagePreview(p.image_url || ""); setStockQuantity(String(p.stock_quantity)); setIsActive(p.is_active ?? true);
+    setProductInfo(p.product_info || ""); setCookingTips(p.cooking_tips || "");
     setIsDialogOpen(true);
   };
 
