@@ -132,6 +132,7 @@ const AdminProducts = () => {
       name, description: description || null, price: parsedPrice, unit_type: unitType,
       category_id: categoryId || null, image_url: imageUrl || null,
       stock_quantity: parsedStock, is_active: isActive,
+      product_info: productInfo || null, cooking_tips: cookingTips || null,
     };
 
     try {
