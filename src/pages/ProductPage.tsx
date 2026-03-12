@@ -33,6 +33,7 @@ interface Product {
   image_url: string | null;
   product_info: string | null;
   cooking_tips: string | null;
+  conservation_tips: string | null;
 }
 
 interface Review {
