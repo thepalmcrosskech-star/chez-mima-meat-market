@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { Heart, Bell, Plus, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -35,10 +35,11 @@ const formatPrice = (price: number) => {
 
 const HomePage = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { addItem } = useCart();
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(searchParams.get("cat"));
   const [loading, setLoading] = useState(true);
   const [authChecked, setAuthChecked] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -74,8 +75,10 @@ const HomePage = () => {
 
     if (categoriesRes.data) {
       setCategories(categoriesRes.data);
-      if (categoriesRes.data.length > 0) {
-        setSelectedCategory(categoriesRes.data[0].id);
+      if (!selectedCategory && categoriesRes.data.length > 0) {
+        const defaultCat = categoriesRes.data[0].id;
+        setSelectedCategory(defaultCat);
+        setSearchParams({ cat: defaultCat }, { replace: true });
       }
     }
     if (productsRes.data) setProducts(productsRes.data);
@@ -164,7 +167,10 @@ const HomePage = () => {
                   ? "bg-primary text-primary-foreground shadow-lg scale-105"
                   : "bg-secondary text-secondary-foreground hover:bg-secondary/80 hover-scale"
               }`}
-              onClick={() => setSelectedCategory(category.id)}
+              onClick={() => {
+                setSelectedCategory(category.id);
+                setSearchParams({ cat: category.id }, { replace: true });
+              }}
             >
               {category.emoji} {category.name}
             </Button>
