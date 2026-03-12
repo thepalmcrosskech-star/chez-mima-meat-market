@@ -104,7 +104,8 @@ const ProductPage = () => {
 
   useEffect(() => {
     if (product) {
-      setQuantity(product.unit_type === "weight" ? 0.25 : 1);
+      const isCharc = product.category_id === CHARCUTERIE_CATEGORY_ID;
+      setQuantity(product.unit_type === "weight" ? (isCharc ? 0.1 : 0.25) : 1);
     }
   }, [product]);
 
