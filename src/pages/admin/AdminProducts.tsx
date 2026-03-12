@@ -54,6 +54,8 @@ const AdminProducts = () => {
   const [imagePreview, setImagePreview] = useState("");
   const [stockQuantity, setStockQuantity] = useState("0");
   const [isActive, setIsActive] = useState(true);
+  const [productInfo, setProductInfo] = useState("");
+  const [cookingTips, setCookingTips] = useState("");
 
   useEffect(() => { fetchData(); }, []);
 
