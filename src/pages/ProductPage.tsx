@@ -304,7 +304,7 @@ const ProductPage = () => {
         <Separator className="bg-border/50" />
 
         {/* Information Produit & Conseil de Cuisson */}
-        <Accordion type="multiple" defaultValue={["info", "cooking"]} className="w-full">
+        <Accordion type="multiple" defaultValue={["info", "cooking", "conservation"]} className="w-full">
           <AccordionItem value="info" className="border-border/50">
             <AccordionTrigger className="text-foreground font-semibold hover:no-underline">
               🥩 Information produit
@@ -316,16 +316,31 @@ const ProductPage = () => {
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="cooking" className="border-border/50">
-            <AccordionTrigger className="text-foreground font-semibold hover:no-underline">
-              🔥 Conseil de cuisson
-            </AccordionTrigger>
-            <AccordionContent>
-              <p className="text-muted-foreground text-sm leading-relaxed whitespace-pre-line">
-                {product.cooking_tips || "Aucun conseil de cuisson disponible pour le moment."}
-              </p>
-            </AccordionContent>
-          </AccordionItem>
+          {product.cooking_tips && (
+            <AccordionItem value="cooking" className="border-border/50">
+              <AccordionTrigger className="text-foreground font-semibold hover:no-underline">
+                🔥 Conseil de cuisson
+              </AccordionTrigger>
+              <AccordionContent>
+                <p className="text-muted-foreground text-sm leading-relaxed whitespace-pre-line">
+                  {product.cooking_tips}
+                </p>
+              </AccordionContent>
+            </AccordionItem>
+          )}
+
+          {(product as any).conservation_tips && (
+            <AccordionItem value="conservation" className="border-border/50">
+              <AccordionTrigger className="text-foreground font-semibold hover:no-underline">
+                ❄️ Conseil de conservation
+              </AccordionTrigger>
+              <AccordionContent>
+                <p className="text-muted-foreground text-sm leading-relaxed whitespace-pre-line">
+                  {(product as any).conservation_tips}
+                </p>
+              </AccordionContent>
+            </AccordionItem>
+          )}
         </Accordion>
 
         <Separator className="bg-border/50" />
