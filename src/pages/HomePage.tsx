@@ -75,8 +75,10 @@ const HomePage = () => {
 
     if (categoriesRes.data) {
       setCategories(categoriesRes.data);
-      if (categoriesRes.data.length > 0) {
-        setSelectedCategory(categoriesRes.data[0].id);
+      if (!selectedCategory && categoriesRes.data.length > 0) {
+        const defaultCat = categoriesRes.data[0].id;
+        setSelectedCategory(defaultCat);
+        setSearchParams({ cat: defaultCat }, { replace: true });
       }
     }
     if (productsRes.data) setProducts(productsRes.data);
