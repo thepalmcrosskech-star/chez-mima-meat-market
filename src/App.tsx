@@ -22,6 +22,7 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminDeliveryZones from "./pages/admin/AdminDeliveryZones";
 import AdminSettings from "./pages/admin/AdminSettings";
 import DriverProfile from "./pages/driver/DriverProfile";
+import ProductPage from "./pages/ProductPage";
 import SplashScreen from "./components/SplashScreen";
 
 const queryClient = new QueryClient();
