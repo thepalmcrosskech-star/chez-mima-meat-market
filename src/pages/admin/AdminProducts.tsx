@@ -23,6 +23,8 @@ interface Product {
   category_id: string | null;
   is_active: boolean | null;
   stock_quantity: number;
+  product_info: string | null;
+  cooking_tips: string | null;
 }
 
 interface Category {
