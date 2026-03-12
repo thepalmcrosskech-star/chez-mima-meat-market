@@ -222,7 +222,13 @@ const ProductPage = () => {
           variant="ghost"
           size="icon"
           className="rounded-full"
-          onClick={() => navigate(-1)}
+          onClick={() => {
+            if (window.history.length > 1) {
+              navigate(-1);
+            } else {
+              navigate("/");
+            }
+          }}
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>
