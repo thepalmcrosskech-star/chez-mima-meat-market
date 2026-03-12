@@ -76,7 +76,8 @@ const AdminProducts = () => {
   const resetForm = () => {
     setName(""); setDescription(""); setPrice(""); setUnitType("weight");
     setCategoryId(""); setImageUrl(""); setImagePreview(""); setStockQuantity("0"); setIsActive(true);
-    setProductInfo(""); setCookingTips("");
+    setProductInfo(""); setCookingTips(""); setConservationTips("");
+    setShowCookingTips(false); setShowConservationTips(false);
     setEditingProduct(null);
   };
 
