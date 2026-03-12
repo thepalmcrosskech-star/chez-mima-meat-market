@@ -99,6 +99,12 @@ const ProductPage = () => {
     }
   }, [id]);
 
+  useEffect(() => {
+    if (product) {
+      setQuantity(product.unit_type === "weight" ? 0.25 : 1);
+    }
+  }, [product]);
+
   const checkAuth = async () => {
     const {
       data: { session },
