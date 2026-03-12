@@ -257,8 +257,26 @@ const AdminProducts = () => {
                 )}
               </div>
 
-              <div><Label>🥩 Information produit</Label><Textarea placeholder="Origine, qualité, conservation..." value={productInfo} onChange={(e) => setProductInfo(e.target.value)} /></div>
-              <div><Label>🔥 Conseil de cuisson</Label><Textarea placeholder="Temps, température, astuces..." value={cookingTips} onChange={(e) => setCookingTips(e.target.value)} /></div>
+              <div><Label>🥩 Information produit</Label><Textarea placeholder="Origine, qualité..." value={productInfo} onChange={(e) => setProductInfo(e.target.value)} /></div>
+
+              {/* Toggleable tip sections */}
+              <div className="space-y-3 rounded-lg border border-border/50 p-4">
+                <p className="text-sm font-semibold text-foreground">Rubriques optionnelles</p>
+                <div className="flex items-center gap-3">
+                  <Switch checked={showCookingTips} onCheckedChange={setShowCookingTips} />
+                  <Label>🔥 Conseil de cuisson</Label>
+                </div>
+                {showCookingTips && (
+                  <Textarea placeholder="Temps, température, astuces..." value={cookingTips} onChange={(e) => setCookingTips(e.target.value)} />
+                )}
+                <div className="flex items-center gap-3">
+                  <Switch checked={showConservationTips} onCheckedChange={setShowConservationTips} />
+                  <Label>❄️ Conseil de conservation</Label>
+                </div>
+                {showConservationTips && (
+                  <Textarea placeholder="Durée, température de conservation..." value={conservationTips} onChange={(e) => setConservationTips(e.target.value)} />
+                )}
+              </div>
 
               <div className="flex items-center gap-2">
                 <Switch checked={isActive} onCheckedChange={setIsActive} />
