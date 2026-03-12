@@ -49,10 +49,10 @@ const QuantityContent = ({
   onConfirm: (product: Product, quantity: number) => void;
   onClose: () => void;
 }) => {
-  const [quantity, setQuantity] = useState(0.25);
-  const [pieceQty, setPieceQty] = useState(1);
-
   const isWeight = product.unit_type === "weight" || product.unit_type === "kg";
+  const isCharcuterie = product.category_id === CHARCUTERIE_CATEGORY_ID;
+  const WEIGHT_OPTIONS = isCharcuterie ? WEIGHT_OPTIONS_CHARCUTERIE : WEIGHT_OPTIONS_DEFAULT;
+  const [quantity, setQuantity] = useState(isCharcuterie ? 0.1 : 0.25);
   const currentQty = isWeight ? quantity : pieceQty;
 
   return (
