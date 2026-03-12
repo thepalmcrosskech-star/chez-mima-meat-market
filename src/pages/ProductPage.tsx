@@ -83,7 +83,7 @@ const ProductPage = () => {
   const [product, setProduct] = useState<Product | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState(0.25);
 
   // Review form
   const [userRating, setUserRating] = useState(0);
