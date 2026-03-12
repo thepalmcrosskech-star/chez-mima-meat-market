@@ -268,32 +268,45 @@ const ProductPage = () => {
         <Separator className="bg-border/50" />
 
         {/* Quantity Selector */}
-        <div className="flex items-center justify-between">
+        <div className="space-y-3">
           <span className="font-semibold text-foreground">Quantité</span>
-          <div className="flex items-center gap-4">
-            <Button
-              variant="secondary"
-              size="icon"
-              className="w-10 h-10 rounded-full"
-              onClick={() =>
-                setQuantity((q) => Math.max(min, +(q - step).toFixed(2)))
-              }
-              disabled={quantity <= min}
-            >
-              <Minus className="h-4 w-4" />
-            </Button>
-            <span className="text-xl font-bold min-w-[70px] text-center">
-              {displayQty}
-            </span>
-            <Button
-              variant="secondary"
-              size="icon"
-              className="w-10 h-10 rounded-full"
-              onClick={() => setQuantity((q) => +(q + step).toFixed(2))}
-            >
-              <Plus className="h-4 w-4" />
-            </Button>
-          </div>
+          {isKg ? (
+            <div className="grid grid-cols-4 gap-2">
+              {WEIGHT_OPTIONS.map((opt) => (
+                <Button
+                  key={opt.value}
+                  variant={quantity === opt.value ? "default" : "secondary"}
+                  className="py-5 text-base font-bold rounded-xl"
+                  onClick={() => setQuantity(opt.value)}
+                >
+                  {opt.label}
+                </Button>
+              ))}
+            </div>
+          ) : (
+            <div className="flex items-center justify-center gap-4">
+              <Button
+                variant="secondary"
+                size="icon"
+                className="w-10 h-10 rounded-full"
+                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                disabled={quantity <= 1}
+              >
+                <Minus className="h-4 w-4" />
+              </Button>
+              <span className="text-xl font-bold min-w-[70px] text-center">
+                {displayQty}
+              </span>
+              <Button
+                variant="secondary"
+                size="icon"
+                className="w-10 h-10 rounded-full"
+                onClick={() => setQuantity((q) => q + 1)}
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Add to Cart Button */}
