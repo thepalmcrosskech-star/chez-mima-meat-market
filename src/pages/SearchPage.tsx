@@ -142,7 +142,7 @@ const SearchPage = () => {
                     <Button
                       size="icon"
                       className="rounded-full w-7 h-7"
-                      onClick={() => handleAddToCart(product)}
+                      onClick={(e) => { e.stopPropagation(); handleAddToCart(product); }}
                     >
                       <Plus className="h-3.5 w-3.5" />
                     </Button>
