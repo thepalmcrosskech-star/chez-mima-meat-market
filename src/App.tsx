@@ -74,6 +74,7 @@ const App = () => {
                   <Route path="drivers" element={<AdminDrivers />} />
                   <Route path="users" element={<AdminUsers />} />
                   <Route path="zones" element={<AdminDeliveryZones />} />
+                  <Route path="banners" element={<AdminBanners />} />
                   <Route path="settings" element={<AdminSettings />} />
                 </Route>
                 <Route path="/driver" element={<DriverProfile />} />

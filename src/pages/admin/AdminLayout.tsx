@@ -13,6 +13,7 @@ const navItems = [
   { label: "Commandes", icon: ShoppingBag, path: "/admin/orders" },
   { label: "Produits", icon: Package, path: "/admin/products" },
   { label: "Catégories", icon: Tags, path: "/admin/categories" },
+  { label: "Bannières", icon: Image, path: "/admin/banners" },
   { label: "Livreurs", icon: Truck, path: "/admin/drivers" },
   { label: "Utilisateurs", icon: Users, path: "/admin/users" },
   { label: "Zones de livraison", icon: MapPin, path: "/admin/zones" },
