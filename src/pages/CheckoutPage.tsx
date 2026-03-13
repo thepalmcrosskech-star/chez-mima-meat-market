@@ -293,7 +293,27 @@ const CheckoutPage = () => {
           )}
         </div>
 
-        {/* Zone info */}
+        {/* WhatsApp Phone */}
+        <div>
+          <h3 className="font-bold mb-2 flex items-center gap-2">
+            <Phone className="h-4 w-4 text-primary" /> Numéro WhatsApp *
+          </h3>
+          <Input
+            type="tel"
+            value={whatsappPhone}
+            onChange={(e) => setWhatsappPhone(e.target.value)}
+            placeholder="+212 6XX XXX XXX"
+            className={!isValidPhone && whatsappPhone.length > 0 ? "border-destructive" : ""}
+          />
+          <p className="text-xs text-muted-foreground mt-1">
+            Obligatoire — pour que le livreur puisse vous contacter
+          </p>
+          {!isValidPhone && whatsappPhone.length > 0 && (
+            <p className="text-xs text-destructive mt-1">Numéro trop court (minimum 9 chiffres)</p>
+          )}
+        </div>
+
+        <Separator />
         {hasAddress && !deliveryZone && (
           <Card className="p-3 border-destructive/50 bg-destructive/10">
             <p className="text-sm text-destructive font-medium">⚠️ Cette adresse n'est pas dans nos zones de livraison.</p>
