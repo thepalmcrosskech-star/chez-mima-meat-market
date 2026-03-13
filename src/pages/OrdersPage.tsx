@@ -70,7 +70,7 @@ const OrdersPage = () => {
             {orders.map((order) => {
               const info = statusLabels[order.status] || { label: order.status, variant: "secondary" as const };
               return (
-                <Card key={order.id} className="p-4">
+                <Card key={order.id} className="p-4 cursor-pointer hover:border-primary/50 transition-all" onClick={() => navigate(`/order-tracking/${order.id}`)}>
                   <div className="flex items-center justify-between mb-2">
                     <p className="text-xs text-muted-foreground">
                       {order.created_at
