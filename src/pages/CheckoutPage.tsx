@@ -28,12 +28,13 @@ interface DeliveryZone {
   delivery_fee: number;
   minimum_order: number;
   free_delivery_threshold: number | null;
-  polygon: any;
+  radius_km: number | null;
+  min_radius_km: number | null;
   is_active: boolean | null;
 }
 
 import { formatPrice } from "@/lib/format";
-import { pointInPolygon } from "@/lib/geo";
+import { haversineDistance } from "@/lib/geo";
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
