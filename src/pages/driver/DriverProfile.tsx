@@ -1,13 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
-import { ArrowLeft, Bike, Car, Truck, Star, MapPin, Phone, Clock } from "lucide-react";
+import { ArrowLeft, Bike, Car, Truck, Star, MapPin, Phone, Clock, Navigation, Loader2 } from "lucide-react";
 
-interface DriverProfile {
+interface DriverProfileData {
   id: string;
   user_id: string;
   vehicle_type: string;
@@ -15,6 +15,8 @@ interface DriverProfile {
   status: string;
   rating: number | null;
   total_deliveries: number | null;
+  latitude: number | null;
+  longitude: number | null;
 }
 
 interface Profile {
@@ -23,23 +25,38 @@ interface Profile {
   phone: string | null;
 }
 
+const GPS_INTERVAL = 30_000; // 30 seconds
+
 const DriverProfilePage = () => {
   const navigate = useNavigate();
-  const [driverProfile, setDriverProfile] = useState<DriverProfile | null>(null);
+  const [driverProfile, setDriverProfile] = useState<DriverProfileData | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [gpsActive, setGpsActive] = useState(false);
+  const [lastGpsUpdate, setLastGpsUpdate] = useState<Date | null>(null);
+  const gpsIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const watchIdRef = useRef<number | null>(null);
 
   useEffect(() => {
     fetchDriverProfile();
+    return () => stopGpsTracking();
   }, []);
+
+  // Auto-start/stop GPS based on status
+  useEffect(() => {
+    if (!driverProfile) return;
+    const shouldTrack = driverProfile.status === "available" || driverProfile.status === "busy";
+    if (shouldTrack && !gpsActive) {
+      startGpsTracking();
+    } else if (!shouldTrack && gpsActive) {
+      stopGpsTracking();
+    }
+  }, [driverProfile?.status]);
 
   const fetchDriverProfile = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        navigate("/login");
-        return;
-      }
+      if (!user) { navigate("/login"); return; }
 
       const [driverRes, profileRes] = await Promise.all([
         supabase.from("driver_profiles").select("*").eq("user_id", user.id).single(),
@@ -59,19 +76,74 @@ const DriverProfilePage = () => {
     }
   };
 
+  const sendLocation = useCallback(async () => {
+    if (!driverProfile) return;
+
+    try {
+      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 5000,
+        });
+      });
+
+      const { latitude, longitude } = position.coords;
+      const { error } = await supabase
+        .from("driver_profiles")
+        .update({
+          latitude,
+          longitude,
+          location_updated_at: new Date().toISOString(),
+        })
+        .eq("id", driverProfile.id);
+
+      if (error) throw error;
+      setLastGpsUpdate(new Date());
+      setDriverProfile((prev) => prev ? { ...prev, latitude, longitude } : null);
+    } catch (err: any) {
+      console.error("GPS error:", err.message);
+    }
+  }, [driverProfile?.id]);
+
+  const startGpsTracking = useCallback(() => {
+    if (!navigator.geolocation) {
+      toast({ title: "Erreur", description: "La géolocalisation n'est pas supportée", variant: "destructive" });
+      return;
+    }
+
+    // Send immediately
+    sendLocation();
+    // Then every 30s
+    gpsIntervalRef.current = setInterval(sendLocation, GPS_INTERVAL);
+    setGpsActive(true);
+  }, [sendLocation]);
+
+  const stopGpsTracking = useCallback(() => {
+    if (gpsIntervalRef.current) {
+      clearInterval(gpsIntervalRef.current);
+      gpsIntervalRef.current = null;
+    }
+    if (watchIdRef.current !== null) {
+      navigator.geolocation.clearWatch(watchIdRef.current);
+      watchIdRef.current = null;
+    }
+    setGpsActive(false);
+  }, []);
+
   const updateStatus = async (newStatus: string) => {
     if (!driverProfile) return;
-    
     try {
       const { error } = await supabase
         .from("driver_profiles")
         .update({ status: newStatus })
         .eq("id", driverProfile.id);
-
       if (error) throw error;
-
       setDriverProfile({ ...driverProfile, status: newStatus });
-      toast({ title: "Statut mis à jour", description: `Vous êtes maintenant ${newStatus === "available" ? "disponible" : newStatus === "busy" ? "en livraison" : "hors ligne"}` });
+      toast({
+        title: "Statut mis à jour",
+        description: `Vous êtes maintenant ${newStatus === "available" ? "disponible" : newStatus === "busy" ? "en livraison" : "hors ligne"}`,
+      });
     } catch (error: any) {
       toast({ title: "Erreur", description: error.message, variant: "destructive" });
     }
@@ -98,7 +170,7 @@ const DriverProfilePage = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
       </div>
     );
   }
@@ -113,7 +185,6 @@ const DriverProfilePage = () => {
           </Button>
           <h1 className="text-2xl font-bold">Mon Profil Livreur</h1>
         </div>
-        
         <div className="flex items-center gap-4">
           <div className="w-20 h-20 rounded-full bg-white/20 flex items-center justify-center text-3xl">
             {getVehicleIcon(driverProfile?.vehicle_type || "moto")}
@@ -138,7 +209,7 @@ const DriverProfilePage = () => {
               Statut actuel
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
             <div className="flex gap-2">
               {["available", "busy", "offline"].map((status) => (
                 <Button
@@ -150,6 +221,27 @@ const DriverProfilePage = () => {
                   {status === "available" ? "Disponible" : status === "busy" ? "En livraison" : "Hors ligne"}
                 </Button>
               ))}
+            </div>
+
+            {/* GPS Status Indicator */}
+            <div className={`flex items-center gap-3 p-3 rounded-lg ${gpsActive ? "bg-green-500/10 border border-green-500/30" : "bg-muted/50 border border-border"}`}>
+              <div className="relative">
+                <Navigation className={`h-5 w-5 ${gpsActive ? "text-green-500" : "text-muted-foreground"}`} />
+                {gpsActive && <div className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-green-500 animate-pulse" />}
+              </div>
+              <div className="flex-1">
+                <p className={`text-sm font-medium ${gpsActive ? "text-green-700 dark:text-green-400" : "text-muted-foreground"}`}>
+                  {gpsActive ? "Position GPS active" : "GPS inactif"}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {gpsActive
+                    ? lastGpsUpdate
+                      ? `Dernière mise à jour : ${lastGpsUpdate.toLocaleTimeString("fr-FR")}`
+                      : "Envoi en cours..."
+                    : "Passez en 'Disponible' ou 'En livraison' pour activer"}
+                </p>
+              </div>
+              {gpsActive && <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />}
             </div>
           </CardContent>
         </Card>
@@ -197,7 +289,6 @@ const DriverProfilePage = () => {
           </CardContent>
         </Card>
 
-        {/* Stats */}
         <Card className="animate-slide-up" style={{ animationDelay: "0.3s" }}>
           <CardHeader>
             <CardTitle>Mes Statistiques</CardTitle>
