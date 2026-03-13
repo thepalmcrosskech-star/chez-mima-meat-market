@@ -122,7 +122,7 @@ const SearchPage = () => {
                     <div className="flex items-center justify-between">
                       <div>
                         <span className="text-sm font-bold text-primary">{formatPrice(product.price)}</span>
-                        <span className="text-xs text-muted-foreground">/{product.unit_type}</span>
+                        <span className="text-xs text-muted-foreground">/{product.unit_type === "weight" ? "Kg" : "Pièce"}</span>
                       </div>
                       <Button
                         size="icon"
