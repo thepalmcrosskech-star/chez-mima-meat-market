@@ -26,6 +26,7 @@ import ProductPage from "./pages/ProductPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import OrderTrackingPage from "./pages/OrderTrackingPage";
 import SplashScreen from "./components/SplashScreen";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 const queryClient = new QueryClient();
 
