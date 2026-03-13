@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, Search, Upload, X, Loader2 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
+import { formatPrice } from "@/lib/format";
 
 interface Product {
   id: string;
