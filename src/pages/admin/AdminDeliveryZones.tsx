@@ -200,7 +200,7 @@ const AdminDeliveryZones = () => {
 
   const toggleActive = async (z: Zone) => {
     await supabase.from("delivery_zones").update({ is_active: !z.is_active }).eq("id", z.id);
-    fetchZones();
+    initData();
   };
 
   if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary" /></div>;
