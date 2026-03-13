@@ -72,7 +72,13 @@ const AdminOrders = () => {
   const updateStatus = async (orderId: string, status: string) => {
     const { error } = await supabase.from("orders").update({ status }).eq("id", orderId);
     if (error) toast({ title: "Erreur", description: error.message, variant: "destructive" });
-    else { toast({ title: "Statut mis à jour" }); fetchOrders(); }
+    else { toast({ title: "Statut mis à jour" }); fetchData(); }
+  };
+
+  const assignDriver = async (orderId: string, driverId: string) => {
+    const { error } = await supabase.from("orders").update({ driver_id: driverId === "none" ? null : driverId }).eq("id", orderId);
+    if (error) toast({ title: "Erreur", description: error.message, variant: "destructive" });
+    else { toast({ title: "Livreur assigné" }); fetchData(); }
   };
 
 
