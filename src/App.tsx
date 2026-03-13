@@ -23,6 +23,8 @@ import AdminDeliveryZones from "./pages/admin/AdminDeliveryZones";
 import AdminSettings from "./pages/admin/AdminSettings";
 import DriverProfile from "./pages/driver/DriverProfile";
 import ProductPage from "./pages/ProductPage";
+import CheckoutPage from "./pages/CheckoutPage";
+import OrderTrackingPage from "./pages/OrderTrackingPage";
 import SplashScreen from "./components/SplashScreen";
 
 const queryClient = new QueryClient();
