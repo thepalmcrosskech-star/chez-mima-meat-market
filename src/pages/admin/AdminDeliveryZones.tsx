@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,6 +12,8 @@ import { toast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, MapPin } from "lucide-react";
 import MapboxMap from "@/components/MapboxMap";
 import mapboxgl from "mapbox-gl";
+import { generateCircleGeoJSON } from "@/lib/geo";
+import { formatPrice } from "@/lib/format";
 
 interface Zone {
   id: string;
@@ -22,7 +24,8 @@ interface Zone {
   color: string | null;
   is_active: boolean | null;
   sort_order: number | null;
-  polygon: any;
+  radius_km: number | null;
+  min_radius_km: number | null;
 }
 
 const AdminDeliveryZones = () => {
@@ -36,13 +39,25 @@ const AdminDeliveryZones = () => {
   const [freeThreshold, setFreeThreshold] = useState("");
   const [color, setColor] = useState("#D3111A");
   const [isActive, setIsActive] = useState(true);
-  const [polygonPoints, setPolygonPoints] = useState<[number, number][]>([]);
-  const [isDrawing, setIsDrawing] = useState(false);
-  const mapRef = useRef<mapboxgl.Map | null>(null);
-  const markersRef = useRef<mapboxgl.Marker[]>([]);
+  const [radiusKm, setRadiusKm] = useState("");
+  const [minRadiusKm, setMinRadiusKm] = useState("0");
+  const [storeLocation, setStoreLocation] = useState<{ lat: number; lng: number }>({ lat: 33.5731, lng: -7.5898 });
   const overviewMapRef = useRef<mapboxgl.Map | null>(null);
 
-  useEffect(() => { fetchZones(); }, []);
+  useEffect(() => {
+    fetchZones();
+    fetchStoreLocation();
+  }, []);
+
+  const fetchStoreLocation = async () => {
+    const [latRes, lngRes] = await Promise.all([
+      supabase.from("app_settings").select("value").eq("key", "store_latitude").single(),
+      supabase.from("app_settings").select("value").eq("key", "store_longitude").single(),
+    ]);
+    const lat = latRes.data ? parseFloat(String(latRes.data.value)) : 33.5731;
+    const lng = lngRes.data ? parseFloat(String(lngRes.data.value)) : -7.5898;
+    setStoreLocation({ lat, lng });
+  };
 
   const fetchZones = async () => {
     const { data } = await supabase.from("delivery_zones").select("*").order("sort_order");
@@ -52,109 +67,21 @@ const AdminDeliveryZones = () => {
 
   const resetForm = () => {
     setName(""); setDeliveryFee(""); setMinimumOrder(""); setFreeThreshold("");
-    setColor("#D3111A"); setIsActive(true); setEditing(null); setPolygonPoints([]); setIsDrawing(false);
-    clearDrawingMarkers();
-  };
-
-  const clearDrawingMarkers = () => {
-    markersRef.current.forEach((m) => m.remove());
-    markersRef.current = [];
+    setColor("#D3111A"); setIsActive(true); setEditing(null);
+    setRadiusKm(""); setMinRadiusKm("0");
   };
 
   const openEdit = (z: Zone) => {
-    setEditing(z); setName(z.name); setDeliveryFee(String(z.delivery_fee));
-    setMinimumOrder(String(z.minimum_order)); setFreeThreshold(z.free_delivery_threshold ? String(z.free_delivery_threshold) : "");
-    setColor(z.color || "#D3111A"); setIsActive(z.is_active ?? true);
-    // Load existing polygon points
-    const coords = z.polygon?.coordinates?.[0] || [];
-    setPolygonPoints(coords.length > 0 ? coords.slice(0, -1) : []); // Remove closing point
+    setEditing(z);
+    setName(z.name);
+    setDeliveryFee(String(z.delivery_fee));
+    setMinimumOrder(String(z.minimum_order));
+    setFreeThreshold(z.free_delivery_threshold ? String(z.free_delivery_threshold) : "");
+    setColor(z.color || "#D3111A");
+    setIsActive(z.is_active ?? true);
+    setRadiusKm(z.radius_km ? String(z.radius_km) : "");
+    setMinRadiusKm(z.min_radius_km ? String(z.min_radius_km) : "0");
     setIsDialogOpen(true);
-  };
-
-  const handleMapClick = useCallback((lngLat: { lng: number; lat: number }) => {
-    if (!isDrawing) return;
-    const point: [number, number] = [lngLat.lng, lngLat.lat];
-    setPolygonPoints((prev) => [...prev, point]);
-  }, [isDrawing]);
-
-  // Draw polygon on map when points change
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map) return;
-
-    // Clear markers
-    clearDrawingMarkers();
-
-    // Add markers for each point
-    polygonPoints.forEach((pt, i) => {
-      const el = document.createElement("div");
-      el.className = "w-3 h-3 rounded-full border-2 border-white cursor-pointer";
-      el.style.backgroundColor = color;
-      const marker = new mapboxgl.Marker({ element: el }).setLngLat(pt).addTo(map);
-      markersRef.current.push(marker);
-    });
-
-    // Draw polygon
-    if (map.getSource("draw-polygon")) {
-      (map.getSource("draw-polygon") as mapboxgl.GeoJSONSource).setData({
-        type: "Feature",
-        properties: {},
-        geometry: {
-          type: "Polygon",
-          coordinates: polygonPoints.length >= 3 ? [[...polygonPoints, polygonPoints[0]]] : [],
-        },
-      });
-    }
-
-    // Draw lines
-    if (map.getSource("draw-lines")) {
-      (map.getSource("draw-lines") as mapboxgl.GeoJSONSource).setData({
-        type: "Feature",
-        properties: {},
-        geometry: {
-          type: "LineString",
-          coordinates: polygonPoints.length >= 2 ? polygonPoints : [],
-        },
-      });
-    }
-  }, [polygonPoints, color]);
-
-  const handleDrawMapReady = (map: mapboxgl.Map) => {
-    mapRef.current = map;
-
-    map.addSource("draw-polygon", {
-      type: "geojson",
-      data: { type: "Feature", properties: {}, geometry: { type: "Polygon", coordinates: [] } },
-    });
-    map.addLayer({
-      id: "draw-polygon-fill",
-      type: "fill",
-      source: "draw-polygon",
-      paint: { "fill-color": color, "fill-opacity": 0.2 },
-    });
-    map.addLayer({
-      id: "draw-polygon-outline",
-      type: "line",
-      source: "draw-polygon",
-      paint: { "line-color": color, "line-width": 2 },
-    });
-    map.addSource("draw-lines", {
-      type: "geojson",
-      data: { type: "Feature", properties: {}, geometry: { type: "LineString", coordinates: [] } },
-    });
-    map.addLayer({
-      id: "draw-lines-layer",
-      type: "line",
-      source: "draw-lines",
-      paint: { "line-color": color, "line-width": 2, "line-dasharray": [2, 2] },
-    });
-
-    // If editing, show existing polygon
-    if (polygonPoints.length > 0) {
-      const bounds = new mapboxgl.LngLatBounds();
-      polygonPoints.forEach((p) => bounds.extend(p));
-      map.fitBounds(bounds, { padding: 50 });
-    }
   };
 
   const handleOverviewMapReady = (map: mapboxgl.Map) => {
@@ -163,26 +90,24 @@ const AdminDeliveryZones = () => {
   };
 
   const renderZonesOnMap = (map: mapboxgl.Map, zonesList: Zone[]) => {
-    zonesList.forEach((zone, i) => {
-      const coords = zone.polygon?.coordinates;
-      if (!coords || !coords[0] || coords[0].length < 3) return;
+    // Add store marker
+    new mapboxgl.Marker({ color: "#16a34a" })
+      .setLngLat([storeLocation.lng, storeLocation.lat])
+      .addTo(map);
 
+    zonesList.forEach((zone) => {
+      if (!zone.radius_km) return;
       const sourceId = `zone-${zone.id}`;
       if (map.getSource(sourceId)) return;
 
-      map.addSource(sourceId, {
-        type: "geojson",
-        data: {
-          type: "Feature",
-          properties: { name: zone.name },
-          geometry: { type: "Polygon", coordinates: coords },
-        },
-      });
+      const circleGeoJSON = generateCircleGeoJSON(storeLocation.lng, storeLocation.lat, zone.radius_km);
+
+      map.addSource(sourceId, { type: "geojson", data: circleGeoJSON });
       map.addLayer({
         id: `${sourceId}-fill`,
         type: "fill",
         source: sourceId,
-        paint: { "fill-color": zone.color || "#D3111A", "fill-opacity": 0.25 },
+        paint: { "fill-color": zone.color || "#D3111A", "fill-opacity": 0.15 },
       });
       map.addLayer({
         id: `${sourceId}-outline`,
@@ -190,32 +115,54 @@ const AdminDeliveryZones = () => {
         source: sourceId,
         paint: { "line-color": zone.color || "#D3111A", "line-width": 2 },
       });
+
+      // Add zone label at the edge
+      const labelLng = storeLocation.lng;
+      const labelLat = storeLocation.lat + (zone.radius_km / 110.574);
+      new mapboxgl.Marker({
+        element: (() => {
+          const el = document.createElement("div");
+          el.className = "text-xs font-bold px-2 py-0.5 rounded shadow";
+          el.style.backgroundColor = zone.color || "#D3111A";
+          el.style.color = "white";
+          el.textContent = zone.name;
+          return el;
+        })(),
+      })
+        .setLngLat([labelLng, labelLat])
+        .addTo(map);
     });
 
-    // Fit bounds to all zones
-    const allCoords: [number, number][] = [];
-    zonesList.forEach((z) => {
-      const coords = z.polygon?.coordinates?.[0];
-      if (coords) coords.forEach((c: [number, number]) => allCoords.push(c));
-    });
-    if (allCoords.length > 0) {
-      const bounds = new mapboxgl.LngLatBounds();
-      allCoords.forEach((c) => bounds.extend(c));
-      map.fitBounds(bounds, { padding: 50 });
-    }
+    // Fit bounds
+    const maxRadius = Math.max(...zonesList.map((z) => z.radius_km || 0), 1);
+    const offset = maxRadius / 110.574;
+    map.fitBounds(
+      [
+        [storeLocation.lng - offset * 1.5, storeLocation.lat - offset * 1.5],
+        [storeLocation.lng + offset * 1.5, storeLocation.lat + offset * 1.5],
+      ],
+      { padding: 30 }
+    );
   };
 
   const handleSave = async () => {
-    if (!name || !deliveryFee || !minimumOrder) {
+    if (!name || !deliveryFee || !minimumOrder || !radiusKm) {
       toast({ title: "Erreur", description: "Champs requis manquants", variant: "destructive" });
       return;
     }
-    if (polygonPoints.length < 3) {
-      toast({ title: "Erreur", description: "Dessinez au moins 3 points sur la carte", variant: "destructive" });
+
+    const rKm = parseFloat(radiusKm);
+    const minRKm = parseFloat(minRadiusKm) || 0;
+
+    if (rKm <= 0) {
+      toast({ title: "Erreur", description: "Le rayon doit être supérieur à 0", variant: "destructive" });
+      return;
+    }
+    if (minRKm >= rKm) {
+      toast({ title: "Erreur", description: "Le rayon min doit être inférieur au rayon max", variant: "destructive" });
       return;
     }
 
-    const closedPolygon = [...polygonPoints, polygonPoints[0]]; // Close the polygon
     const payload = {
       name,
       delivery_fee: parseFloat(deliveryFee),
@@ -223,7 +170,9 @@ const AdminDeliveryZones = () => {
       free_delivery_threshold: freeThreshold ? parseFloat(freeThreshold) : null,
       color,
       is_active: isActive,
-      polygon: { type: "Polygon", coordinates: [closedPolygon] },
+      radius_km: rKm,
+      min_radius_km: minRKm,
+      polygon: null, // No longer using polygons
     };
 
     try {
@@ -254,11 +203,6 @@ const AdminDeliveryZones = () => {
     fetchZones();
   };
 
-  const undoLastPoint = () => setPolygonPoints((prev) => prev.slice(0, -1));
-  const clearPoints = () => { setPolygonPoints([]); clearDrawingMarkers(); };
-
-  const formatPrice = (n: number) => new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(n) + " MAD";
-
   if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary" /></div>;
 
   return (
@@ -267,42 +211,47 @@ const AdminDeliveryZones = () => {
         <h1 className="text-2xl font-bold">Zones de livraison</h1>
         <Dialog open={isDialogOpen} onOpenChange={(o) => { setIsDialogOpen(o); if (!o) resetForm(); }}>
           <DialogTrigger asChild><Button className="gap-2"><Plus className="h-4 w-4" /> Ajouter</Button></DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[95vh] overflow-y-auto">
+          <DialogContent className="max-w-lg max-h-[95vh] overflow-y-auto">
             <DialogHeader><DialogTitle>{editing ? "Modifier" : "Ajouter"} une zone</DialogTitle></DialogHeader>
             <div className="space-y-4 mt-4">
-              <div><Label>Nom</Label><Input value={name} onChange={(e) => setName(e.target.value)} /></div>
-              <div className="grid grid-cols-2 gap-4">
-                <div><Label>Frais de livraison</Label><Input type="number" value={deliveryFee} onChange={(e) => setDeliveryFee(e.target.value)} /></div>
-                <div><Label>Commande minimum</Label><Input type="number" value={minimumOrder} onChange={(e) => setMinimumOrder(e.target.value)} /></div>
-              </div>
-              <div><Label>Livraison gratuite dès</Label><Input type="number" value={freeThreshold} onChange={(e) => setFreeThreshold(e.target.value)} placeholder="Optionnel" /></div>
-              <div className="flex items-center gap-3">
-                <Label>Couleur</Label><input type="color" value={color} onChange={(e) => setColor(e.target.value)} className="w-10 h-10 rounded cursor-pointer" />
-              </div>
-              <div className="flex items-center gap-2"><Switch checked={isActive} onCheckedChange={setIsActive} /><Label>Active</Label></div>
+              <div><Label>Nom</Label><Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex: Zone Centre" /></div>
 
-              {/* Map for drawing zone */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <Label className="flex items-center gap-2"><MapPin className="h-4 w-4" /> Dessiner la zone sur la carte</Label>
-                  <div className="flex gap-2">
-                    <Button type="button" variant={isDrawing ? "default" : "secondary"} size="sm" onClick={() => setIsDrawing(!isDrawing)}>
-                      {isDrawing ? "Arrêter" : "Dessiner"}
-                    </Button>
-                    <Button type="button" variant="secondary" size="sm" onClick={undoLastPoint} disabled={polygonPoints.length === 0}>Annuler</Button>
-                    <Button type="button" variant="secondary" size="sm" onClick={clearPoints} disabled={polygonPoints.length === 0}>Effacer</Button>
-                  </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Rayon min (km)</Label>
+                  <Input type="number" step="0.1" min="0" value={minRadiusKm} onChange={(e) => setMinRadiusKm(e.target.value)} placeholder="0" />
+                  <p className="text-xs text-muted-foreground mt-1">Distance minimale depuis le magasin</p>
                 </div>
-                <p className="text-xs text-muted-foreground mb-2">
-                  {isDrawing ? "Cliquez sur la carte pour ajouter des points. Minimum 3 points." : "Cliquez sur \"Dessiner\" pour commencer."}
-                  {polygonPoints.length > 0 && ` (${polygonPoints.length} point${polygonPoints.length > 1 ? "s" : ""})`}
-                </p>
-                <MapboxMap
-                  className="w-full h-72"
-                  onClick={handleMapClick}
-                  onMapReady={handleDrawMapReady}
-                />
+                <div>
+                  <Label>Rayon max (km) *</Label>
+                  <Input type="number" step="0.1" min="0.1" value={radiusKm} onChange={(e) => setRadiusKm(e.target.value)} placeholder="5" />
+                  <p className="text-xs text-muted-foreground mt-1">Distance maximale depuis le magasin</p>
+                </div>
               </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div><Label>Frais de livraison (MAD)</Label><Input type="number" value={deliveryFee} onChange={(e) => setDeliveryFee(e.target.value)} /></div>
+                <div><Label>Commande minimum (MAD)</Label><Input type="number" value={minimumOrder} onChange={(e) => setMinimumOrder(e.target.value)} /></div>
+              </div>
+              <div><Label>Livraison gratuite dès (MAD)</Label><Input type="number" value={freeThreshold} onChange={(e) => setFreeThreshold(e.target.value)} placeholder="Optionnel" /></div>
+
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <Label>Couleur</Label>
+                  <input type="color" value={color} onChange={(e) => setColor(e.target.value)} className="w-10 h-10 rounded cursor-pointer border-0" />
+                </div>
+                <div className="flex items-center gap-2"><Switch checked={isActive} onCheckedChange={setIsActive} /><Label>Active</Label></div>
+              </div>
+
+              {/* Preview circle */}
+              {radiusKm && parseFloat(radiusKm) > 0 && (
+                <div className="p-3 rounded-lg bg-muted/50 border border-border">
+                  <p className="text-sm text-muted-foreground">
+                    <MapPin className="h-4 w-4 inline mr-1" />
+                    Zone couvrant de <strong>{minRadiusKm || "0"} km</strong> à <strong>{radiusKm} km</strong> autour du magasin
+                  </p>
+                </div>
+              )}
 
               <Button onClick={handleSave} className="w-full">{editing ? "Enregistrer" : "Ajouter"}</Button>
             </div>
@@ -310,12 +259,17 @@ const AdminDeliveryZones = () => {
         </Dialog>
       </div>
 
-      {/* Overview Map */}
-      {zones.some((z) => z.polygon?.coordinates?.[0]?.length > 0) && (
+      {/* Overview Map with circles */}
+      {zones.some((z) => z.radius_km && z.radius_km > 0) && (
         <Card>
           <CardContent className="pt-4">
-            <Label className="mb-2 block">Aperçu des zones</Label>
-            <MapboxMap className="w-full h-64" onMapReady={handleOverviewMapReady} />
+            <Label className="mb-2 block flex items-center gap-2"><MapPin className="h-4 w-4" /> Aperçu des zones (rayons autour du magasin)</Label>
+            <MapboxMap
+              className="w-full h-72"
+              center={[storeLocation.lng, storeLocation.lat]}
+              zoom={11}
+              onMapReady={handleOverviewMapReady}
+            />
           </CardContent>
         </Card>
       )}
@@ -326,6 +280,7 @@ const AdminDeliveryZones = () => {
             <TableHeader>
               <TableRow>
                 <TableHead>Zone</TableHead>
+                <TableHead>Rayon</TableHead>
                 <TableHead>Frais</TableHead>
                 <TableHead>Min. commande</TableHead>
                 <TableHead>Statut</TableHead>
@@ -340,6 +295,11 @@ const AdminDeliveryZones = () => {
                       <div className="w-3 h-3 rounded-full" style={{ backgroundColor: z.color || "#D3111A" }} />
                       <span className="font-medium">{z.name}</span>
                     </div>
+                  </TableCell>
+                  <TableCell>
+                    <span className="text-sm">
+                      {z.min_radius_km || 0} – {z.radius_km || "?"} km
+                    </span>
                   </TableCell>
                   <TableCell>{formatPrice(z.delivery_fee)}</TableCell>
                   <TableCell>{formatPrice(z.minimum_order)}</TableCell>
@@ -357,7 +317,7 @@ const AdminDeliveryZones = () => {
                 </TableRow>
               ))}
               {zones.length === 0 && (
-                <TableRow><TableCell colSpan={5} className="text-center py-8 text-muted-foreground">Aucune zone</TableCell></TableRow>
+                <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground">Aucune zone</TableCell></TableRow>
               )}
             </TableBody>
           </Table>
