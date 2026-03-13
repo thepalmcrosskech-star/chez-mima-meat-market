@@ -20,6 +20,7 @@ import AdminCategories from "./pages/admin/AdminCategories";
 import AdminDrivers from "./pages/admin/AdminDrivers";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminDeliveryZones from "./pages/admin/AdminDeliveryZones";
+import AdminBanners from "./pages/admin/AdminBanners";
 import AdminSettings from "./pages/admin/AdminSettings";
 import DriverProfile from "./pages/driver/DriverProfile";
 import ProductPage from "./pages/ProductPage";
