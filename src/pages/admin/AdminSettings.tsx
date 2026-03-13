@@ -127,7 +127,7 @@ const AdminSettings = () => {
           </div>
           <MapboxMap
             className="w-full h-72"
-            center={[parseFloat(settings.store_longitude) || -7.5898, parseFloat(settings.store_latitude) || 33.5731]}
+            center={[parseFloat(settings.store_longitude) || -8.019, parseFloat(settings.store_latitude) || 31.589]}
             zoom={15}
             onClick={handleMapClick}
             onMapReady={handleMapReady}
