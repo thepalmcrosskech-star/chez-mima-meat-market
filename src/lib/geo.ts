@@ -1,32 +1,55 @@
 /**
- * Point-in-polygon test using ray casting.
- * Handles GeoJSON Polygon format: { type: "Polygon", coordinates: [[[lng, lat], ...]] }
- * Also handles raw coordinate arrays: [[lng, lat], ...]
+ * Haversine distance in km between two lat/lng points.
  */
-export function pointInPolygon(lat: number, lng: number, polygon: any): boolean {
-  // Extract coordinates from GeoJSON format
-  let ring: number[][];
-  if (polygon?.type === "Polygon" && Array.isArray(polygon.coordinates)) {
-    ring = polygon.coordinates[0]; // outer ring
-  } else if (Array.isArray(polygon) && Array.isArray(polygon[0]) && Array.isArray(polygon[0][0])) {
-    // [[[ lng, lat ], ...]] format
-    ring = polygon[0];
-  } else if (Array.isArray(polygon) && Array.isArray(polygon[0]) && typeof polygon[0][0] === "number") {
-    // [[ lng, lat ], ...] format
-    ring = polygon;
-  } else {
-    return false;
-  }
+export function haversineDistance(
+  lat1: number, lng1: number,
+  lat2: number, lng2: number
+): number {
+  const R = 6371; // Earth radius in km
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
 
-  if (!ring || ring.length < 3) return false;
+function toRad(deg: number): number {
+  return (deg * Math.PI) / 180;
+}
 
-  let inside = false;
-  // GeoJSON coordinates are [lng, lat]
-  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
-    const xi = ring[i][1], yi = ring[i][0]; // lat, lng
-    const xj = ring[j][1], yj = ring[j][0];
-    const intersect = yi > lng !== yj > lng && lat < ((xj - xi) * (lng - yi)) / (yj - yi) + xi;
-    if (intersect) inside = !inside;
+/**
+ * Generate a GeoJSON circle polygon for display on a map.
+ * @param centerLng - center longitude
+ * @param centerLat - center latitude  
+ * @param radiusKm - radius in kilometers
+ * @param points - number of points to approximate the circle (default 64)
+ */
+export function generateCircleGeoJSON(
+  centerLng: number,
+  centerLat: number,
+  radiusKm: number,
+  points: number = 64
+): GeoJSON.Feature<GeoJSON.Polygon> {
+  const coords: [number, number][] = [];
+  const km = radiusKm;
+  const distanceX = km / (111.32 * Math.cos((centerLat * Math.PI) / 180));
+  const distanceY = km / 110.574;
+
+  for (let i = 0; i < points; i++) {
+    const theta = (i / points) * (2 * Math.PI);
+    const x = distanceX * Math.cos(theta);
+    const y = distanceY * Math.sin(theta);
+    coords.push([centerLng + x, centerLat + y]);
   }
-  return inside;
+  coords.push(coords[0]); // close ring
+
+  return {
+    type: "Feature",
+    properties: {},
+    geometry: {
+      type: "Polygon",
+      coordinates: [coords],
+    },
+  };
 }
