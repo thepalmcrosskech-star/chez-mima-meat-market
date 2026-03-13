@@ -61,6 +61,7 @@ const App = () => {
               <Route path="/orders" element={<OrdersPage />} />
               <Route path="/order-tracking/:id" element={<OrderTrackingPage />} />
               <Route path="/checkout" element={<CheckoutPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/admin" element={<AdminLayout />}>
                 <Route index element={<AdminOverview />} />
