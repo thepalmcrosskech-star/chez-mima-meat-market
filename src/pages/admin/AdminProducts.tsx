@@ -23,7 +23,6 @@ interface Product {
   image_url: string | null;
   category_id: string | null;
   is_active: boolean | null;
-  stock_quantity: number;
   product_info: string | null;
   cooking_tips: string | null;
   conservation_tips: string | null;

@@ -144,6 +144,21 @@ const AdminOrders = () => {
                         </SelectContent>
                       </Select>
                     </TableCell>
+                    <TableCell>
+                      <Select value={o.driver_id || "none"} onValueChange={(v) => assignDriver(o.id, v)}>
+                        <SelectTrigger className="w-[140px] text-xs">
+                          <SelectValue placeholder="Aucun" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">Aucun</SelectItem>
+                          {drivers.map((d) => (
+                            <SelectItem key={d.id} value={d.id}>
+                              <span className="flex items-center gap-1"><Bike className="h-3 w-3" /> {d.profiles?.name || "Livreur"}</span>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
                     <TableCell className="text-right">
                       <Button variant="ghost" size="icon" onClick={() => openDetail(o)}><Eye className="h-4 w-4" /></Button>
                     </TableCell>
@@ -151,7 +166,7 @@ const AdminOrders = () => {
                 );
               })}
               {filtered.length === 0 && (
-                <TableRow><TableCell colSpan={5} className="text-center py-8 text-muted-foreground">Aucune commande</TableCell></TableRow>
+                <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground">Aucune commande</TableCell></TableRow>
               )}
             </TableBody>
           </Table>
