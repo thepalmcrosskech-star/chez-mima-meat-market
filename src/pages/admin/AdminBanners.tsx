@@ -9,7 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, Loader2, Image, GripVertical, ExternalLink } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, Image, GripVertical, ExternalLink, Search } from "lucide-react";
 
 interface Banner {
   id: string;
