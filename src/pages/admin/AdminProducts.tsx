@@ -53,7 +53,7 @@ const AdminProducts = () => {
   const [categoryId, setCategoryId] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [imagePreview, setImagePreview] = useState("");
-  const [stockQuantity, setStockQuantity] = useState("0");
+  
   const [isActive, setIsActive] = useState(true);
   const [productInfo, setProductInfo] = useState("");
   const [cookingTips, setCookingTips] = useState("");
