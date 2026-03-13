@@ -142,18 +142,30 @@ const LoginPage = () => {
             />
           </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="password">Mot de passe</Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
-            />
-          </div>
+          {mode !== "forgot" && (
+            <div className="space-y-1.5">
+              <Label htmlFor="password">Mot de passe</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={6}
+              />
+            </div>
+          )}
+
+          {mode === "login" && (
+            <button
+              type="button"
+              onClick={() => setMode("forgot")}
+              className="text-sm text-primary hover:underline"
+            >
+              Mot de passe oublié ?
+            </button>
+          )}
 
           <Button
             type="submit"
@@ -164,8 +176,20 @@ const LoginPage = () => {
               ? "Chargement..."
               : mode === "login"
               ? "Se connecter"
-              : "Créer mon compte"}
+              : mode === "register"
+              ? "Créer mon compte"
+              : "Réinitialiser"}
           </Button>
+
+          {mode === "forgot" && (
+            <button
+              type="button"
+              onClick={() => setMode("login")}
+              className="w-full text-sm text-muted-foreground hover:text-foreground"
+            >
+              ← Retour à la connexion
+            </button>
+          )}
         </form>
       </div>
     </div>
