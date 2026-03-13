@@ -42,6 +42,7 @@ interface OrderItem {
 
 const AdminOrders = () => {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [drivers, setDrivers] = useState<DriverProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState("all");
   const [search, setSearch] = useState("");
@@ -49,14 +50,15 @@ const AdminOrders = () => {
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
   const [detailOpen, setDetailOpen] = useState(false);
 
-  useEffect(() => { fetchOrders(); }, []);
+  useEffect(() => { fetchData(); }, []);
 
-  const fetchOrders = async () => {
-    const { data } = await supabase
-      .from("orders")
-      .select("*, profiles(name, email, phone)")
-      .order("created_at", { ascending: false });
-    if (data) setOrders(data as Order[]);
+  const fetchData = async () => {
+    const [ordersRes, driversRes] = await Promise.all([
+      supabase.from("orders").select("*, profiles(name, email, phone)").order("created_at", { ascending: false }),
+      supabase.from("driver_profiles").select("id, user_id, profiles(name)"),
+    ]);
+    if (ordersRes.data) setOrders(ordersRes.data as Order[]);
+    if (driversRes.data) setDrivers(driversRes.data as unknown as DriverProfile[]);
     setLoading(false);
   };
 
