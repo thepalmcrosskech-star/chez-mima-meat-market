@@ -42,26 +42,26 @@ const AdminDeliveryZones = () => {
   const [radiusKm, setRadiusKm] = useState("");
   const [minRadiusKm, setMinRadiusKm] = useState("0");
   const [storeLocation, setStoreLocation] = useState<{ lat: number; lng: number }>({ lat: 33.5731, lng: -7.5898 });
+  const [storeLoaded, setStoreLoaded] = useState(false);
   const overviewMapRef = useRef<mapboxgl.Map | null>(null);
 
   useEffect(() => {
-    fetchZones();
-    fetchStoreLocation();
+    initData();
   }, []);
 
-  const fetchStoreLocation = async () => {
-    const [latRes, lngRes] = await Promise.all([
+  const initData = async () => {
+    const [zonesRes, latRes, lngRes] = await Promise.all([
+      supabase.from("delivery_zones").select("*").order("sort_order"),
       supabase.from("app_settings").select("value").eq("key", "store_latitude").single(),
       supabase.from("app_settings").select("value").eq("key", "store_longitude").single(),
     ]);
-    const lat = latRes.data ? parseFloat(String(latRes.data.value)) : 33.5731;
-    const lng = lngRes.data ? parseFloat(String(lngRes.data.value)) : -7.5898;
-    setStoreLocation({ lat, lng });
-  };
 
-  const fetchZones = async () => {
-    const { data } = await supabase.from("delivery_zones").select("*").order("sort_order");
-    if (data) setZones(data as Zone[]);
+    const lat = latRes.data ? parseFloat(String(latRes.data.value)) : 31.589;
+    const lng = lngRes.data ? parseFloat(String(lngRes.data.value)) : -8.019;
+    setStoreLocation({ lat, lng });
+    setStoreLoaded(true);
+
+    if (zonesRes.data) setZones(zonesRes.data as Zone[]);
     setLoading(false);
   };
 
