@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, ClipboardList } from "lucide-react";
+import { Loader2, ClipboardList, ChevronRight } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 
 interface Order {
@@ -27,6 +28,7 @@ const formatPrice = (n: number) =>
   new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(n) + " MAD";
 
 const OrdersPage = () => {
+  const navigate = useNavigate();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -68,7 +70,7 @@ const OrdersPage = () => {
             {orders.map((order) => {
               const info = statusLabels[order.status] || { label: order.status, variant: "secondary" as const };
               return (
-                <Card key={order.id} className="p-4">
+                <Card key={order.id} className="p-4 cursor-pointer hover:border-primary/50 transition-all" onClick={() => navigate(`/order-tracking/${order.id}`)}>
                   <div className="flex items-center justify-between mb-2">
                     <p className="text-xs text-muted-foreground">
                       {order.created_at
@@ -83,7 +85,10 @@ const OrdersPage = () => {
                     <div className="text-sm text-muted-foreground">
                       Sous-total: {formatPrice(order.subtotal)} · Livraison: {formatPrice(order.delivery_fee)}
                     </div>
-                    <p className="text-lg font-bold text-primary">{formatPrice(order.total_price)}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-lg font-bold text-primary">{formatPrice(order.total_price)}</p>
+                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                    </div>
                   </div>
                 </Card>
               );

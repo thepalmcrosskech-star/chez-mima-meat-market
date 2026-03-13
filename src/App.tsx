@@ -23,6 +23,8 @@ import AdminDeliveryZones from "./pages/admin/AdminDeliveryZones";
 import AdminSettings from "./pages/admin/AdminSettings";
 import DriverProfile from "./pages/driver/DriverProfile";
 import ProductPage from "./pages/ProductPage";
+import CheckoutPage from "./pages/CheckoutPage";
+import OrderTrackingPage from "./pages/OrderTrackingPage";
 import SplashScreen from "./components/SplashScreen";
 
 const queryClient = new QueryClient();
@@ -57,6 +59,8 @@ const App = () => {
               <Route path="/product/:id" element={<ProductPage />} />
               <Route path="/cart" element={<CartPage />} />
               <Route path="/orders" element={<OrdersPage />} />
+              <Route path="/order-tracking/:id" element={<OrderTrackingPage />} />
+              <Route path="/checkout" element={<CheckoutPage />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/admin" element={<AdminLayout />}>

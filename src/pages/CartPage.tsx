@@ -95,7 +95,7 @@ const CartPage = () => {
               </div>
             </Card>
 
-            <Button className="w-full py-6 text-base font-bold">
+            <Button className="w-full py-6 text-base font-bold" onClick={() => navigate("/checkout")}>
               Passer la commande
             </Button>
           </div>
