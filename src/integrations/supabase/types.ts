@@ -105,7 +105,10 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          latitude: number | null
           license_plate: string | null
+          location_updated_at: string | null
+          longitude: number | null
           rating: number | null
           status: string
           total_deliveries: number | null
@@ -116,7 +119,10 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          latitude?: number | null
           license_plate?: string | null
+          location_updated_at?: string | null
+          longitude?: number | null
           rating?: number | null
           status?: string
           total_deliveries?: number | null
@@ -127,7 +133,10 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          latitude?: number | null
           license_plate?: string | null
+          location_updated_at?: string | null
+          longitude?: number | null
           rating?: number | null
           status?: string
           total_deliveries?: number | null
@@ -245,6 +254,7 @@ export type Database = {
           delivery_address_snapshot: Json | null
           delivery_fee: number
           delivery_zone_id: string | null
+          driver_id: string | null
           id: string
           notes: string | null
           status: string
@@ -259,6 +269,7 @@ export type Database = {
           delivery_address_snapshot?: Json | null
           delivery_fee?: number
           delivery_zone_id?: string | null
+          driver_id?: string | null
           id?: string
           notes?: string | null
           status?: string
@@ -273,6 +284,7 @@ export type Database = {
           delivery_address_snapshot?: Json | null
           delivery_fee?: number
           delivery_zone_id?: string | null
+          driver_id?: string | null
           id?: string
           notes?: string | null
           status?: string
@@ -294,6 +306,13 @@ export type Database = {
             columns: ["delivery_zone_id"]
             isOneToOne: false
             referencedRelation: "delivery_zones"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_driver_id_fkey"
+            columns: ["driver_id"]
+            isOneToOne: false
+            referencedRelation: "driver_profiles"
             referencedColumns: ["id"]
           },
           {
