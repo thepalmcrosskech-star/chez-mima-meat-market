@@ -20,11 +20,20 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      if (mode === "login") {
+      if (mode === "forgot") {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/login`,
+        });
+        if (error) throw error;
+        toast({
+          title: "Email envoyé",
+          description: "Vérifiez votre boîte mail pour réinitialiser votre mot de passe.",
+        });
+        setMode("login");
+      } else if (mode === "login") {
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         
-        // Check role and redirect accordingly
         const { data: profile } = await supabase
           .from("profiles")
           .select("role")
