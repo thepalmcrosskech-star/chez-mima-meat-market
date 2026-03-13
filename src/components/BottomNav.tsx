@@ -27,20 +27,19 @@ const BottomNav = forwardRef<HTMLElement>((_, ref) => {
               key={item.path}
               variant="ghost"
               onClick={() => navigate(item.path)}
-              className={`flex flex-col items-center gap-0.5 px-2 py-1 h-auto relative ${
-                active ? "text-primary" : "text-muted-foreground hover:text-foreground"
+              className={`flex items-center justify-center p-2 h-auto rounded-full relative transition-colors ${
+                active ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground"
               }`}
+              aria-label={item.label}
             >
               <div className="relative">
-                <item.icon className="h-5 w-5" />
+                <item.icon className={`${active ? "h-6 w-6" : "h-5 w-5"} transition-all`} strokeWidth={active ? 2.5 : 2} />
                 {item.badge && totalItems > 0 && (
                   <span className="absolute -top-1.5 -right-2 bg-primary text-primary-foreground text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
                     {totalItems > 9 ? "9+" : totalItems}
                   </span>
                 )}
               </div>
-              <span className="text-[10px] font-semibold uppercase tracking-wider">{item.label}</span>
-              {active && <div className="absolute -bottom-2 w-5 h-0.5 bg-primary rounded-full" />}
             </Button>
           );
         })}
