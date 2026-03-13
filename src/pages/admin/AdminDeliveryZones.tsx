@@ -195,7 +195,7 @@ const AdminDeliveryZones = () => {
     if (!confirm("Supprimer cette zone ?")) return;
     const { error } = await supabase.from("delivery_zones").delete().eq("id", id);
     if (error) toast({ title: "Erreur", description: error.message, variant: "destructive" });
-    else { toast({ title: "Zone supprimée" }); fetchZones(); }
+    else { toast({ title: "Zone supprimée" }); initData(); }
   };
 
   const toggleActive = async (z: Zone) => {
