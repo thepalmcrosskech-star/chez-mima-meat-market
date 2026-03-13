@@ -35,6 +35,42 @@ export type Database = {
         }
         Relationships: []
       }
+      banners: {
+        Row: {
+          button_text: string | null
+          created_at: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean | null
+          link_url: string | null
+          sort_order: number | null
+          subtitle: string | null
+          title: string
+        }
+        Insert: {
+          button_text?: string | null
+          created_at?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          link_url?: string | null
+          sort_order?: number | null
+          subtitle?: string | null
+          title?: string
+        }
+        Update: {
+          button_text?: string | null
+          created_at?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          link_url?: string | null
+          sort_order?: number | null
+          subtitle?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           created_at: string | null
