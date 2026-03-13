@@ -12,6 +12,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatPrice, statusOptions, getStatusInfo } from "@/lib/format";
 
+interface DriverProfile {
+  id: string;
+  user_id: string;
+  profiles: { name: string } | null;
+}
+
 interface Order {
   id: string;
   status: string;
@@ -20,6 +26,7 @@ interface Order {
   total_price: number;
   notes: string | null;
   created_at: string | null;
+  driver_id: string | null;
   profiles?: { name: string; email: string; phone: string | null };
   delivery_address_snapshot?: any;
 }
