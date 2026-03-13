@@ -62,8 +62,8 @@ const AdminSettings = () => {
 
   const handleMapReady = (map: mapboxgl.Map) => {
     mapRef.current = map;
-    const lat = parseFloat(settings.store_latitude) || 33.5731;
-    const lng = parseFloat(settings.store_longitude) || -7.5898;
+    const lat = parseFloat(settings.store_latitude) || 31.589;
+    const lng = parseFloat(settings.store_longitude) || -8.019;
     placeMarker([lng, lat], map);
     map.flyTo({ center: [lng, lat], zoom: 15 });
   };
