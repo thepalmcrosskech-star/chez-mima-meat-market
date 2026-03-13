@@ -26,12 +26,7 @@ interface Product {
   category_id: string | null;
 }
 
-const formatPrice = (price: number) => {
-  return new Intl.NumberFormat("fr-MA", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(price) + " MAD";
-};
+import { formatPrice } from "@/lib/format";
 
 const HomePage = () => {
   const navigate = useNavigate();

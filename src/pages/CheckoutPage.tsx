@@ -78,8 +78,7 @@ const CheckoutPage = () => {
 
   const findZone = (lat: number, lng: number): DeliveryZone | null => {
     for (const zone of zones) {
-      const poly = Array.isArray(zone.polygon) ? zone.polygon : [];
-      if (poly.length > 0 && pointInPolygon(lat, lng, poly as number[][])) return zone;
+      if (pointInPolygon(lat, lng, zone.polygon)) return zone;
     }
     return null;
   };

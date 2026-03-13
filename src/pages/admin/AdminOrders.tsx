@@ -72,8 +72,6 @@ const AdminOrders = () => {
     else { toast({ title: "Statut mis à jour" }); fetchOrders(); }
   };
 
-  const formatPrice = (n: number) => new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(n) + " MAD";
-  const getStatusInfo = (s: string) => statusOptions.find((o) => o.value === s) || { label: s, color: "bg-muted text-muted-foreground" };
 
   const filtered = orders.filter((o) => {
     const matchStatus = filterStatus === "all" || o.status === filterStatus;

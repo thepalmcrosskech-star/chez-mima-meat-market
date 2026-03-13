@@ -34,8 +34,7 @@ const statusSteps = [
   { key: "delivered", label: "Livrée", icon: CheckCircle2, description: "Votre commande a été livrée" },
 ];
 
-const formatPrice = (n: number) =>
-  new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(n) + " MAD";
+import { formatPrice } from "@/lib/format";
 
 const OrderTrackingPage = () => {
   const { id } = useParams<{ id: string }>();

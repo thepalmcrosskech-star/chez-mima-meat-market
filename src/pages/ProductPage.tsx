@@ -48,9 +48,7 @@ interface Review {
   profiles: { name: string } | null;
 }
 
-const formatPrice = (price: number) =>
-  new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(price) +
-  " MAD";
+import { formatPrice } from "@/lib/format";
 
 const StarRating = ({
   rating,
