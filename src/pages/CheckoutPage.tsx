@@ -51,6 +51,7 @@ const CheckoutPage = () => {
   const [apartment, setApartment] = useState("");
   const [instructions, setInstructions] = useState("");
   const [notes, setNotes] = useState("");
+  const [whatsappPhone, setWhatsappPhone] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
 
