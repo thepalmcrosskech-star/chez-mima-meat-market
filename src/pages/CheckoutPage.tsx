@@ -77,6 +77,7 @@ const CheckoutPage = () => {
       setSavedAddresses(addrRes.data);
       const defaultAddr = addrRes.data.find((a) => a.is_default);
       if (defaultAddr) setSelectedAddressId(defaultAddr.id);
+      if (addrRes.data.length === 0) setShowNewAddress(true);
     }
     if (zonesRes.data) setZones(zonesRes.data);
 
