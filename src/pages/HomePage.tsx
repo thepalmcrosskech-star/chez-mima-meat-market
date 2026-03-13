@@ -10,22 +10,7 @@ import QuantityDialog from "@/components/QuantityDialog";
 import logo from "@/assets/logo.jpeg";
 import BottomNav from "@/components/BottomNav";
 
-interface Category {
-  id: string;
-  name: string;
-  emoji: string | null;
-}
-
-interface Product {
-  id: string;
-  name: string;
-  description: string | null;
-  price: number;
-  unit_type: string;
-  image_url: string | null;
-  category_id: string | null;
-}
-
+import { Product, Category } from "@/types/product";
 import { formatPrice } from "@/lib/format";
 
 const HomePage = () => {

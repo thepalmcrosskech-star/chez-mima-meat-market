@@ -10,22 +10,7 @@ import { toast } from "@/hooks/use-toast";
 import QuantityDialog from "@/components/QuantityDialog";
 import BottomNav from "@/components/BottomNav";
 
-interface Product {
-  id: string;
-  name: string;
-  description: string | null;
-  price: number;
-  unit_type: string;
-  image_url: string | null;
-  category_id: string | null;
-}
-
-interface Category {
-  id: string;
-  name: string;
-  emoji: string | null;
-}
-
+import { Product, Category } from "@/types/product";
 import { formatPrice } from "@/lib/format";
 
 const SearchPage = () => {
