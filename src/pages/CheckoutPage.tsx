@@ -165,6 +165,18 @@ const CheckoutPage = () => {
       const { error: itemsErr } = await supabase.from("order_items").insert(orderItems);
       if (itemsErr) throw itemsErr;
 
+      // Send confirmation email (fire-and-forget)
+      const { data: userProfile } = await supabase.from("profiles").select("email, name").eq("id", userId).single();
+      if (userProfile?.email) {
+        supabase.functions.invoke("send-email", {
+          body: {
+            to: userProfile.email,
+            subject: "Confirmation de votre commande - Chez Mima",
+            html: `<h2>Merci ${userProfile.name} !</h2><p>Votre commande de <strong>${formatPrice(total)}</strong> a été reçue et est en cours de traitement.</p><p>Vous pouvez suivre votre commande en temps réel depuis l'application.</p><p>À bientôt !<br/>L'équipe Chez Mima</p>`,
+          },
+        }).catch(() => {}); // Don't block checkout on email failure
+      }
+
       clearCart();
       toast({ title: "Commande passée !", description: "Votre commande a été envoyée avec succès" });
       navigate(`/order-tracking/${order.id}`);
