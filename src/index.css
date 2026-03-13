@@ -10,49 +10,38 @@
 
 @layer base {
   :root {
-    /* ── Brand Dark Theme (default) ── */
-    --background: 0 0% 0%;
-    --foreground: 0 0% 100%;
-
-    --card: 0 0% 6%;
-    --card-foreground: 0 0% 100%;
-
-    --popover: 0 0% 8%;
-    --popover-foreground: 0 0% 100%;
-
-    /* Red brand #D3111A */
+    /* ── Light Theme (default) ── */
+    --background: 0 0% 98%;
+    --foreground: 0 0% 8%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 8%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 8%;
     --primary: 357 85% 45%;
     --primary-foreground: 0 0% 100%;
-
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 0 0% 100%;
-
-    --muted: 0 0% 12%;
-    --muted-foreground: 0 0% 55%;
-
-    --accent: 0 0% 14%;
-    --accent-foreground: 0 0% 100%;
-
+    --secondary: 0 0% 92%;
+    --secondary-foreground: 0 0% 15%;
+    --muted: 0 0% 92%;
+    --muted-foreground: 0 0% 40%;
+    --accent: 0 0% 94%;
+    --accent-foreground: 0 0% 10%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-
-    --border: 0 0% 16%;
-    --input: 0 0% 12%;
+    --border: 0 0% 88%;
+    --input: 0 0% 90%;
     --ring: 357 85% 45%;
-
     --radius: 0.75rem;
-
-    --sidebar-background: 0 0% 4%;
-    --sidebar-foreground: 0 0% 90%;
+    --sidebar-background: 0 0% 96%;
+    --sidebar-foreground: 0 0% 15%;
     --sidebar-primary: 357 85% 45%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 10%;
-    --sidebar-accent-foreground: 0 0% 90%;
-    --sidebar-border: 0 0% 14%;
+    --sidebar-accent: 0 0% 92%;
+    --sidebar-accent-foreground: 0 0% 15%;
+    --sidebar-border: 0 0% 88%;
     --sidebar-ring: 357 85% 45%;
   }
 
-  /* Keep .dark in sync for next-themes */
+  /* Brand Dark Theme */
   .dark {
     --background: 0 0% 0%;
     --foreground: 0 0% 100%;

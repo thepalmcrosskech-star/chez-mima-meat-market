@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
-import { Heart, Bell, Plus, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Heart, Bell, Plus, Loader2, ChevronLeft, ChevronRight, Sun, Moon } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
@@ -138,11 +139,36 @@ const HomePage = () => {
             CHEZ MIMA
           </h1>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <Button variant="ghost" size="icon" className="relative hover-scale">
             <Bell className="h-5 w-5" />
             <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full border border-background notification-pulse"></span>
           </Button>
+          <button
+            onClick={() => {
+              const html = document.documentElement;
+              const isDark = html.classList.contains("dark");
+              if (isDark) {
+                html.classList.remove("dark");
+                localStorage.setItem("theme", "light");
+              } else {
+                html.classList.add("dark");
+                localStorage.setItem("theme", "dark");
+              }
+              // force re-render
+              window.dispatchEvent(new Event("themechange"));
+            }}
+            className="relative inline-flex h-7 w-12 items-center rounded-full bg-muted border border-border transition-colors"
+            aria-label="Basculer thème clair/sombre"
+          >
+            <span className="absolute left-1 text-muted-foreground dark:opacity-0 opacity-100 transition-opacity">
+              <Sun className="h-3.5 w-3.5" />
+            </span>
+            <span className="absolute right-1 text-muted-foreground dark:opacity-100 opacity-0 transition-opacity">
+              <Moon className="h-3.5 w-3.5" />
+            </span>
+            <span className="inline-block h-5 w-5 rounded-full bg-primary shadow-md transform transition-transform dark:translate-x-5 translate-x-1" />
+          </button>
         </div>
       </header>
 
