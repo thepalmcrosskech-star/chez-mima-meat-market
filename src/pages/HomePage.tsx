@@ -33,6 +33,8 @@ const HomePage = () => {
   const [authChecked, setAuthChecked] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [quantityDialogOpen, setQuantityDialogOpen] = useState(false);
+  const [banners, setBanners] = useState<Banner[]>([]);
+  const [currentBanner, setCurrentBanner] = useState(0);
 
   useEffect(() => {
     const checkAuth = async () => {
