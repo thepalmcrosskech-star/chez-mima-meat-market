@@ -59,9 +59,10 @@ const HomePage = () => {
   }, [navigate]);
 
   const fetchData = async () => {
-    const [categoriesRes, productsRes] = await Promise.all([
+    const [categoriesRes, productsRes, bannersRes] = await Promise.all([
       supabase.from("categories").select("*").order("sort_order"),
       supabase.from("products").select("*").eq("is_active", true),
+      supabase.from("banners").select("*").eq("is_active", true).order("sort_order"),
     ]);
 
     if (categoriesRes.data) {
@@ -73,8 +74,18 @@ const HomePage = () => {
       }
     }
     if (productsRes.data) setProducts(productsRes.data);
+    if (bannersRes.data) setBanners(bannersRes.data as Banner[]);
     setLoading(false);
   };
+
+  // Auto-rotate banners
+  useEffect(() => {
+    if (banners.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentBanner((prev) => (prev + 1) % banners.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [banners.length]);
 
   const handleAddToCart = (product: Product) => {
     setSelectedProduct(product);
