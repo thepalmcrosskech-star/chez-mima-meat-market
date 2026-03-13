@@ -117,6 +117,7 @@ const AdminOrders = () => {
                 <TableHead>Date</TableHead>
                 <TableHead>Total</TableHead>
                 <TableHead>Statut</TableHead>
+                <TableHead>Livreur</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
