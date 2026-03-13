@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
-import { Heart, Bell, Plus, Loader2 } from "lucide-react";
+import { Heart, Bell, Plus, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,6 +12,15 @@ import BottomNav from "@/components/BottomNav";
 
 import { Product, Category } from "@/types/product";
 import { formatPrice } from "@/lib/format";
+
+interface Banner {
+  id: string;
+  title: string;
+  subtitle: string;
+  image_url: string | null;
+  link_url: string;
+  button_text: string;
+}
 
 const HomePage = () => {
   const navigate = useNavigate();
