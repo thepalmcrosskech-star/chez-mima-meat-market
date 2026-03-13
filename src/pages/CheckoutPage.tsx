@@ -127,10 +127,15 @@ const CheckoutPage = () => {
   const { zone: deliveryZone, fee: deliveryFee } = getDeliveryInfo();
   const total = deliveryFee !== null ? subtotal + deliveryFee : subtotal;
   const hasAddress = selectedAddressId || newAddress;
-  const canOrder = hasAddress && deliveryZone && deliveryFee !== null && subtotal >= deliveryZone.minimum_order;
+  const isValidPhone = whatsappPhone.replace(/\s/g, "").length >= 9;
+  const canOrder = hasAddress && deliveryZone && deliveryFee !== null && subtotal >= deliveryZone.minimum_order && isValidPhone;
 
   const handleSubmit = async () => {
     if (!userId || !canOrder) return;
+    if (!isValidPhone) {
+      toast({ title: "Numéro requis", description: "Veuillez renseigner votre numéro WhatsApp", variant: "destructive" });
+      return;
+    }
     setSubmitting(true);
 
     try {
