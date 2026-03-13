@@ -136,7 +136,8 @@ const CheckoutPage = () => {
       toast({ title: "Numéro requis", description: "Veuillez renseigner votre numéro WhatsApp", variant: "destructive" });
       return;
     }
-    setSubmitting(true);
+    // Save WhatsApp phone to profile
+    await supabase.from("profiles").update({ phone: whatsappPhone.trim() }).eq("id", userId);
 
     try {
       let addressId = selectedAddressId;
