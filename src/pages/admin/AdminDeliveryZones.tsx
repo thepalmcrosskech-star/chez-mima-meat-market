@@ -41,27 +41,27 @@ const AdminDeliveryZones = () => {
   const [isActive, setIsActive] = useState(true);
   const [radiusKm, setRadiusKm] = useState("");
   const [minRadiusKm, setMinRadiusKm] = useState("0");
-  const [storeLocation, setStoreLocation] = useState<{ lat: number; lng: number }>({ lat: 33.5731, lng: -7.5898 });
+  const [storeLocation, setStoreLocation] = useState<{ lat: number; lng: number }>({ lat: 31.589, lng: -8.019 });
+  const [storeLoaded, setStoreLoaded] = useState(false);
   const overviewMapRef = useRef<mapboxgl.Map | null>(null);
 
   useEffect(() => {
-    fetchZones();
-    fetchStoreLocation();
+    initData();
   }, []);
 
-  const fetchStoreLocation = async () => {
-    const [latRes, lngRes] = await Promise.all([
+  const initData = async () => {
+    const [zonesRes, latRes, lngRes] = await Promise.all([
+      supabase.from("delivery_zones").select("*").order("sort_order"),
       supabase.from("app_settings").select("value").eq("key", "store_latitude").single(),
       supabase.from("app_settings").select("value").eq("key", "store_longitude").single(),
     ]);
-    const lat = latRes.data ? parseFloat(String(latRes.data.value)) : 33.5731;
-    const lng = lngRes.data ? parseFloat(String(lngRes.data.value)) : -7.5898;
-    setStoreLocation({ lat, lng });
-  };
 
-  const fetchZones = async () => {
-    const { data } = await supabase.from("delivery_zones").select("*").order("sort_order");
-    if (data) setZones(data as Zone[]);
+    const lat = latRes.data ? parseFloat(String(latRes.data.value)) : 31.589;
+    const lng = lngRes.data ? parseFloat(String(lngRes.data.value)) : -8.019;
+    setStoreLocation({ lat, lng });
+    setStoreLoaded(true);
+
+    if (zonesRes.data) setZones(zonesRes.data as Zone[]);
     setLoading(false);
   };
 
@@ -185,7 +185,7 @@ const AdminDeliveryZones = () => {
         if (error) throw error;
         toast({ title: "Zone ajoutée" });
       }
-      setIsDialogOpen(false); resetForm(); fetchZones();
+      setIsDialogOpen(false); resetForm(); initData();
     } catch (e: any) {
       toast({ title: "Erreur", description: e.message, variant: "destructive" });
     }
@@ -195,12 +195,12 @@ const AdminDeliveryZones = () => {
     if (!confirm("Supprimer cette zone ?")) return;
     const { error } = await supabase.from("delivery_zones").delete().eq("id", id);
     if (error) toast({ title: "Erreur", description: error.message, variant: "destructive" });
-    else { toast({ title: "Zone supprimée" }); fetchZones(); }
+    else { toast({ title: "Zone supprimée" }); initData(); }
   };
 
   const toggleActive = async (z: Zone) => {
     await supabase.from("delivery_zones").update({ is_active: !z.is_active }).eq("id", z.id);
-    fetchZones();
+    initData();
   };
 
   if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary" /></div>;
