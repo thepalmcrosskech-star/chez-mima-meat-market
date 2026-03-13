@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, ClipboardList } from "lucide-react";
+import { Loader2, ClipboardList, ChevronRight } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 
 interface Order {
