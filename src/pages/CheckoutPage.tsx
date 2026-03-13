@@ -32,19 +32,8 @@ interface DeliveryZone {
   is_active: boolean | null;
 }
 
-const formatPrice = (n: number) =>
-  new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(n) + " MAD";
-
-function pointInPolygon(lat: number, lng: number, polygon: number[][]): boolean {
-  let inside = false;
-  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
-    const xi = polygon[i][1], yi = polygon[i][0];
-    const xj = polygon[j][1], yj = polygon[j][0];
-    const intersect = yi > lng !== yj > lng && lat < ((xj - xi) * (lng - yi)) / (yj - yi) + xi;
-    if (intersect) inside = !inside;
-  }
-  return inside;
-}
+import { formatPrice } from "@/lib/format";
+import { pointInPolygon } from "@/lib/geo";
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
