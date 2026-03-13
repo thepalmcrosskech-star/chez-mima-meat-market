@@ -129,7 +129,7 @@ const CheckoutPage = () => {
   const total = deliveryFee !== null ? subtotal + deliveryFee : subtotal;
   const hasAddress = selectedAddressId || newAddress;
   const isValidPhone = whatsappPhone.replace(/\s/g, "").length >= 9;
-  const canOrder = hasAddress && deliveryZone && deliveryFee !== null && subtotal >= deliveryZone.minimum_order && isValidPhone;
+  const canOrder = hasAddress && deliveryZone && deliveryFee !== null && isValidPhone;
 
   const handleSubmit = async () => {
     if (!userId || !canOrder) return;
