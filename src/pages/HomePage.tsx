@@ -37,6 +37,7 @@ const HomePage = () => {
   const [banners, setBanners] = useState<Banner[]>([]);
   const [currentBanner, setCurrentBanner] = useState(0);
   const [productRatings, setProductRatings] = useState<Record<string, number>>({});
+  const [themeIcon, setThemeIcon] = useState<string>(localStorage.getItem("theme") || "dark");
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -144,7 +145,11 @@ const HomePage = () => {
             <Bell className="h-5 w-5" />
             <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full border border-background notification-pulse"></span>
           </Button>
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
+            className="hover-scale"
+            aria-label="Basculer thème clair/sombre"
             onClick={() => {
               const html = document.documentElement;
               const isDark = html.classList.contains("dark");
@@ -155,20 +160,12 @@ const HomePage = () => {
                 html.classList.add("dark");
                 localStorage.setItem("theme", "dark");
               }
-              // force re-render
-              window.dispatchEvent(new Event("themechange"));
+              // force re-render to swap icon
+              setThemeIcon(isDark ? "light" : "dark");
             }}
-            className="relative inline-flex h-7 w-12 items-center rounded-full bg-muted border border-border transition-colors"
-            aria-label="Basculer thème clair/sombre"
           >
-            <span className="absolute left-1 text-muted-foreground dark:opacity-0 opacity-100 transition-opacity">
-              <Sun className="h-3.5 w-3.5" />
-            </span>
-            <span className="absolute right-1 text-muted-foreground dark:opacity-100 opacity-0 transition-opacity">
-              <Moon className="h-3.5 w-3.5" />
-            </span>
-            <span className="inline-block h-5 w-5 rounded-full bg-primary shadow-md transform transition-transform dark:translate-x-5 translate-x-1" />
-          </button>
+            {themeIcon === "dark" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+          </Button>
         </div>
       </header>
 
