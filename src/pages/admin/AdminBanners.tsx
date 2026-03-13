@@ -256,11 +256,50 @@ const AdminBanners = () => {
               <Input value={buttonText} onChange={(e) => setButtonText(e.target.value)} placeholder="Découvrir" className="mt-1" />
             </div>
 
-            <div>
-              <Label>Lien (URL ou /product/id)</Label>
-              <Input value={linkUrl} onChange={(e) => setLinkUrl(e.target.value)} placeholder="/product/xxx ou https://..." className="mt-1" />
+            <div ref={linkInputRef} className="relative">
+              <Label>Lien (URL ou nom de produit)</Label>
+              <Input
+                value={linkUrl}
+                onChange={async (e) => {
+                  const val = e.target.value;
+                  setLinkUrl(val);
+                  if (val.length >= 2 && !val.startsWith("http")) {
+                    const { data } = await supabase
+                      .from("products")
+                      .select("id, name")
+                      .ilike("name", `%${val}%`)
+                      .limit(6);
+                    setProductSuggestions(data || []);
+                    setShowSuggestions(true);
+                  } else {
+                    setShowSuggestions(false);
+                  }
+                }}
+                onFocus={() => { if (productSuggestions.length > 0) setShowSuggestions(true); }}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                placeholder="Tapez un nom de produit ou une URL..."
+                className="mt-1"
+              />
+              {showSuggestions && productSuggestions.length > 0 && (
+                <div className="absolute z-50 w-full mt-1 bg-popover border border-border rounded-md shadow-md max-h-48 overflow-y-auto">
+                  {productSuggestions.map((p) => (
+                    <button
+                      key={p.id}
+                      type="button"
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-accent transition-colors flex items-center gap-2"
+                      onMouseDown={() => {
+                        setLinkUrl(`/product/${p.id}`);
+                        setShowSuggestions(false);
+                      }}
+                    >
+                      <Search className="h-3 w-3 text-muted-foreground shrink-0" />
+                      <span className="truncate">{p.name}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
               <p className="text-xs text-muted-foreground mt-1">
-                Utilisez /product/ID pour un produit, ou une URL complète
+                Tapez un nom pour chercher un produit, ou collez une URL
               </p>
             </div>
           </div>
