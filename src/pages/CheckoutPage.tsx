@@ -64,9 +64,11 @@ const CheckoutPage = () => {
     if (!user) { navigate("/login"); return; }
     setUserId(user.id);
 
-    const [addrRes, zonesRes] = await Promise.all([
+    const [addrRes, zonesRes, latRes, lngRes] = await Promise.all([
       supabase.from("user_addresses").select("*").eq("user_id", user.id).order("is_default", { ascending: false }),
       supabase.from("delivery_zones").select("*").eq("is_active", true),
+      supabase.from("app_settings").select("value").eq("key", "store_latitude").single(),
+      supabase.from("app_settings").select("value").eq("key", "store_longitude").single(),
     ]);
 
     if (addrRes.data) {
@@ -75,12 +77,26 @@ const CheckoutPage = () => {
       if (defaultAddr) setSelectedAddressId(defaultAddr.id);
     }
     if (zonesRes.data) setZones(zonesRes.data);
+
+    const storeLat = latRes.data ? parseFloat(String(latRes.data.value)) : 33.5731;
+    const storeLng = lngRes.data ? parseFloat(String(lngRes.data.value)) : -7.5898;
+    setStoreLocation({ lat: storeLat, lng: storeLng });
+
     setLoading(false);
   };
 
   const findZone = (lat: number, lng: number): DeliveryZone | null => {
-    for (const zone of zones) {
-      if (pointInPolygon(lat, lng, zone.polygon)) return zone;
+    if (!storeLocation) return null;
+    const dist = haversineDistance(storeLocation.lat, storeLocation.lng, lat, lng);
+    // Find the matching zone where dist is between min_radius_km and radius_km
+    // Sort by radius_km ascending to find the tightest match
+    const sorted = [...zones]
+      .filter((z) => z.radius_km !== null)
+      .sort((a, b) => (a.radius_km || 0) - (b.radius_km || 0));
+    for (const zone of sorted) {
+      const minR = zone.min_radius_km || 0;
+      const maxR = zone.radius_km || 0;
+      if (dist >= minR && dist <= maxR) return zone;
     }
     return null;
   };
