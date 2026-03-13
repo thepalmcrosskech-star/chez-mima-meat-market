@@ -37,6 +37,7 @@ const HomePage = () => {
   const [banners, setBanners] = useState<Banner[]>([]);
   const [currentBanner, setCurrentBanner] = useState(0);
   const [productRatings, setProductRatings] = useState<Record<string, number>>({});
+  const [themeIcon, setThemeIcon] = useState<string>(localStorage.getItem("theme") || "dark");
 
   useEffect(() => {
     const checkAuth = async () => {
