@@ -41,6 +41,7 @@ const CheckoutPage = () => {
   const { items, subtotal, clearCart } = useCart();
 
   const [userId, setUserId] = useState<string | null>(null);
+  const [storeLocation, setStoreLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
   const [zones, setZones] = useState<DeliveryZone[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
