@@ -10,7 +10,6 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, MapPin, Loader2, Plus, Check, Phone } from "lucide-react";
-import { FaWhatsapp } from "react-icons/fa";
 import AddressPicker from "@/components/AddressPicker";
 
 interface SavedAddress {
