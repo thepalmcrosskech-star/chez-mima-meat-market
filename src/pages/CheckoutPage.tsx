@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, MapPin, Loader2, Plus, Check } from "lucide-react";
+import { ArrowLeft, MapPin, Loader2, Plus, Check, Phone } from "lucide-react";
 import AddressPicker from "@/components/AddressPicker";
 
 interface SavedAddress {
@@ -51,6 +51,7 @@ const CheckoutPage = () => {
   const [apartment, setApartment] = useState("");
   const [instructions, setInstructions] = useState("");
   const [notes, setNotes] = useState("");
+  const [whatsappPhone, setWhatsappPhone] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -64,23 +65,28 @@ const CheckoutPage = () => {
     if (!user) { navigate("/login"); return; }
     setUserId(user.id);
 
-    const [addrRes, zonesRes, latRes, lngRes] = await Promise.all([
+    const [addrRes, zonesRes, latRes, lngRes, profileRes] = await Promise.all([
       supabase.from("user_addresses").select("*").eq("user_id", user.id).order("is_default", { ascending: false }),
       supabase.from("delivery_zones").select("*").eq("is_active", true),
       supabase.from("app_settings").select("value").eq("key", "store_latitude").single(),
       supabase.from("app_settings").select("value").eq("key", "store_longitude").single(),
+      supabase.from("profiles").select("phone").eq("id", user.id).single(),
     ]);
 
     if (addrRes.data) {
       setSavedAddresses(addrRes.data);
       const defaultAddr = addrRes.data.find((a) => a.is_default);
       if (defaultAddr) setSelectedAddressId(defaultAddr.id);
+      if (addrRes.data.length === 0) setShowNewAddress(true);
     }
     if (zonesRes.data) setZones(zonesRes.data);
 
     const storeLat = latRes.data ? parseFloat(String(latRes.data.value)) : 31.589;
     const storeLng = lngRes.data ? parseFloat(String(lngRes.data.value)) : -8.019;
     setStoreLocation({ lat: storeLat, lng: storeLng });
+
+    // Pre-fill WhatsApp phone from profile
+    if (profileRes.data?.phone) setWhatsappPhone(profileRes.data.phone);
 
     setLoading(false);
   };
@@ -122,13 +128,20 @@ const CheckoutPage = () => {
   const { zone: deliveryZone, fee: deliveryFee } = getDeliveryInfo();
   const total = deliveryFee !== null ? subtotal + deliveryFee : subtotal;
   const hasAddress = selectedAddressId || newAddress;
-  const canOrder = hasAddress && deliveryZone && deliveryFee !== null && subtotal >= deliveryZone.minimum_order;
+  const isValidPhone = whatsappPhone.replace(/\s/g, "").length >= 9;
+  const canOrder = hasAddress && deliveryZone && deliveryFee !== null && subtotal >= deliveryZone.minimum_order && isValidPhone;
 
   const handleSubmit = async () => {
     if (!userId || !canOrder) return;
+    if (!isValidPhone) {
+      toast({ title: "Numéro requis", description: "Veuillez renseigner votre numéro WhatsApp", variant: "destructive" });
+      return;
+    }
     setSubmitting(true);
 
     try {
+      // Save WhatsApp phone to profile
+      await supabase.from("profiles").update({ phone: whatsappPhone.trim() }).eq("id", userId);
       let addressId = selectedAddressId;
       let addressSnapshot: any = null;
 
@@ -281,7 +294,27 @@ const CheckoutPage = () => {
           )}
         </div>
 
-        {/* Zone info */}
+        {/* WhatsApp Phone */}
+        <div>
+          <h3 className="font-bold mb-2 flex items-center gap-2">
+            <Phone className="h-4 w-4 text-primary" /> Numéro WhatsApp *
+          </h3>
+          <Input
+            type="tel"
+            value={whatsappPhone}
+            onChange={(e) => setWhatsappPhone(e.target.value)}
+            placeholder="+212 6XX XXX XXX"
+            className={!isValidPhone && whatsappPhone.length > 0 ? "border-destructive" : ""}
+          />
+          <p className="text-xs text-muted-foreground mt-1">
+            Obligatoire — pour que le livreur puisse vous contacter
+          </p>
+          {!isValidPhone && whatsappPhone.length > 0 && (
+            <p className="text-xs text-destructive mt-1">Numéro trop court (minimum 9 chiffres)</p>
+          )}
+        </div>
+
+        <Separator />
         {hasAddress && !deliveryZone && (
           <Card className="p-3 border-destructive/50 bg-destructive/10">
             <p className="text-sm text-destructive font-medium">⚠️ Cette adresse n'est pas dans nos zones de livraison.</p>
