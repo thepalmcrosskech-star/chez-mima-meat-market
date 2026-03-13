@@ -108,6 +108,9 @@ const AddressPicker = ({ onSelect, defaultValue }: AddressPickerProps) => {
         const coords: [number, number] = [pos.coords.longitude, pos.coords.latitude];
         setSelectedCoords(coords);
         updateMarker(coords);
+        // Always notify parent immediately
+        const fallbackAddress = `${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`;
+        onSelect({ full_address: fallbackAddress, latitude: pos.coords.latitude, longitude: pos.coords.longitude });
         reverseGeocode(coords[0], coords[1]);
         setLocating(false);
       },
