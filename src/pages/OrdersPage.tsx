@@ -85,8 +85,10 @@ const OrdersPage = () => {
                     <div className="text-sm text-muted-foreground">
                       Sous-total: {formatPrice(order.subtotal)} · Livraison: {formatPrice(order.delivery_fee)}
                     </div>
-                    <p className="text-lg font-bold text-primary">{formatPrice(order.total_price)}</p>
-                  </div>
+                    <div className="flex items-center gap-2">
+                      <p className="text-lg font-bold text-primary">{formatPrice(order.total_price)}</p>
+                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                    </div>
                 </Card>
               );
             })}
