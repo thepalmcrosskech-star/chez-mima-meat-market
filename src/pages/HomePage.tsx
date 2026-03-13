@@ -130,32 +130,60 @@ const HomePage = () => {
         </div>
       </header>
 
-      {/* Hero Banner */}
-      <section className="px-4 py-6">
-        <Card className="relative w-full h-56 rounded-2xl overflow-hidden group border-0 shadow-2xl">
-          <div className="absolute inset-0 bg-gradient-hero"></div>
-          <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-transparent"></div>
-          <div className="relative h-full flex flex-col justify-center px-6 text-white">
-            <div className="bg-primary/90 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 rounded-full w-fit mb-4 animate-fade-in">
-              OFFRE DU JOUR
-            </div>
-            <h2 className="text-4xl font-bold leading-tight mb-2 animate-slide-up">
-              Côte de<br />
-              Bœuf<br />
-              Maturée
-            </h2>
-            <p className="text-white/90 text-lg mb-6 animate-slide-up animation-delay-200">
-              Sélection Premium<br />d'exception
-            </p>
-            <Button className="bg-primary hover:bg-primary/90 text-white w-fit px-8 py-3 font-bold rounded-xl transition-all duration-300 hover-scale">
-              Commander
-            </Button>
+      {/* Hero Banners */}
+      {banners.length > 0 && (
+        <section className="px-4 py-6">
+          <div className="relative">
+            <Card className="relative w-full h-56 rounded-2xl overflow-hidden border-0 shadow-2xl">
+              {banners[currentBanner]?.image_url && (
+                <img
+                  src={banners[currentBanner].image_url!}
+                  alt={banners[currentBanner].title}
+                  className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
+                />
+              )}
+              <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent" />
+              <div className="relative h-full flex flex-col justify-center px-6 text-white">
+                <h2 className="text-3xl font-bold leading-tight mb-2">
+                  {banners[currentBanner]?.title}
+                </h2>
+                {banners[currentBanner]?.subtitle && (
+                  <p className="text-white/90 text-base mb-4">
+                    {banners[currentBanner].subtitle}
+                  </p>
+                )}
+                {banners[currentBanner]?.link_url && (
+                  <Button
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground w-fit px-6 py-2 font-bold rounded-xl"
+                    onClick={() => {
+                      const url = banners[currentBanner].link_url;
+                      if (url.startsWith("http")) window.open(url, "_blank");
+                      else navigate(url);
+                    }}
+                  >
+                    {banners[currentBanner]?.button_text || "Découvrir"}
+                  </Button>
+                )}
+              </div>
+            </Card>
+
+            {/* Dots */}
+            {banners.length > 1 && (
+              <div className="flex justify-center gap-2 mt-3">
+                {banners.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setCurrentBanner(i)}
+                    className={`w-2 h-2 rounded-full transition-all ${
+                      i === currentBanner ? "bg-primary w-6" : "bg-muted-foreground/30"
+                    }`}
+                  />
+                ))}
+              </div>
+            )}
           </div>
-          <div className="absolute top-4 right-4 opacity-20">
-            <div className="w-32 h-32 rounded-full bg-gradient-to-br from-primary via-red-500 to-red-700 animate-pulse"></div>
-          </div>
-        </Card>
-      </section>
+        </section>
+      )}
 
       {/* Categories */}
       <section className="px-4 mb-6">
