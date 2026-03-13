@@ -62,6 +62,10 @@ const AddressPicker = ({ onSelect, defaultValue }: AddressPickerProps) => {
   const handleMapClick = (lngLat: { lng: number; lat: number }) => {
     setSelectedCoords([lngLat.lng, lngLat.lat]);
     updateMarker([lngLat.lng, lngLat.lat]);
+    // Always notify parent with coordinates immediately
+    const fallbackAddress = `${lngLat.lat.toFixed(5)}, ${lngLat.lng.toFixed(5)}`;
+    onSelect({ full_address: fallbackAddress, latitude: lngLat.lat, longitude: lngLat.lng });
+    // Then try to get a proper address name
     reverseGeocode(lngLat.lng, lngLat.lat);
   };
 
@@ -104,6 +108,9 @@ const AddressPicker = ({ onSelect, defaultValue }: AddressPickerProps) => {
         const coords: [number, number] = [pos.coords.longitude, pos.coords.latitude];
         setSelectedCoords(coords);
         updateMarker(coords);
+        // Always notify parent immediately
+        const fallbackAddress = `${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`;
+        onSelect({ full_address: fallbackAddress, latitude: pos.coords.latitude, longitude: pos.coords.longitude });
         reverseGeocode(coords[0], coords[1]);
         setLocating(false);
       },
