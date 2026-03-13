@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { Heart, Bell, Plus, Loader2, ChevronLeft, ChevronRight, Sun, Moon } from "lucide-react";
-/* icons merged into line 3 */
+
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
