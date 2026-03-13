@@ -30,6 +30,9 @@ const AdminBanners = () => {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const [productSuggestions, setProductSuggestions] = useState<{ id: string; name: string }[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const linkInputRef = useRef<HTMLDivElement>(null);
 
   // Form state
   const [title, setTitle] = useState("");
