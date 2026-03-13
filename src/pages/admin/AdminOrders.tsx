@@ -7,8 +7,16 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
-import { Eye, Search } from "lucide-react";
+import { Eye, Search, Bike } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { formatPrice, statusOptions, getStatusInfo } from "@/lib/format";
+
+interface DriverProfile {
+  id: string;
+  user_id: string;
+  profiles: { name: string } | null;
+}
 
 interface Order {
   id: string;
@@ -18,6 +26,7 @@ interface Order {
   total_price: number;
   notes: string | null;
   created_at: string | null;
+  driver_id: string | null;
   profiles?: { name: string; email: string; phone: string | null };
   delivery_address_snapshot?: any;
 }
@@ -30,17 +39,10 @@ interface OrderItem {
   line_total: number;
 }
 
-const statusOptions = [
-  { value: "pending", label: "En attente", color: "bg-amber-500/20 text-amber-400" },
-  { value: "confirmed", label: "Confirmée", color: "bg-blue-500/20 text-blue-400" },
-  { value: "preparing", label: "En préparation", color: "bg-purple-500/20 text-purple-400" },
-  { value: "delivering", label: "En livraison", color: "bg-cyan-500/20 text-cyan-400" },
-  { value: "delivered", label: "Livrée", color: "bg-emerald-500/20 text-emerald-400" },
-  { value: "cancelled", label: "Annulée", color: "bg-red-500/20 text-red-400" },
-];
 
 const AdminOrders = () => {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [drivers, setDrivers] = useState<DriverProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState("all");
   const [search, setSearch] = useState("");
@@ -48,14 +50,15 @@ const AdminOrders = () => {
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
   const [detailOpen, setDetailOpen] = useState(false);
 
-  useEffect(() => { fetchOrders(); }, []);
+  useEffect(() => { fetchData(); }, []);
 
-  const fetchOrders = async () => {
-    const { data } = await supabase
-      .from("orders")
-      .select("*, profiles(name, email, phone)")
-      .order("created_at", { ascending: false });
-    if (data) setOrders(data as Order[]);
+  const fetchData = async () => {
+    const [ordersRes, driversRes] = await Promise.all([
+      supabase.from("orders").select("*, profiles(name, email, phone)").order("created_at", { ascending: false }),
+      supabase.from("driver_profiles").select("id, user_id, profiles(name)"),
+    ]);
+    if (ordersRes.data) setOrders(ordersRes.data as Order[]);
+    if (driversRes.data) setDrivers(driversRes.data as unknown as DriverProfile[]);
     setLoading(false);
   };
 
@@ -69,11 +72,15 @@ const AdminOrders = () => {
   const updateStatus = async (orderId: string, status: string) => {
     const { error } = await supabase.from("orders").update({ status }).eq("id", orderId);
     if (error) toast({ title: "Erreur", description: error.message, variant: "destructive" });
-    else { toast({ title: "Statut mis à jour" }); fetchOrders(); }
+    else { toast({ title: "Statut mis à jour" }); fetchData(); }
   };
 
-  const formatPrice = (n: number) => new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(n) + " MAD";
-  const getStatusInfo = (s: string) => statusOptions.find((o) => o.value === s) || { label: s, color: "bg-muted text-muted-foreground" };
+  const assignDriver = async (orderId: string, driverId: string) => {
+    const { error } = await supabase.from("orders").update({ driver_id: driverId === "none" ? null : driverId }).eq("id", orderId);
+    if (error) toast({ title: "Erreur", description: error.message, variant: "destructive" });
+    else { toast({ title: "Livreur assigné" }); fetchData(); }
+  };
+
 
   const filtered = orders.filter((o) => {
     const matchStatus = filterStatus === "all" || o.status === filterStatus;
@@ -110,6 +117,7 @@ const AdminOrders = () => {
                 <TableHead>Date</TableHead>
                 <TableHead>Total</TableHead>
                 <TableHead>Statut</TableHead>
+                <TableHead>Livreur</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -136,6 +144,21 @@ const AdminOrders = () => {
                         </SelectContent>
                       </Select>
                     </TableCell>
+                    <TableCell>
+                      <Select value={o.driver_id || "none"} onValueChange={(v) => assignDriver(o.id, v)}>
+                        <SelectTrigger className="w-[140px] text-xs">
+                          <SelectValue placeholder="Aucun" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">Aucun</SelectItem>
+                          {drivers.map((d) => (
+                            <SelectItem key={d.id} value={d.id}>
+                              <span className="flex items-center gap-1"><Bike className="h-3 w-3" /> {d.profiles?.name || "Livreur"}</span>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
                     <TableCell className="text-right">
                       <Button variant="ghost" size="icon" onClick={() => openDetail(o)}><Eye className="h-4 w-4" /></Button>
                     </TableCell>
@@ -143,7 +166,7 @@ const AdminOrders = () => {
                 );
               })}
               {filtered.length === 0 && (
-                <TableRow><TableCell colSpan={5} className="text-center py-8 text-muted-foreground">Aucune commande</TableCell></TableRow>
+                <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground">Aucune commande</TableCell></TableRow>
               )}
             </TableBody>
           </Table>

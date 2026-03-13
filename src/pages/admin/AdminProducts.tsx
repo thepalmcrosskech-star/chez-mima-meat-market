@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, Search, Upload, X, Loader2 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
+import { formatPrice } from "@/lib/format";
 
 interface Product {
   id: string;
@@ -22,7 +23,6 @@ interface Product {
   image_url: string | null;
   category_id: string | null;
   is_active: boolean | null;
-  stock_quantity: number;
   product_info: string | null;
   cooking_tips: string | null;
   conservation_tips: string | null;
@@ -53,7 +53,7 @@ const AdminProducts = () => {
   const [categoryId, setCategoryId] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [imagePreview, setImagePreview] = useState("");
-  const [stockQuantity, setStockQuantity] = useState("0");
+  
   const [isActive, setIsActive] = useState(true);
   const [productInfo, setProductInfo] = useState("");
   const [cookingTips, setCookingTips] = useState("");
@@ -75,7 +75,7 @@ const AdminProducts = () => {
 
   const resetForm = () => {
     setName(""); setDescription(""); setPrice(""); setUnitType("weight");
-    setCategoryId(""); setImageUrl(""); setImagePreview(""); setStockQuantity("0"); setIsActive(true);
+    setCategoryId(""); setImageUrl(""); setImagePreview(""); setIsActive(true);
     setProductInfo(""); setCookingTips(""); setConservationTips("");
     setShowCookingTips(false); setShowConservationTips(false);
     setEditingProduct(null);
@@ -85,7 +85,7 @@ const AdminProducts = () => {
     setEditingProduct(p);
     setName(p.name); setDescription(p.description || ""); setPrice(String(p.price));
     setUnitType(p.unit_type); setCategoryId(p.category_id || ""); setImageUrl(p.image_url || "");
-    setImagePreview(p.image_url || ""); setStockQuantity(String(p.stock_quantity)); setIsActive(p.is_active ?? true);
+    setImagePreview(p.image_url || ""); setIsActive(p.is_active ?? true);
     setProductInfo(p.product_info || ""); setCookingTips(p.cooking_tips || "");
     setConservationTips((p as any).conservation_tips || "");
     setShowCookingTips(!!p.cooking_tips);
@@ -133,13 +133,12 @@ const AdminProducts = () => {
     if (!name || !price) { toast({ title: "Erreur", description: "Nom et prix requis", variant: "destructive" }); return; }
 
     const parsedPrice = parseFloat(String(price).replace(",", "."));
-    const parsedStock = parseInt(String(stockQuantity)) || 0;
     if (isNaN(parsedPrice) || parsedPrice <= 0) { toast({ title: "Erreur", description: "Prix invalide", variant: "destructive" }); return; }
 
     const payload = {
       name, description: description || null, price: parsedPrice, unit_type: unitType,
       category_id: categoryId || null, image_url: imageUrl || null,
-      stock_quantity: parsedStock, is_active: isActive,
+      is_active: isActive,
       product_info: productInfo || null,
       cooking_tips: showCookingTips ? (cookingTips || null) : null,
       conservation_tips: showConservationTips ? (conservationTips || null) : null,
@@ -174,7 +173,7 @@ const AdminProducts = () => {
   };
 
   const filtered = products.filter((p) => p.name.toLowerCase().includes(search.toLowerCase()));
-  const formatPrice = (n: number) => new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(n) + " MAD";
+  
 
   if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary" /></div>;
 
