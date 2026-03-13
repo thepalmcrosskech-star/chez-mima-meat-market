@@ -65,11 +65,12 @@ const CheckoutPage = () => {
     if (!user) { navigate("/login"); return; }
     setUserId(user.id);
 
-    const [addrRes, zonesRes, latRes, lngRes] = await Promise.all([
+    const [addrRes, zonesRes, latRes, lngRes, profileRes] = await Promise.all([
       supabase.from("user_addresses").select("*").eq("user_id", user.id).order("is_default", { ascending: false }),
       supabase.from("delivery_zones").select("*").eq("is_active", true),
       supabase.from("app_settings").select("value").eq("key", "store_latitude").single(),
       supabase.from("app_settings").select("value").eq("key", "store_longitude").single(),
+      supabase.from("profiles").select("phone").eq("id", user.id).single(),
     ]);
 
     if (addrRes.data) {
@@ -82,6 +83,9 @@ const CheckoutPage = () => {
     const storeLat = latRes.data ? parseFloat(String(latRes.data.value)) : 31.589;
     const storeLng = lngRes.data ? parseFloat(String(lngRes.data.value)) : -8.019;
     setStoreLocation({ lat: storeLat, lng: storeLng });
+
+    // Pre-fill WhatsApp phone from profile
+    if (profileRes.data?.phone) setWhatsappPhone(profileRes.data.phone);
 
     setLoading(false);
   };
