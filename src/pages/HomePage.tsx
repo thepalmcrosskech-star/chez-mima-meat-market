@@ -113,9 +113,12 @@ const HomePage = () => {
     toast({ title: "Ajouté au panier", description: `${quantity} ${product.unit_type === "kg" ? "kg" : "×"} ${product.name}` });
   };
 
-  const filteredProducts = selectedCategory
-    ? products.filter((p) => p.category_id === selectedCategory)
-    : products;
+  const filteredProducts = (() => {
+    const list = selectedCategory && selectedCategory !== "all"
+      ? products.filter((p) => p.category_id === selectedCategory)
+      : products;
+    return [...list].sort((a, b) => (productRatings[b.id] || 0) - (productRatings[a.id] || 0));
+  })();
 
   if (!authChecked) {
     return (
