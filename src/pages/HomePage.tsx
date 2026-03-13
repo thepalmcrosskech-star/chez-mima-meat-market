@@ -28,13 +28,14 @@ const HomePage = () => {
   const { addItem } = useCart();
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(searchParams.get("cat"));
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(searchParams.get("cat") ?? "all");
   const [loading, setLoading] = useState(true);
   const [authChecked, setAuthChecked] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [quantityDialogOpen, setQuantityDialogOpen] = useState(false);
   const [banners, setBanners] = useState<Banner[]>([]);
   const [currentBanner, setCurrentBanner] = useState(0);
+  const [productRatings, setProductRatings] = useState<Record<string, number>>({});
 
   useEffect(() => {
     const checkAuth = async () => {
