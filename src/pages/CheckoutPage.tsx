@@ -321,10 +321,10 @@ const CheckoutPage = () => {
           </Card>
         )}
 
-        {deliveryZone && deliveryFee !== null && subtotal < deliveryZone.minimum_order && (
+        {deliveryZone && deliveryFee !== null && deliveryFee > 0 && deliveryZone.free_delivery_threshold && (
           <Card className="p-3 border-amber-500/50 bg-amber-500/10">
             <p className="text-sm text-amber-700 font-medium">
-              ⚠️ Commande minimum de {formatPrice(deliveryZone.minimum_order)} pour la zone {deliveryZone.name}.
+              💡 Commande minimum de {formatPrice(deliveryZone.free_delivery_threshold)} pour obtenir la livraison GRATUITE dans cette zone.
             </p>
           </Card>
         )}
