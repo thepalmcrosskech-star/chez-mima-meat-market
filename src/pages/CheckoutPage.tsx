@@ -78,8 +78,8 @@ const CheckoutPage = () => {
     }
     if (zonesRes.data) setZones(zonesRes.data);
 
-    const storeLat = latRes.data ? parseFloat(String(latRes.data.value)) : 33.5731;
-    const storeLng = lngRes.data ? parseFloat(String(lngRes.data.value)) : -7.5898;
+    const storeLat = latRes.data ? parseFloat(String(latRes.data.value)) : 31.589;
+    const storeLng = lngRes.data ? parseFloat(String(lngRes.data.value)) : -8.019;
     setStoreLocation({ lat: storeLat, lng: storeLng });
 
     setLoading(false);

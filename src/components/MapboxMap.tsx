@@ -24,7 +24,7 @@ interface MapboxMapProps {
   interactive?: boolean;
 }
 
-const MapboxMap = ({ center = [-7.5898, 33.5731], zoom = 12, className = "w-full h-64", onMapReady, onClick, interactive = true }: MapboxMapProps) => {
+const MapboxMap = ({ center = [-8.019, 31.589], zoom = 12, className = "w-full h-64", onMapReady, onClick, interactive = true }: MapboxMapProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const [error, setError] = useState<string | null>(null);

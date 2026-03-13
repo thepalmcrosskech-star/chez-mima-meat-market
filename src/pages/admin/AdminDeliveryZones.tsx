@@ -41,7 +41,7 @@ const AdminDeliveryZones = () => {
   const [isActive, setIsActive] = useState(true);
   const [radiusKm, setRadiusKm] = useState("");
   const [minRadiusKm, setMinRadiusKm] = useState("0");
-  const [storeLocation, setStoreLocation] = useState<{ lat: number; lng: number }>({ lat: 33.5731, lng: -7.5898 });
+  const [storeLocation, setStoreLocation] = useState<{ lat: number; lng: number }>({ lat: 31.589, lng: -8.019 });
   const [storeLoaded, setStoreLoaded] = useState(false);
   const overviewMapRef = useRef<mapboxgl.Map | null>(null);
 
