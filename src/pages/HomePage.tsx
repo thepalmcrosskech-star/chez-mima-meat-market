@@ -28,13 +28,14 @@ const HomePage = () => {
   const { addItem } = useCart();
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(searchParams.get("cat"));
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(searchParams.get("cat") ?? "all");
   const [loading, setLoading] = useState(true);
   const [authChecked, setAuthChecked] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [quantityDialogOpen, setQuantityDialogOpen] = useState(false);
   const [banners, setBanners] = useState<Banner[]>([]);
   const [currentBanner, setCurrentBanner] = useState(0);
+  const [productRatings, setProductRatings] = useState<Record<string, number>>({});
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -59,22 +60,34 @@ const HomePage = () => {
   }, [navigate]);
 
   const fetchData = async () => {
-    const [categoriesRes, productsRes, bannersRes] = await Promise.all([
+    const [categoriesRes, productsRes, bannersRes, reviewsRes] = await Promise.all([
       supabase.from("categories").select("*").order("sort_order"),
       supabase.from("products").select("*").eq("is_active", true),
       supabase.from("banners").select("*").eq("is_active", true).order("sort_order"),
+      supabase.from("product_reviews").select("product_id, rating"),
     ]);
 
     if (categoriesRes.data) {
       setCategories(categoriesRes.data);
-      if (!selectedCategory && categoriesRes.data.length > 0) {
-        const defaultCat = categoriesRes.data[0].id;
-        setSelectedCategory(defaultCat);
-        setSearchParams({ cat: defaultCat }, { replace: true });
-      }
     }
     if (productsRes.data) setProducts(productsRes.data);
     if (bannersRes.data) setBanners(bannersRes.data as Banner[]);
+    
+    // Compute average ratings per product
+    if (reviewsRes.data) {
+      const ratingsMap: Record<string, { sum: number; count: number }> = {};
+      for (const r of reviewsRes.data) {
+        if (!ratingsMap[r.product_id]) ratingsMap[r.product_id] = { sum: 0, count: 0 };
+        ratingsMap[r.product_id].sum += r.rating;
+        ratingsMap[r.product_id].count += 1;
+      }
+      const avgMap: Record<string, number> = {};
+      for (const [pid, val] of Object.entries(ratingsMap)) {
+        avgMap[pid] = val.sum / val.count;
+      }
+      setProductRatings(avgMap);
+    }
+    
     setLoading(false);
   };
 
@@ -100,9 +113,12 @@ const HomePage = () => {
     toast({ title: "Ajouté au panier", description: `${quantity} ${product.unit_type === "kg" ? "kg" : "×"} ${product.name}` });
   };
 
-  const filteredProducts = selectedCategory
-    ? products.filter((p) => p.category_id === selectedCategory)
-    : products;
+  const filteredProducts = (() => {
+    const list = selectedCategory && selectedCategory !== "all"
+      ? products.filter((p) => p.category_id === selectedCategory)
+      : products;
+    return [...list].sort((a, b) => (productRatings[b.id] || 0) - (productRatings[a.id] || 0));
+  })();
 
   if (!authChecked) {
     return (
@@ -188,6 +204,20 @@ const HomePage = () => {
       {/* Categories */}
       <section className="px-4 mb-6">
         <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+          <Button
+            variant={selectedCategory === "all" ? "default" : "secondary"}
+            className={`rounded-full px-6 py-2 text-sm font-bold whitespace-nowrap transition-all duration-300 ${
+              selectedCategory === "all"
+                ? "bg-primary text-primary-foreground shadow-lg scale-105"
+                : "bg-secondary text-secondary-foreground hover:bg-secondary/80 hover-scale"
+            }`}
+            onClick={() => {
+              setSelectedCategory("all");
+              setSearchParams({}, { replace: true });
+            }}
+          >
+            🏠 Tous
+          </Button>
           {categories.map((category) => (
             <Button
               key={category.id}
