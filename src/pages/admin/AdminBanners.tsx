@@ -306,7 +306,7 @@ const AdminBanners = () => {
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Annuler</Button>
-            <Button onClick={handleSave} disabled={saving}>
+            <Button onClick={handleSave} disabled={saving || uploading}>
               {saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
               {editing ? "Enregistrer" : "Créer"}
             </Button>
