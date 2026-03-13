@@ -70,9 +70,11 @@ export type Database = {
           free_delivery_threshold: number | null
           id: string
           is_active: boolean | null
+          min_radius_km: number | null
           minimum_order: number
           name: string
-          polygon: Json
+          polygon: Json | null
+          radius_km: number | null
           sort_order: number | null
         }
         Insert: {
@@ -82,9 +84,11 @@ export type Database = {
           free_delivery_threshold?: number | null
           id?: string
           is_active?: boolean | null
+          min_radius_km?: number | null
           minimum_order: number
           name: string
-          polygon: Json
+          polygon?: Json | null
+          radius_km?: number | null
           sort_order?: number | null
         }
         Update: {
@@ -94,9 +98,11 @@ export type Database = {
           free_delivery_threshold?: number | null
           id?: string
           is_active?: boolean | null
+          min_radius_km?: number | null
           minimum_order?: number
           name?: string
-          polygon?: Json
+          polygon?: Json | null
+          radius_km?: number | null
           sort_order?: number | null
         }
         Relationships: []
