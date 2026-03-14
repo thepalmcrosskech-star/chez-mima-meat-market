@@ -11,9 +11,9 @@
 @layer base {
   :root {
     /* ── Light Theme (default) — warm off-white ── */
-    --background: 35 25% 95%;
+    --background: 35 20% 92%;
     --foreground: 20 10% 12%;
-    --card: 35 20% 97%;
+    --card: 35 18% 95%;
     --card-foreground: 20 10% 12%;
     --popover: 30 15% 98%;
     --popover-foreground: 20 10% 12%;
