@@ -87,7 +87,7 @@ const AdminLayout = () => {
         {/* Logo */}
         <div className="p-4 border-b border-border flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src={logo} alt="Chez Mima" className="w-9 h-9 rounded-full object-cover border-2 border-primary" />
+            <img src={logo} alt="Chez Mima" className="w-14 h-9 rounded-md object-contain bg-background/40 ring-1 ring-border p-1" />
             <span className="font-bold text-lg gradient-text">ADMIN</span>
           </div>
           <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setSidebarOpen(false)}>

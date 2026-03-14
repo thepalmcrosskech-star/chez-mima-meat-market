@@ -84,7 +84,7 @@ const LoginPage = () => {
           <img
             src={logo}
             alt="Chez Mima"
-            className="w-52 h-52 object-contain rounded-full"
+            className="w-full max-w-xs h-auto object-contain mx-auto"
           />
         </div>
 

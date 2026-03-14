@@ -69,11 +69,13 @@ const SplashScreen = ({ onComplete }: SplashScreenProps) => {
               opacity: stage >= 1 ? 1 : 0,
             }}
           />
-          <img
-            src={logo}
-            alt="Chez Mima"
-            className="relative w-36 h-36 rounded-full object-cover border-4 border-primary/40 shadow-[0_0_30px_hsl(var(--primary)/0.15)]"
-          />
+          <div className="relative rounded-2xl border border-primary/20 bg-card/20 backdrop-blur-sm px-3 py-2 shadow-[0_0_30px_hsl(var(--primary)/0.12)]">
+            <img
+              src={logo}
+              alt="Chez Mima"
+              className="w-64 max-w-[78vw] h-auto object-contain"
+            />
+          </div>
         </div>
 
         {/* Title with stagger */}

@@ -70,8 +70,8 @@ const ProfilePage = () => {
     <div className="min-h-screen bg-background pb-24">
       {/* Header */}
       <div className="gradient-hero px-4 pt-8 pb-12 text-center">
-        <div className="w-20 h-20 rounded-full mx-auto mb-3 overflow-hidden border-4 border-primary-foreground/30">
-          <img src={logo} alt="Avatar" className="w-full h-full object-cover" />
+        <div className="w-36 h-20 rounded-2xl mx-auto mb-3 overflow-hidden border border-primary-foreground/30 bg-background/10 px-2 py-1 flex items-center justify-center">
+          <img src={logo} alt="Chez Mima" className="w-full h-full object-contain" />
         </div>
         <h2 className="text-xl font-bold text-primary-foreground">{profile?.name}</h2>
         <p className="text-primary-foreground/70 text-sm">{profile?.email}</p>
