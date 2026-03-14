@@ -316,11 +316,11 @@ const HomePage = () => {
                     )}
                   </div>
 
-                  <div className="p-4 flex flex-col flex-1">
+                  <div className="p-4 flex flex-col flex-1 min-h-[110px]">
                     <h4 className="font-bold text-card-foreground mb-1 group-hover:text-primary transition-colors line-clamp-1">
                       {product.name}
                     </h4>
-                    <p className="text-sm text-muted-foreground mb-3 line-clamp-1 flex-1">
+                    <p className="text-sm text-muted-foreground mb-3 line-clamp-1">
                       {product.description || "\u00A0"}
                     </p>
                     
