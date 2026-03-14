@@ -273,7 +273,7 @@ const HomePage = () => {
           </Button>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4 items-stretch">
           {loading ? (
             <div className="col-span-2 flex items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
