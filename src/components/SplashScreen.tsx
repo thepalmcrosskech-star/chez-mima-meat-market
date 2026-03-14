@@ -96,7 +96,7 @@ const SplashScreen = ({ onComplete }: SplashScreenProps) => {
               transform: stage >= 2 ? "translateY(0)" : "translateY(10px)",
             }}
           >
-            Boucherie & Traiteur
+            Boucherie & Charcuterie
           </p>
         </div>
 
