@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from "react";
+import { toast as sonnerToast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { Save, MapPin } from "lucide-react";
+import { Save, MapPin, RotateCcw } from "lucide-react";
 import MapboxMap from "@/components/MapboxMap";
 import mapboxgl from "mapbox-gl";
 
@@ -132,6 +133,24 @@ const AdminSettings = () => {
             onClick={handleMapClick}
             onMapReady={handleMapReady}
           />
+        </CardContent>
+      </Card>
+
+      {/* Dev Tools */}
+      <Card>
+        <CardHeader><CardTitle>Outils développeur</CardTitle></CardHeader>
+        <CardContent>
+          <Button
+            variant="outline"
+            className="gap-2"
+            onClick={() => {
+              sessionStorage.removeItem("splashShown");
+              sonnerToast.success("Splash screen réactivé — rechargez la page");
+            }}
+          >
+            <RotateCcw className="h-4 w-4" />
+            Forcer le splash screen
+          </Button>
         </CardContent>
       </Card>
     </div>
