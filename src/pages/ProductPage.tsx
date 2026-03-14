@@ -85,6 +85,7 @@ const ProductPage = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(0.25);
+  const [imageZoomed, setImageZoomed] = useState(false);
 
   // Review form
   const [userRating, setUserRating] = useState(0);
@@ -245,13 +246,30 @@ const ProductPage = () => {
         <h1 className="text-lg font-bold truncate">{product.name}</h1>
       </div>
 
+      {/* Image Zoom Overlay */}
+      {imageZoomed && product.image_url && (
+        <div
+          className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center cursor-zoom-out animate-in fade-in duration-200"
+          onClick={() => setImageZoomed(false)}
+        >
+          <img
+            src={product.image_url}
+            alt={product.name}
+            className="max-w-[95vw] max-h-[90vh] object-contain rounded-lg animate-in zoom-in-90 duration-300"
+          />
+        </div>
+      )}
+
       {/* Product Image */}
-      <div className="w-full aspect-square bg-accent/20 relative overflow-hidden">
+      <div
+        className="w-full aspect-square bg-accent/20 relative overflow-hidden cursor-zoom-in"
+        onClick={() => product.image_url && setImageZoomed(true)}
+      >
         {product.image_url ? (
           <img
             src={product.image_url}
             alt={product.name}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
