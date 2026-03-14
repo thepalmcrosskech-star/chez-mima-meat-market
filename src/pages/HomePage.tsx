@@ -287,7 +287,7 @@ const HomePage = () => {
               <Link
                 key={product.id}
                 to={`/product/${product.id}`}
-                className="block"
+                className="block h-full"
               >
                 <Card
                   className="relative overflow-hidden rounded-2xl border-0 shadow-lg hover:shadow-2xl transition-all duration-500 hover-scale group bg-card h-full flex flex-col"
