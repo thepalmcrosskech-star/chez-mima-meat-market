@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { Save, MapPin } from "lucide-react";
+import { Save, MapPin, RotateCcw } from "lucide-react";
 import MapboxMap from "@/components/MapboxMap";
 import mapboxgl from "mapbox-gl";
 
