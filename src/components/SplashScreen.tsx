@@ -72,7 +72,7 @@ const SplashScreen = ({ onComplete }: SplashScreenProps) => {
           <img
             src={logo}
             alt="Chez Mima"
-            className="relative w-36 h-36 rounded-full object-cover border-4 border-primary shadow-[0_0_40px_hsl(var(--primary)/0.4)]"
+            className="relative w-36 h-36 rounded-full object-cover border-4 border-primary/40 shadow-[0_0_30px_hsl(var(--primary)/0.15)]"
           />
         </div>
 
