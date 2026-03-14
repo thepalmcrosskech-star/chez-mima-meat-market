@@ -11,9 +11,9 @@
 @layer base {
   :root {
     /* ── Light Theme (default) — warm off-white ── */
-    --background: 30 20% 96%;
+    --background: 35 25% 95%;
     --foreground: 20 10% 12%;
-    --card: 30 15% 98%;
+    --card: 35 20% 97%;
     --card-foreground: 20 10% 12%;
     --popover: 30 15% 98%;
     --popover-foreground: 20 10% 12%;
@@ -82,6 +82,17 @@
     @apply bg-background text-foreground;
     font-family: 'Sora', system-ui, sans-serif;
   }
+}
+
+:root body {
+  background-image: 
+    radial-gradient(circle at 20% 50%, hsl(357 85% 45% / 0.02) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, hsl(30 30% 70% / 0.04) 0%, transparent 50%),
+    radial-gradient(circle at 50% 80%, hsl(30 20% 60% / 0.03) 0%, transparent 50%);
+}
+
+.dark body {
+  background-image: none;
 }
 
 /* ── Premium Gradients ── */
