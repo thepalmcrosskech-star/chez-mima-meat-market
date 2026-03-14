@@ -300,14 +300,11 @@ const HomePage = () => {
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
                   <div className="absolute top-3 right-3 z-10">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background/90 transition-colors"
-                      onClick={(e) => e.preventDefault()}
-                    >
-                      <Heart className="h-4 w-4 text-muted-foreground hover:text-primary transition-colors" />
-                    </Button>
+                    <WishlistButton
+                      productId={product.id}
+                      isFavorite={isFavorite(product.id)}
+                      onToggle={toggleWishlist}
+                    />
                   </div>
 
                   <div className="aspect-square bg-gradient-to-br from-muted/20 to-muted/40 flex items-center justify-center relative overflow-hidden">
