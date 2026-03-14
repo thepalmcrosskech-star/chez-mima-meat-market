@@ -65,7 +65,7 @@ const SplashScreen = ({ onComplete }: SplashScreenProps) => {
           <div
             className="absolute -inset-6 rounded-full blur-2xl transition-opacity duration-1000"
             style={{
-              background: "hsl(var(--primary) / 0.3)",
+              background: "hsl(var(--primary) / 0.12)",
               opacity: stage >= 1 ? 1 : 0,
             }}
           />
