@@ -35,7 +35,7 @@ const SplashScreen = ({ onComplete }: SplashScreenProps) => {
       <div
         className="absolute w-[600px] h-[600px] rounded-full transition-all duration-1000 ease-out"
         style={{
-          background: "radial-gradient(circle, hsl(var(--primary) / 0.15) 0%, transparent 70%)",
+          background: "radial-gradient(circle, hsl(var(--primary) / 0.06) 0%, transparent 70%)",
           transform: stage >= 1 ? "scale(1)" : "scale(0)",
           opacity: stage >= 1 ? 1 : 0,
         }}
@@ -43,12 +43,12 @@ const SplashScreen = ({ onComplete }: SplashScreenProps) => {
 
       {/* Spinning ring */}
       <div
-        className="absolute w-44 h-44 rounded-full border-2 border-primary/20 transition-all duration-700 ease-out"
+        className="absolute w-44 h-44 rounded-full border-2 border-primary/10 transition-all duration-700 ease-out"
         style={{
           transform: stage >= 1 ? "scale(1) rotate(0deg)" : "scale(0.5) rotate(-180deg)",
           opacity: stage >= 1 ? 1 : 0,
           animation: stage >= 1 ? "spin 8s linear infinite" : "none",
-          borderTopColor: "hsl(var(--primary) / 0.6)",
+          borderTopColor: "hsl(var(--primary) / 0.25)",
         }}
       />
 
@@ -65,14 +65,14 @@ const SplashScreen = ({ onComplete }: SplashScreenProps) => {
           <div
             className="absolute -inset-6 rounded-full blur-2xl transition-opacity duration-1000"
             style={{
-              background: "hsl(var(--primary) / 0.3)",
+              background: "hsl(var(--primary) / 0.12)",
               opacity: stage >= 1 ? 1 : 0,
             }}
           />
           <img
             src={logo}
             alt="Chez Mima"
-            className="relative w-36 h-36 rounded-full object-cover border-4 border-primary shadow-[0_0_40px_hsl(var(--primary)/0.4)]"
+            className="relative w-36 h-36 rounded-full object-cover border-4 border-primary/40 shadow-[0_0_30px_hsl(var(--primary)/0.15)]"
           />
         </div>
 
