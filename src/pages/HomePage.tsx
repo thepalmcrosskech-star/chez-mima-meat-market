@@ -265,6 +265,9 @@ const HomePage = () => {
         </div>
       </section>
 
+      {/* Favorite Products */}
+      <FavoriteProducts onAddToCart={handleAddToCart} />
+
       {/* Products Section */}
       <section className="px-4">
         <div className="flex items-center justify-between mb-6">
