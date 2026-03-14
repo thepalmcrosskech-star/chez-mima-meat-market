@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "@/hooks/use-toast";
 import QuantityDialog from "@/components/QuantityDialog";
-import logo from "@/assets/logo.jpeg";
+import logo from "@/assets/logo-transparent.png";
 import BottomNav from "@/components/BottomNav";
 
 import { Product, Category } from "@/types/product";
