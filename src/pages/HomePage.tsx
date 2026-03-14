@@ -292,7 +292,7 @@ const HomePage = () => {
                 className="block"
               >
                 <Card
-                  className="relative overflow-hidden rounded-2xl border-0 shadow-lg hover:shadow-2xl transition-all duration-500 hover-scale group bg-card"
+                  className="relative overflow-hidden rounded-2xl border-0 shadow-lg hover:shadow-2xl transition-all duration-500 hover-scale group bg-card h-full flex flex-col"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
                   <div className="absolute top-3 right-3 z-10">
@@ -318,12 +318,12 @@ const HomePage = () => {
                     )}
                   </div>
 
-                  <div className="p-4">
-                    <h4 className="font-bold text-card-foreground mb-1 group-hover:text-primary transition-colors">
+                  <div className="p-4 flex flex-col flex-1">
+                    <h4 className="font-bold text-card-foreground mb-1 group-hover:text-primary transition-colors line-clamp-1">
                       {product.name}
                     </h4>
-                    <p className="text-sm text-muted-foreground mb-3 line-clamp-1">
-                      {product.description || ""}
+                    <p className="text-sm text-muted-foreground mb-3 line-clamp-1 flex-1">
+                      {product.description || "\u00A0"}
                     </p>
                     
                     <div className="flex items-center justify-between">
