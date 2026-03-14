@@ -85,6 +85,7 @@ const ProductPage = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(0.25);
+  const [imageZoomed, setImageZoomed] = useState(false);
 
   // Review form
   const [userRating, setUserRating] = useState(0);
