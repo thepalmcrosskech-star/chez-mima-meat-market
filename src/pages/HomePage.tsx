@@ -135,8 +135,8 @@ const HomePage = () => {
       {/* Header */}
       <header className="sticky top-0 z-50 bg-gradient-to-b from-background via-background/95 to-background/90 backdrop-blur-md px-4 py-3 flex items-center justify-between border-b border-border/50 animate-fade-in">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl overflow-hidden ring-1 ring-primary/30 shadow-[0_0_12px_hsl(var(--primary)/0.15)]">
-            <img src={logo} alt="Chez Mima" className="w-full h-full object-cover" />
+          <div className="w-16 h-10 rounded-lg overflow-hidden bg-card/40 ring-1 ring-border shadow-[0_0_12px_hsl(var(--primary)/0.12)] flex items-center justify-center px-1">
+            <img src={logo} alt="Chez Mima" className="w-full h-full object-contain" />
           </div>
           <div className="flex flex-col leading-none">
             <span className="text-[11px] font-medium tracking-[0.2em] uppercase text-muted-foreground">Boucherie & Traiteur</span>
