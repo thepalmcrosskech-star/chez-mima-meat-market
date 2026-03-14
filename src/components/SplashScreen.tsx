@@ -35,7 +35,7 @@ const SplashScreen = ({ onComplete }: SplashScreenProps) => {
       <div
         className="absolute w-[600px] h-[600px] rounded-full transition-all duration-1000 ease-out"
         style={{
-          background: "radial-gradient(circle, hsl(var(--primary) / 0.15) 0%, transparent 70%)",
+          background: "radial-gradient(circle, hsl(var(--primary) / 0.06) 0%, transparent 70%)",
           transform: stage >= 1 ? "scale(1)" : "scale(0)",
           opacity: stage >= 1 ? 1 : 0,
         }}
