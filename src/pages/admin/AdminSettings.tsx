@@ -135,6 +135,24 @@ const AdminSettings = () => {
           />
         </CardContent>
       </Card>
+
+      {/* Dev Tools */}
+      <Card>
+        <CardHeader><CardTitle>Outils développeur</CardTitle></CardHeader>
+        <CardContent>
+          <Button
+            variant="outline"
+            className="gap-2"
+            onClick={() => {
+              sessionStorage.removeItem("splashShown");
+              sonnerToast.success("Splash screen réactivé — rechargez la page");
+            }}
+          >
+            <RotateCcw className="h-4 w-4" />
+            Forcer le splash screen
+          </Button>
+        </CardContent>
+      </Card>
     </div>
   );
 };
