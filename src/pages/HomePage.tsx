@@ -138,7 +138,7 @@ const HomePage = () => {
           <img src={logo} alt="Chez Mima" className="h-12 object-contain" />
           <div className="flex flex-col leading-none">
             <span className="text-[11px] font-medium tracking-[0.2em] uppercase text-muted-foreground">Boucherie & Charcuterie</span>
-            <span className="text-lg font-bold tracking-tight text-foreground">
+            <span className="text-lg font-semibold tracking-wide text-foreground" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
               Chez <span className="text-primary">Mima</span>
             </span>
           </div>
