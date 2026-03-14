@@ -139,7 +139,7 @@ const HomePage = () => {
             <img src={logo} alt="Chez Mima" className="w-full h-full object-contain" />
           </div>
           <div className="flex flex-col leading-none">
-            <span className="text-[11px] font-medium tracking-[0.2em] uppercase text-muted-foreground">Boucherie & Traiteur</span>
+            <span className="text-[11px] font-medium tracking-[0.2em] uppercase text-muted-foreground">Boucherie & Charcuterie</span>
             <span className="text-lg font-bold tracking-tight text-foreground">
               Chez <span className="text-primary">Mima</span>
             </span>
