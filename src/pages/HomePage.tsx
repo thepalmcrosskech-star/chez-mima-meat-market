@@ -292,7 +292,7 @@ const HomePage = () => {
                 className="block"
               >
                 <Card
-                  className="relative overflow-hidden rounded-2xl border-0 shadow-lg hover:shadow-2xl transition-all duration-500 hover-scale group bg-card"
+                  className="relative overflow-hidden rounded-2xl border-0 shadow-lg hover:shadow-2xl transition-all duration-500 hover-scale group bg-card h-full flex flex-col"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
                   <div className="absolute top-3 right-3 z-10">
