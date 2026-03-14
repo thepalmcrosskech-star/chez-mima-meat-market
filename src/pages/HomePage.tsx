@@ -135,7 +135,7 @@ const HomePage = () => {
       {/* Header */}
       <header className="sticky top-0 z-50 bg-gradient-to-b from-background via-background/95 to-background/90 backdrop-blur-md px-4 py-3 flex items-center justify-between border-b border-border/50 animate-fade-in">
         <div className="flex items-center gap-2.5">
-          <img src={logo} alt="Chez Mima" className="h-12 object-contain" />
+          <img src={logo} alt="Chez Mima" className="h-12 object-contain drop-shadow-[0_1px_3px_rgba(0,0,0,0.3)] dark:drop-shadow-none" />
           <div className="flex flex-col leading-none">
             <span className="text-[11px] font-medium tracking-[0.2em] uppercase text-muted-foreground">Boucherie & Charcuterie</span>
             <span className="text-lg font-semibold tracking-wide text-foreground" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
