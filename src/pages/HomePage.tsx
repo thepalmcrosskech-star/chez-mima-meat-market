@@ -134,11 +134,16 @@ const HomePage = () => {
     <div className="min-h-screen bg-background pb-20">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-gradient-to-b from-background via-background/95 to-background/90 backdrop-blur-md px-4 py-3 flex items-center justify-between border-b border-border/50">
-        <div className="flex items-center gap-3">
-          <img src={logo} alt="Chez Mima" className="w-10 h-10 rounded-full object-cover border-2 border-primary" />
-          <h1 className="text-xl font-extrabold tracking-tighter text-foreground gradient-text">
-            CHEZ MIMA
-          </h1>
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 rounded-xl overflow-hidden ring-1 ring-primary/30 shadow-[0_0_12px_hsl(var(--primary)/0.15)]">
+            <img src={logo} alt="Chez Mima" className="w-full h-full object-cover" />
+          </div>
+          <div className="flex flex-col leading-none">
+            <span className="text-[11px] font-medium tracking-[0.2em] uppercase text-muted-foreground">Boucherie & Traiteur</span>
+            <span className="text-lg font-bold tracking-tight text-foreground">
+              Chez <span className="text-primary">Mima</span>
+            </span>
+          </div>
         </div>
         <div className="flex items-center gap-1">
           <Button variant="ghost" size="icon" className="relative hover-scale">
