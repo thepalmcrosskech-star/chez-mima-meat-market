@@ -43,12 +43,12 @@ const SplashScreen = ({ onComplete }: SplashScreenProps) => {
 
       {/* Spinning ring */}
       <div
-        className="absolute w-44 h-44 rounded-full border-2 border-primary/20 transition-all duration-700 ease-out"
+        className="absolute w-44 h-44 rounded-full border-2 border-primary/10 transition-all duration-700 ease-out"
         style={{
           transform: stage >= 1 ? "scale(1) rotate(0deg)" : "scale(0.5) rotate(-180deg)",
           opacity: stage >= 1 ? 1 : 0,
           animation: stage >= 1 ? "spin 8s linear infinite" : "none",
-          borderTopColor: "hsl(var(--primary) / 0.6)",
+          borderTopColor: "hsl(var(--primary) / 0.25)",
         }}
       />
 
