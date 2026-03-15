@@ -106,7 +106,7 @@ const SearchPage = () => {
             {filtered.map((product) => {
               const unavailable = !product.is_active;
               return (
-              <Link key={product.id} to={unavailable ? "#" : `/product/${product.id}`} className="block" onClick={unavailable ? (e) => e.preventDefault() : undefined}>
+              <Link key={product.id} to={`/product/${product.id}`} className="block">
                 <Card className={`overflow-hidden border-0 shadow-lg group bg-card relative ${unavailable ? "opacity-60 grayscale" : ""}`}>
                   {unavailable && (
                     <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
