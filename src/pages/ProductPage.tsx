@@ -37,6 +37,7 @@ interface Product {
   cooking_tips: string | null;
   conservation_tips: string | null;
   category_id: string | null;
+  is_active: boolean | null;
 }
 
 interface Review {
@@ -350,13 +351,20 @@ const ProductPage = () => {
         </div>
 
         {/* Add to Cart Button */}
-        <Button
-          className="w-full py-6 text-base font-bold gap-2 rounded-xl"
-          onClick={handleAddToCart}
-        >
-          <ShoppingCart className="h-5 w-5" />
-          Ajouter — {formatPrice(product.price * quantity)}
-        </Button>
+        {product.is_active === false ? (
+          <div className="w-full py-4 text-center bg-muted rounded-xl">
+            <p className="text-muted-foreground font-bold">Victime de son succès 🔥</p>
+            <p className="text-xs text-muted-foreground mt-1">Ce produit est temporairement indisponible</p>
+          </div>
+        ) : (
+          <Button
+            className="w-full py-6 text-base font-bold gap-2 rounded-xl"
+            onClick={handleAddToCart}
+          >
+            <ShoppingCart className="h-5 w-5" />
+            Ajouter — {formatPrice(product.price * quantity)}
+          </Button>
+        )}
 
         <Separator className="bg-border/50" />
 

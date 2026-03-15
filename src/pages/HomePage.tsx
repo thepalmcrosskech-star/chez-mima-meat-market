@@ -68,7 +68,7 @@ const HomePage = () => {
   const fetchData = async () => {
     const [categoriesRes, productsRes, bannersRes, reviewsRes] = await Promise.all([
       supabase.from("categories").select("*").order("sort_order"),
-      supabase.from("products").select("*").eq("is_active", true),
+      supabase.from("products").select("*"),
       supabase.from("banners").select("*").eq("is_active", true).order("sort_order"),
       supabase.from("product_reviews").select("product_id, rating"),
     ]);
@@ -107,6 +107,7 @@ const HomePage = () => {
   }, [banners.length]);
 
   const handleAddToCart = (product: Product) => {
+    if (!product.is_active) return;
     setSelectedProduct(product);
     setQuantityDialogOpen(true);
   };
@@ -123,7 +124,11 @@ const HomePage = () => {
     const list = selectedCategory && selectedCategory !== "all"
       ? products.filter((p) => p.category_id === selectedCategory)
       : products;
-    return [...list].sort((a, b) => (productRatings[b.id] || 0) - (productRatings[a.id] || 0));
+    return [...list].sort((a, b) => {
+      // Active products first, then by rating
+      if (a.is_active !== b.is_active) return a.is_active ? -1 : 1;
+      return (productRatings[b.id] || 0) - (productRatings[a.id] || 0);
+    });
   })();
 
   if (!authChecked) {
@@ -287,23 +292,36 @@ const HomePage = () => {
               Aucun produit dans cette catégorie
             </div>
           ) : (
-            filteredProducts.map((product, index) => (
+            filteredProducts.map((product, index) => {
+              const unavailable = !product.is_active;
+              return (
               <Link
                 key={product.id}
-                to={`/product/${product.id}`}
+                to={unavailable ? "#" : `/product/${product.id}`}
                 className="block h-full"
+                onClick={unavailable ? (e) => e.preventDefault() : undefined}
               >
                 <Card
-                  className="relative overflow-hidden rounded-2xl border-0 shadow-lg hover:shadow-2xl transition-all duration-500 hover-scale group bg-card h-full flex flex-col"
+                  className={`relative overflow-hidden rounded-2xl border-0 shadow-lg transition-all duration-500 group bg-card h-full flex flex-col ${unavailable ? "opacity-60 grayscale" : "hover:shadow-2xl hover-scale"}`}
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
-                  <div className="absolute top-3 right-3 z-10">
-                    <WishlistButton
-                      productId={product.id}
-                      isFavorite={isFavorite(product.id)}
-                      onToggle={toggleWishlist}
-                    />
-                  </div>
+                  {unavailable && (
+                    <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
+                      <div className="bg-primary/90 text-primary-foreground px-4 py-2 rounded-lg -rotate-12 shadow-lg">
+                        <p className="text-sm font-bold whitespace-nowrap">Victime de son succès 🔥</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {!unavailable && (
+                    <div className="absolute top-3 right-3 z-10">
+                      <WishlistButton
+                        productId={product.id}
+                        isFavorite={isFavorite(product.id)}
+                        onToggle={toggleWishlist}
+                      />
+                    </div>
+                  )}
 
                   <div className="aspect-square bg-gradient-to-br from-muted/20 to-muted/40 flex items-center justify-center relative overflow-hidden">
                     {product.image_url ? (
@@ -330,18 +348,21 @@ const HomePage = () => {
                         <span className="text-lg font-bold text-primary">{formatPrice(product.price)}</span>
                         <span className="text-sm text-muted-foreground">/{product.unit_type === "weight" ? "Kg" : "Pièce"}</span>
                       </div>
-                      <Button 
-                        size="icon" 
-                        className="bg-primary hover:bg-primary/90 rounded-full w-8 h-8 hover-scale"
-                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleAddToCart(product); }}
-                      >
-                        <Plus className="h-4 w-4" />
-                      </Button>
+                      {!unavailable && (
+                        <Button 
+                          size="icon" 
+                          className="bg-primary hover:bg-primary/90 rounded-full w-8 h-8 hover-scale"
+                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleAddToCart(product); }}
+                        >
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </Card>
               </Link>
-            ))
+              );
+            })
           )}
         </div>
       </section>
