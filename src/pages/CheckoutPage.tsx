@@ -90,6 +90,10 @@ const CheckoutPage = () => {
     // Pre-fill WhatsApp phone from profile
     if (profileRes.data?.phone) setWhatsappPhone(profileRes.data.phone);
 
+    // Load store address for pickup
+    const { data: storeAddrData } = await supabase.from("app_settings").select("value").eq("key", "store_address").single();
+    if (storeAddrData?.value) setStoreAddress(String(storeAddrData.value));
+
     setLoading(false);
   };
 
