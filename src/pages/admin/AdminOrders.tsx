@@ -20,6 +20,7 @@ interface DriverProfile {
 
 interface Order {
   id: string;
+  user_id: string;
   status: string;
   subtotal: number;
   delivery_fee: number;
@@ -70,9 +71,37 @@ const AdminOrders = () => {
   };
 
   const updateStatus = async (orderId: string, status: string) => {
+    const order = orders.find(o => o.id === orderId);
     const { error } = await supabase.from("orders").update({ status }).eq("id", orderId);
-    if (error) toast({ title: "Erreur", description: error.message, variant: "destructive" });
-    else { toast({ title: "Statut mis à jour" }); fetchData(); }
+    if (error) {
+      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+      return;
+    }
+
+    // Send in-app notification to the client
+    if (order) {
+      const statusLabel = (await import("@/lib/format")).getStatusInfo(status).label;
+      const notifMessages: Record<string, { title: string; message: string }> = {
+        confirmed: { title: "Commande confirmée ✅", message: "Votre commande a été confirmée et sera bientôt préparée." },
+        preparing: { title: "En préparation 🍖", message: "Votre commande est en cours de préparation." },
+        ready: { title: "Commande prête ! 🎉", message: "Votre commande est prête. Vous pouvez venir la récupérer en boucherie." },
+        delivering: { title: "En livraison 🚚", message: "Votre commande est en route !" },
+        delivered: { title: "Commande livrée ✅", message: "Votre commande a été livrée. Bon appétit !" },
+        cancelled: { title: "Commande annulée ❌", message: "Votre commande a été annulée." },
+      };
+      const notif = notifMessages[status];
+      if (notif) {
+        await (supabase as any).from("notifications").insert({
+          user_id: order.user_id,
+          order_id: orderId,
+          title: notif.title,
+          message: notif.message,
+        });
+      }
+    }
+
+    toast({ title: "Statut mis à jour" });
+    fetchData();
   };
 
   const assignDriver = async (orderId: string, driverId: string) => {

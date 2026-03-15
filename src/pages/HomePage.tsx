@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
-import { Bell, Plus, Loader2, Sun, Moon } from "lucide-react";
+import { Plus, Loader2, Sun, Moon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -12,6 +12,7 @@ import logo from "@/assets/logo-transparent.png";
 import BottomNav from "@/components/BottomNav";
 import FavoriteProducts from "@/components/FavoriteProducts";
 import { useWishlist, WishlistButton } from "@/components/WishlistButton";
+import NotificationBell from "@/components/NotificationBell";
 
 import { Product, Category } from "@/types/product";
 import { formatPrice } from "@/lib/format";
@@ -147,10 +148,7 @@ const HomePage = () => {
           </div>
         </div>
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" className="relative hover-scale">
-            <Bell className="h-5 w-5" />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full border border-background notification-pulse"></span>
-          </Button>
+          <NotificationBell />
           <Button
             variant="ghost"
             size="icon"
