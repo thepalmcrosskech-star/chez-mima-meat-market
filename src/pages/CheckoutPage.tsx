@@ -139,11 +139,12 @@ const CheckoutPage = () => {
   const canOrder = isPickup ? isValidPhone : (hasAddress && deliveryZone && deliveryFee !== null && isValidPhone);
 
   const handleSubmit = async () => {
-    if (!userId || !canOrder) return;
-    if (!isValidPhone) {
+    if (!userId) return;
+    if (isPickup && !isValidPhone) {
       toast({ title: "Numéro requis", description: "Veuillez renseigner votre numéro WhatsApp", variant: "destructive" });
       return;
     }
+    if (!isPickup && !canOrder) return;
     setSubmitting(true);
 
     try {
