@@ -301,13 +301,13 @@ const HomePage = () => {
                 className="block h-full"
               >
                 <Card
-                  className={`relative overflow-hidden rounded-2xl border-0 shadow-lg transition-all duration-500 group bg-card h-full flex flex-col ${unavailable ? "opacity-75" : "hover:shadow-2xl hover-scale"}`}
+                  className={`relative overflow-hidden rounded-2xl border-0 shadow-lg transition-all duration-500 group bg-card h-full flex flex-col ${unavailable ? "opacity-80 saturate-50" : "hover:shadow-2xl hover-scale"}`}
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
                   {unavailable && (
-                    <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none bg-black/30">
-                      <div className="bg-amber-500 text-white px-4 py-2 rounded-full -rotate-6 shadow-xl border-2 border-amber-300">
-                        <p className="text-sm font-extrabold whitespace-nowrap tracking-wide">Victime de son succès 🔥</p>
+                    <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
+                      <div className="bg-red-600 text-white px-4 py-2 rounded-full shadow-xl">
+                        <p className="text-xs font-extrabold whitespace-nowrap">Victime de son succès 🔥</p>
                       </div>
                     </div>
                   )}
