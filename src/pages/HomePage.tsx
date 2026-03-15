@@ -124,7 +124,11 @@ const HomePage = () => {
     const list = selectedCategory && selectedCategory !== "all"
       ? products.filter((p) => p.category_id === selectedCategory)
       : products;
-    return [...list].sort((a, b) => (productRatings[b.id] || 0) - (productRatings[a.id] || 0));
+    return [...list].sort((a, b) => {
+      // Active products first, then by rating
+      if (a.is_active !== b.is_active) return a.is_active ? -1 : 1;
+      return (productRatings[b.id] || 0) - (productRatings[a.id] || 0);
+    });
   })();
 
   if (!authChecked) {
