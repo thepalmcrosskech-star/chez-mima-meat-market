@@ -281,7 +281,7 @@ const CheckoutPage = () => {
               <div>
                 <p className="font-semibold text-sm">Retrait en boucherie</p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Votre commande sera prête pour le retrait. Vous serez notifié quand elle sera disponible.
+                  Vous recevrez une notification dès que votre commande sera prête à retirer.
                 </p>
               </div>
             </div>
