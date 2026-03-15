@@ -107,10 +107,10 @@ const SearchPage = () => {
               const unavailable = !product.is_active;
               return (
               <Link key={product.id} to={`/product/${product.id}`} className="block">
-                <Card className={`overflow-hidden border-0 shadow-lg group bg-card relative ${unavailable ? "opacity-75" : ""}`}>
+                <Card className={`overflow-hidden border-0 shadow-lg group bg-card relative ${unavailable ? "opacity-80 saturate-50" : ""}`}>
                   {unavailable && (
-                    <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none bg-black/30">
-                      <div className="bg-amber-500 text-white px-3 py-1.5 rounded-full -rotate-6 shadow-xl border-2 border-amber-300">
+                    <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
+                      <div className="bg-red-600 text-white px-3 py-1.5 rounded-full shadow-xl">
                         <p className="text-xs font-extrabold whitespace-nowrap">Victime de son succès 🔥</p>
                       </div>
                     </div>
