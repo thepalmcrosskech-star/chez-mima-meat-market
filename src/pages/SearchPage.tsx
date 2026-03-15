@@ -106,11 +106,11 @@ const SearchPage = () => {
             {filtered.map((product) => {
               const unavailable = !product.is_active;
               return (
-              <Link key={product.id} to={unavailable ? "#" : `/product/${product.id}`} className="block" onClick={unavailable ? (e) => e.preventDefault() : undefined}>
+              <Link key={product.id} to={`/product/${product.id}`} className="block">
                 <Card className={`overflow-hidden border-0 shadow-lg group bg-card relative ${unavailable ? "opacity-60 grayscale" : ""}`}>
                   {unavailable && (
                     <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
-                      <div className="bg-primary/90 text-primary-foreground px-3 py-1.5 rounded-lg -rotate-12 shadow-lg">
+                      <div className="bg-destructive text-destructive-foreground px-3 py-1.5 rounded-lg -rotate-12 shadow-lg">
                         <p className="text-xs font-bold whitespace-nowrap">Victime de son succès 🔥</p>
                       </div>
                     </div>

@@ -352,8 +352,8 @@ const ProductPage = () => {
 
         {/* Add to Cart Button */}
         {product.is_active === false ? (
-          <div className="w-full py-4 text-center bg-muted rounded-xl">
-            <p className="text-muted-foreground font-bold">Victime de son succès 🔥</p>
+          <div className="w-full py-4 text-center bg-destructive/10 border border-destructive/30 rounded-xl">
+            <p className="text-destructive font-bold">Victime de son succès 🔥</p>
             <p className="text-xs text-muted-foreground mt-1">Ce produit est temporairement indisponible</p>
           </div>
         ) : (

@@ -297,9 +297,8 @@ const HomePage = () => {
               return (
               <Link
                 key={product.id}
-                to={unavailable ? "#" : `/product/${product.id}`}
+                to={`/product/${product.id}`}
                 className="block h-full"
-                onClick={unavailable ? (e) => e.preventDefault() : undefined}
               >
                 <Card
                   className={`relative overflow-hidden rounded-2xl border-0 shadow-lg transition-all duration-500 group bg-card h-full flex flex-col ${unavailable ? "opacity-60 grayscale" : "hover:shadow-2xl hover-scale"}`}
@@ -307,7 +306,7 @@ const HomePage = () => {
                 >
                   {unavailable && (
                     <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
-                      <div className="bg-primary/90 text-primary-foreground px-4 py-2 rounded-lg -rotate-12 shadow-lg">
+                      <div className="bg-destructive text-destructive-foreground px-4 py-2 rounded-lg -rotate-12 shadow-lg">
                         <p className="text-sm font-bold whitespace-nowrap">Victime de son succès 🔥</p>
                       </div>
                     </div>
