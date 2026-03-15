@@ -131,11 +131,12 @@ const CheckoutPage = () => {
     return { zone: null, fee: null };
   };
 
-  const { zone: deliveryZone, fee: deliveryFee } = getDeliveryInfo();
-  const total = deliveryFee !== null ? subtotal + deliveryFee : subtotal;
+  const isPickup = deliveryMode === "pickup";
+  const { zone: deliveryZone, fee: deliveryFee } = isPickup ? { zone: null, fee: 0 } : getDeliveryInfo();
+  const total = isPickup ? subtotal : (deliveryFee !== null ? subtotal + deliveryFee : subtotal);
   const hasAddress = selectedAddressId || newAddress;
   const isValidPhone = whatsappPhone.replace(/\s/g, "").length >= 9;
-  const canOrder = hasAddress && deliveryZone && deliveryFee !== null && isValidPhone;
+  const canOrder = isPickup ? isValidPhone : (hasAddress && deliveryZone && deliveryFee !== null && isValidPhone);
 
   const handleSubmit = async () => {
     if (!userId || !canOrder) return;
