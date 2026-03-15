@@ -281,7 +281,7 @@ const CheckoutPage = () => {
               <div>
                 <p className="font-semibold text-sm">Retrait en boucherie</p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Votre commande sera prête pour le retrait. Vous serez contacté par WhatsApp quand elle sera disponible.
+                  Votre commande sera prête pour le retrait. Vous serez notifié quand elle sera disponible.
                 </p>
               </div>
             </div>
