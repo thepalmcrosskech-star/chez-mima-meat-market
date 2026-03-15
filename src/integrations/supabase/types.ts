@@ -295,6 +295,7 @@ export type Database = {
           delivery_address_id: string | null
           delivery_address_snapshot: Json | null
           delivery_fee: number
+          delivery_mode: string
           delivery_zone_id: string | null
           driver_id: string | null
           id: string
@@ -310,6 +311,7 @@ export type Database = {
           delivery_address_id?: string | null
           delivery_address_snapshot?: Json | null
           delivery_fee?: number
+          delivery_mode?: string
           delivery_zone_id?: string | null
           driver_id?: string | null
           id?: string
@@ -325,6 +327,7 @@ export type Database = {
           delivery_address_id?: string | null
           delivery_address_snapshot?: Json | null
           delivery_fee?: number
+          delivery_mode?: string
           delivery_zone_id?: string | null
           driver_id?: string | null
           id?: string
