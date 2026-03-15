@@ -19,6 +19,7 @@ const statusLabels: Record<string, { label: string; variant: "default" | "second
   pending: { label: "En attente", variant: "secondary" },
   confirmed: { label: "Confirmée", variant: "default" },
   preparing: { label: "En préparation", variant: "default" },
+  ready: { label: "Prête", variant: "default" },
   delivering: { label: "En livraison", variant: "default" },
   delivered: { label: "Livrée", variant: "default" },
   cancelled: { label: "Annulée", variant: "destructive" },
