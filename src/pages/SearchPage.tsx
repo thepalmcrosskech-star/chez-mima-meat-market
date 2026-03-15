@@ -28,7 +28,7 @@ const SearchPage = () => {
 
   const fetchData = async () => {
     const [p, c] = await Promise.all([
-      supabase.from("products").select("*").eq("is_active", true),
+      supabase.from("products").select("*"),
       supabase.from("categories").select("id, name, emoji").order("sort_order"),
     ]);
     if (p.data) setProducts(p.data);

@@ -6,6 +6,7 @@ export interface Product {
   unit_type: string;
   image_url: string | null;
   category_id: string | null;
+  is_active: boolean | null;
 }
 
 export interface Category {

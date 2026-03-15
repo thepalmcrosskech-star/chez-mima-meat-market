@@ -68,7 +68,7 @@ const HomePage = () => {
   const fetchData = async () => {
     const [categoriesRes, productsRes, bannersRes, reviewsRes] = await Promise.all([
       supabase.from("categories").select("*").order("sort_order"),
-      supabase.from("products").select("*").eq("is_active", true),
+      supabase.from("products").select("*"),
       supabase.from("banners").select("*").eq("is_active", true).order("sort_order"),
       supabase.from("product_reviews").select("product_id, rating"),
     ]);
