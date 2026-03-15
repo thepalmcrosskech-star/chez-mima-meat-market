@@ -52,8 +52,10 @@ const CheckoutPage = () => {
   const [instructions, setInstructions] = useState("");
   const [notes, setNotes] = useState("");
   const [whatsappPhone, setWhatsappPhone] = useState("");
+  const [deliveryMode, setDeliveryMode] = useState<"delivery" | "pickup">("delivery");
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [storeAddress, setStoreAddress] = useState("");
 
   useEffect(() => {
     if (items.length === 0) { navigate("/cart"); return; }
