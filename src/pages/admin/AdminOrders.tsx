@@ -20,6 +20,7 @@ interface DriverProfile {
 
 interface Order {
   id: string;
+  user_id: string;
   status: string;
   subtotal: number;
   delivery_fee: number;
