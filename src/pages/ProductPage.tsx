@@ -37,6 +37,7 @@ interface Product {
   cooking_tips: string | null;
   conservation_tips: string | null;
   category_id: string | null;
+  is_active: boolean | null;
 }
 
 interface Review {
