@@ -148,10 +148,7 @@ const HomePage = () => {
           </div>
         </div>
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" className="relative hover-scale">
-            <Bell className="h-5 w-5" />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full border border-background notification-pulse"></span>
-          </Button>
+          <NotificationBell />
           <Button
             variant="ghost"
             size="icon"
