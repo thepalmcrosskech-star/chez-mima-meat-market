@@ -107,6 +107,7 @@ const HomePage = () => {
   }, [banners.length]);
 
   const handleAddToCart = (product: Product) => {
+    if (!product.is_active) return;
     setSelectedProduct(product);
     setQuantityDialogOpen(true);
   };
