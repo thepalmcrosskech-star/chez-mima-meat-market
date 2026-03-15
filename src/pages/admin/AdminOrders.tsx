@@ -91,8 +91,8 @@ const AdminOrders = () => {
       };
       const notif = notifMessages[status];
       if (notif) {
-        await supabase.from("notifications").insert({
-          user_id: (order as any).user_id || order.profiles?.email, // we need user_id
+        await (supabase as any).from("notifications").insert({
+          user_id: order.user_id,
           order_id: orderId,
           title: notif.title,
           message: notif.message,
