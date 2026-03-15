@@ -297,9 +297,8 @@ const HomePage = () => {
               return (
               <Link
                 key={product.id}
-                to={unavailable ? "#" : `/product/${product.id}`}
+                to={`/product/${product.id}`}
                 className="block h-full"
-                onClick={unavailable ? (e) => e.preventDefault() : undefined}
               >
                 <Card
                   className={`relative overflow-hidden rounded-2xl border-0 shadow-lg transition-all duration-500 group bg-card h-full flex flex-col ${unavailable ? "opacity-60 grayscale" : "hover:shadow-2xl hover-scale"}`}
