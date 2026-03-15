@@ -153,37 +153,40 @@ const CheckoutPage = () => {
       let addressId = selectedAddressId;
       let addressSnapshot: any = null;
 
-      // Save new address if needed
-      if (!selectedAddressId && newAddress) {
-        const { data: savedAddr, error: addrErr } = await supabase.from("user_addresses").insert({
-          user_id: userId,
-          full_address: newAddress.full_address,
-          latitude: newAddress.latitude,
-          longitude: newAddress.longitude,
-          label: addressLabel,
-          apartment: apartment || null,
-          instructions: instructions || null,
-          delivery_zone_id: deliveryZone!.id,
-          is_default: savedAddresses.length === 0,
-        }).select().single();
+      if (!isPickup) {
+        // Save new address if needed
+        if (!selectedAddressId && newAddress) {
+          const { data: savedAddr, error: addrErr } = await supabase.from("user_addresses").insert({
+            user_id: userId,
+            full_address: newAddress.full_address,
+            latitude: newAddress.latitude,
+            longitude: newAddress.longitude,
+            label: addressLabel,
+            apartment: apartment || null,
+            instructions: instructions || null,
+            delivery_zone_id: deliveryZone!.id,
+            is_default: savedAddresses.length === 0,
+          }).select().single();
 
-        if (addrErr) throw addrErr;
-        addressId = savedAddr.id;
-        addressSnapshot = { full_address: newAddress.full_address, latitude: newAddress.latitude, longitude: newAddress.longitude, label: addressLabel };
-      } else {
-        const addr = getSelectedAddress();
-        if (addr) addressSnapshot = { full_address: addr.full_address, latitude: addr.latitude, longitude: addr.longitude, label: addr.label };
+          if (addrErr) throw addrErr;
+          addressId = savedAddr.id;
+          addressSnapshot = { full_address: newAddress.full_address, latitude: newAddress.latitude, longitude: newAddress.longitude, label: addressLabel };
+        } else {
+          const addr = getSelectedAddress();
+          if (addr) addressSnapshot = { full_address: addr.full_address, latitude: addr.latitude, longitude: addr.longitude, label: addr.label };
+        }
       }
 
       // Create order
       const { data: order, error: orderErr } = await supabase.from("orders").insert({
         user_id: userId,
         subtotal,
-        delivery_fee: deliveryFee!,
+        delivery_fee: isPickup ? 0 : deliveryFee!,
         total_price: total,
-        delivery_address_id: addressId,
-        delivery_address_snapshot: addressSnapshot,
-        delivery_zone_id: deliveryZone!.id,
+        delivery_address_id: isPickup ? null : addressId,
+        delivery_address_snapshot: isPickup ? { pickup: true } : addressSnapshot,
+        delivery_zone_id: isPickup ? null : deliveryZone!.id,
+        delivery_mode: deliveryMode,
         notes: notes || null,
         status: "pending",
       }).select().single();
