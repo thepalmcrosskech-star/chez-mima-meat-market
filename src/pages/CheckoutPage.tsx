@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, MapPin, Loader2, Plus, Check, Phone } from "lucide-react";
+import { ArrowLeft, MapPin, Loader2, Plus, Check, Phone, Store, Truck } from "lucide-react";
 import AddressPicker from "@/components/AddressPicker";
 
 interface SavedAddress {
@@ -52,8 +52,10 @@ const CheckoutPage = () => {
   const [instructions, setInstructions] = useState("");
   const [notes, setNotes] = useState("");
   const [whatsappPhone, setWhatsappPhone] = useState("");
+  const [deliveryMode, setDeliveryMode] = useState<"delivery" | "pickup">("delivery");
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [storeAddress, setStoreAddress] = useState("");
 
   useEffect(() => {
     if (items.length === 0) { navigate("/cart"); return; }
@@ -87,6 +89,10 @@ const CheckoutPage = () => {
 
     // Pre-fill WhatsApp phone from profile
     if (profileRes.data?.phone) setWhatsappPhone(profileRes.data.phone);
+
+    // Load store address for pickup
+    const { data: storeAddrData } = await supabase.from("app_settings").select("value").eq("key", "store_address").single();
+    if (storeAddrData?.value) setStoreAddress(String(storeAddrData.value));
 
     setLoading(false);
   };
@@ -125,18 +131,20 @@ const CheckoutPage = () => {
     return { zone: null, fee: null };
   };
 
-  const { zone: deliveryZone, fee: deliveryFee } = getDeliveryInfo();
-  const total = deliveryFee !== null ? subtotal + deliveryFee : subtotal;
+  const isPickup = deliveryMode === "pickup";
+  const { zone: deliveryZone, fee: deliveryFee } = isPickup ? { zone: null, fee: 0 } : getDeliveryInfo();
+  const total = isPickup ? subtotal : (deliveryFee !== null ? subtotal + deliveryFee : subtotal);
   const hasAddress = selectedAddressId || newAddress;
   const isValidPhone = whatsappPhone.replace(/\s/g, "").length >= 9;
-  const canOrder = hasAddress && deliveryZone && deliveryFee !== null && isValidPhone;
+  const canOrder = isPickup ? isValidPhone : (hasAddress && deliveryZone && deliveryFee !== null && isValidPhone);
 
   const handleSubmit = async () => {
-    if (!userId || !canOrder) return;
-    if (!isValidPhone) {
+    if (!userId) return;
+    if (isPickup && !isValidPhone) {
       toast({ title: "Numéro requis", description: "Veuillez renseigner votre numéro WhatsApp", variant: "destructive" });
       return;
     }
+    if (!isPickup && !canOrder) return;
     setSubmitting(true);
 
     try {
@@ -145,37 +153,40 @@ const CheckoutPage = () => {
       let addressId = selectedAddressId;
       let addressSnapshot: any = null;
 
-      // Save new address if needed
-      if (!selectedAddressId && newAddress) {
-        const { data: savedAddr, error: addrErr } = await supabase.from("user_addresses").insert({
-          user_id: userId,
-          full_address: newAddress.full_address,
-          latitude: newAddress.latitude,
-          longitude: newAddress.longitude,
-          label: addressLabel,
-          apartment: apartment || null,
-          instructions: instructions || null,
-          delivery_zone_id: deliveryZone!.id,
-          is_default: savedAddresses.length === 0,
-        }).select().single();
+      if (!isPickup) {
+        // Save new address if needed
+        if (!selectedAddressId && newAddress) {
+          const { data: savedAddr, error: addrErr } = await supabase.from("user_addresses").insert({
+            user_id: userId,
+            full_address: newAddress.full_address,
+            latitude: newAddress.latitude,
+            longitude: newAddress.longitude,
+            label: addressLabel,
+            apartment: apartment || null,
+            instructions: instructions || null,
+            delivery_zone_id: deliveryZone!.id,
+            is_default: savedAddresses.length === 0,
+          }).select().single();
 
-        if (addrErr) throw addrErr;
-        addressId = savedAddr.id;
-        addressSnapshot = { full_address: newAddress.full_address, latitude: newAddress.latitude, longitude: newAddress.longitude, label: addressLabel };
-      } else {
-        const addr = getSelectedAddress();
-        if (addr) addressSnapshot = { full_address: addr.full_address, latitude: addr.latitude, longitude: addr.longitude, label: addr.label };
+          if (addrErr) throw addrErr;
+          addressId = savedAddr.id;
+          addressSnapshot = { full_address: newAddress.full_address, latitude: newAddress.latitude, longitude: newAddress.longitude, label: addressLabel };
+        } else {
+          const addr = getSelectedAddress();
+          if (addr) addressSnapshot = { full_address: addr.full_address, latitude: addr.latitude, longitude: addr.longitude, label: addr.label };
+        }
       }
 
       // Create order
       const { data: order, error: orderErr } = await supabase.from("orders").insert({
         user_id: userId,
         subtotal,
-        delivery_fee: deliveryFee!,
+        delivery_fee: isPickup ? 0 : deliveryFee!,
         total_price: total,
-        delivery_address_id: addressId,
-        delivery_address_snapshot: addressSnapshot,
-        delivery_zone_id: deliveryZone!.id,
+        delivery_address_id: isPickup ? null : addressId,
+        delivery_address_snapshot: isPickup ? { pickup: true } : addressSnapshot,
+        delivery_zone_id: isPickup ? null : deliveryZone!.id,
+        delivery_mode: deliveryMode,
         notes: notes || null,
         status: "pending",
       }).select().single();
@@ -237,62 +248,107 @@ const CheckoutPage = () => {
       </div>
 
       <div className="px-4 py-4 space-y-4">
-        {/* Saved Addresses */}
+        {/* Delivery Mode Selector */}
         <div>
-          <h3 className="font-bold mb-3 flex items-center gap-2"><MapPin className="h-4 w-4 text-primary" /> Adresse de livraison</h3>
-
-          {savedAddresses.length > 0 && !showNewAddress && (
-            <div className="space-y-2 mb-3">
-              {savedAddresses.map((addr) => (
-                <Card
-                  key={addr.id}
-                  className={`p-3 cursor-pointer transition-all ${selectedAddressId === addr.id ? "border-primary ring-2 ring-primary/20" : "hover:border-primary/50"}`}
-                  onClick={() => { setSelectedAddressId(addr.id); setNewAddress(null); }}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${selectedAddressId === addr.id ? "border-primary bg-primary" : "border-muted-foreground"}`}>
-                      {selectedAddressId === addr.id && <Check className="h-3 w-3 text-primary-foreground" />}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold">{addr.label || "Adresse"}</p>
-                      <p className="text-xs text-muted-foreground truncate">{addr.full_address}</p>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          )}
-
-          {!showNewAddress ? (
-            <Button variant="outline" size="sm" className="gap-2" onClick={() => { setShowNewAddress(true); setSelectedAddressId(null); }}>
-              <Plus className="h-4 w-4" /> Nouvelle adresse
-            </Button>
-          ) : (
-            <Card className="p-4 space-y-3 border-primary/30">
-              <div className="flex items-center justify-between">
-                <p className="font-semibold text-sm">Nouvelle adresse</p>
-                {savedAddresses.length > 0 && (
-                  <Button variant="ghost" size="sm" onClick={() => { setShowNewAddress(false); if (savedAddresses.length > 0) setSelectedAddressId(savedAddresses[0].id); }}>
-                    Annuler
-                  </Button>
-                )}
-              </div>
-              <div>
-                <Label className="text-xs">Nom de l'adresse</Label>
-                <Input value={addressLabel} onChange={(e) => setAddressLabel(e.target.value)} placeholder="Maison, Bureau..." className="mt-1" />
-              </div>
-              <AddressPicker onSelect={(a) => setNewAddress(a)} />
-              <div>
-                <Label className="text-xs">Appartement / Étage (optionnel)</Label>
-                <Input value={apartment} onChange={(e) => setApartment(e.target.value)} placeholder="Appt 3, 2ème étage" className="mt-1" />
-              </div>
-              <div>
-                <Label className="text-xs">Instructions pour le livreur (optionnel)</Label>
-                <Textarea value={instructions} onChange={(e) => setInstructions(e.target.value)} placeholder="Code porte, sonnette..." rows={2} className="mt-1" />
-              </div>
+          <h3 className="font-bold mb-3">Mode de récupération</h3>
+          <div className="grid grid-cols-2 gap-3">
+            <Card
+              className={`p-4 cursor-pointer transition-all text-center ${deliveryMode === "delivery" ? "border-primary ring-2 ring-primary/20" : "hover:border-primary/50"}`}
+              onClick={() => setDeliveryMode("delivery")}
+            >
+              <Truck className={`h-6 w-6 mx-auto mb-2 ${deliveryMode === "delivery" ? "text-primary" : "text-muted-foreground"}`} />
+              <p className="text-sm font-semibold">Livraison</p>
+              <p className="text-xs text-muted-foreground">À domicile</p>
             </Card>
-          )}
+            <Card
+              className={`p-4 cursor-pointer transition-all text-center ${deliveryMode === "pickup" ? "border-primary ring-2 ring-primary/20" : "hover:border-primary/50"}`}
+              onClick={() => setDeliveryMode("pickup")}
+            >
+              <Store className={`h-6 w-6 mx-auto mb-2 ${deliveryMode === "pickup" ? "text-primary" : "text-muted-foreground"}`} />
+              <p className="text-sm font-semibold">Click & Collect</p>
+              <p className="text-xs text-muted-foreground">En boucherie</p>
+            </Card>
+          </div>
         </div>
+
+        <Separator />
+
+        {/* Pickup Info */}
+        {isPickup && (
+          <Card className="p-4 border-primary/30 bg-primary/5">
+            <div className="flex items-start gap-3">
+              <Store className="h-5 w-5 text-primary mt-0.5" />
+              <div>
+                <p className="font-semibold text-sm">Retrait en boucherie</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {storeAddress || "Adresse de la boucherie"}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Votre commande sera prête pour le retrait. Vous serez contacté par WhatsApp quand elle sera disponible.
+                </p>
+              </div>
+            </div>
+          </Card>
+        )}
+
+        {/* Saved Addresses - only for delivery */}
+        {!isPickup && (
+          <div>
+            <h3 className="font-bold mb-3 flex items-center gap-2"><MapPin className="h-4 w-4 text-primary" /> Adresse de livraison</h3>
+
+            {savedAddresses.length > 0 && !showNewAddress && (
+              <div className="space-y-2 mb-3">
+                {savedAddresses.map((addr) => (
+                  <Card
+                    key={addr.id}
+                    className={`p-3 cursor-pointer transition-all ${selectedAddressId === addr.id ? "border-primary ring-2 ring-primary/20" : "hover:border-primary/50"}`}
+                    onClick={() => { setSelectedAddressId(addr.id); setNewAddress(null); }}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${selectedAddressId === addr.id ? "border-primary bg-primary" : "border-muted-foreground"}`}>
+                        {selectedAddressId === addr.id && <Check className="h-3 w-3 text-primary-foreground" />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold">{addr.label || "Adresse"}</p>
+                        <p className="text-xs text-muted-foreground truncate">{addr.full_address}</p>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            )}
+
+            {!showNewAddress ? (
+              <Button variant="outline" size="sm" className="gap-2" onClick={() => { setShowNewAddress(true); setSelectedAddressId(null); }}>
+                <Plus className="h-4 w-4" /> Nouvelle adresse
+              </Button>
+            ) : (
+              <Card className="p-4 space-y-3 border-primary/30">
+                <div className="flex items-center justify-between">
+                  <p className="font-semibold text-sm">Nouvelle adresse</p>
+                  {savedAddresses.length > 0 && (
+                    <Button variant="ghost" size="sm" onClick={() => { setShowNewAddress(false); if (savedAddresses.length > 0) setSelectedAddressId(savedAddresses[0].id); }}>
+                      Annuler
+                    </Button>
+                  )}
+                </div>
+                <div>
+                  <Label className="text-xs">Nom de l'adresse</Label>
+                  <Input value={addressLabel} onChange={(e) => setAddressLabel(e.target.value)} placeholder="Maison, Bureau..." className="mt-1" />
+                </div>
+                <AddressPicker onSelect={(a) => setNewAddress(a)} />
+                <div>
+                  <Label className="text-xs">Appartement / Étage (optionnel)</Label>
+                  <Input value={apartment} onChange={(e) => setApartment(e.target.value)} placeholder="Appt 3, 2ème étage" className="mt-1" />
+                </div>
+                <div>
+                  <Label className="text-xs">Instructions pour le livreur (optionnel)</Label>
+                  <Textarea value={instructions} onChange={(e) => setInstructions(e.target.value)} placeholder="Code porte, sonnette..." rows={2} className="mt-1" />
+                </div>
+              </Card>
+            )}
+          </div>
+        )}
 
         {/* WhatsApp Phone */}
         <div>
@@ -307,7 +363,7 @@ const CheckoutPage = () => {
             className={!isValidPhone && whatsappPhone.length > 0 ? "border-destructive" : ""}
           />
           <p className="text-xs text-muted-foreground mt-1">
-            Obligatoire — pour que le livreur puisse vous contacter
+            {isPickup ? "Pour vous prévenir quand la commande est prête" : "Pour que le livreur puisse vous contacter"}
           </p>
           {!isValidPhone && whatsappPhone.length > 0 && (
             <p className="text-xs text-destructive mt-1">Numéro trop court (minimum 9 chiffres)</p>
@@ -315,13 +371,13 @@ const CheckoutPage = () => {
         </div>
 
         <Separator />
-        {hasAddress && !deliveryZone && (
+        {!isPickup && hasAddress && !deliveryZone && (
           <Card className="p-3 border-destructive/50 bg-destructive/10">
             <p className="text-sm text-destructive font-medium">⚠️ Cette adresse n'est pas dans nos zones de livraison.</p>
           </Card>
         )}
 
-        {deliveryZone && deliveryFee !== null && deliveryFee > 0 && deliveryZone.free_delivery_threshold && (
+        {!isPickup && deliveryZone && deliveryFee !== null && deliveryFee > 0 && deliveryZone.free_delivery_threshold && (
           <Card className="p-3 border-amber-500/50 bg-amber-500/10">
             <p className="text-sm text-amber-700 font-medium">
               💡 Commande minimum de {formatPrice(deliveryZone.free_delivery_threshold)} pour obtenir la livraison GRATUITE dans cette zone.
@@ -353,12 +409,20 @@ const CheckoutPage = () => {
             <span className="text-muted-foreground">Sous-total</span>
             <span>{formatPrice(subtotal)}</span>
           </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Livraison</span>
-            <span>{deliveryFee !== null ? (deliveryFee === 0 ? "Gratuite" : formatPrice(deliveryFee)) : "—"}</span>
-          </div>
-          {deliveryZone?.free_delivery_threshold && deliveryFee === 0 && (
+          {!isPickup && (
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Livraison</span>
+              <span>{deliveryFee !== null ? (deliveryFee === 0 ? "Gratuite" : formatPrice(deliveryFee)) : "—"}</span>
+            </div>
+          )}
+          {!isPickup && deliveryZone?.free_delivery_threshold && deliveryFee === 0 && (
             <p className="text-xs text-green-600">🎉 Livraison gratuite à partir de {formatPrice(deliveryZone.free_delivery_threshold)}</p>
+          )}
+          {isPickup && (
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Retrait en boucherie</span>
+              <span className="text-green-600 font-medium">Gratuit</span>
+            </div>
           )}
           <div className="flex justify-between font-bold text-lg border-t border-border pt-2">
             <span>Total</span>
@@ -369,7 +433,7 @@ const CheckoutPage = () => {
         {/* Submit */}
         <Button className="w-full py-6 text-base font-bold" disabled={!canOrder || submitting} onClick={handleSubmit}>
           {submitting ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
-          {submitting ? "Envoi en cours..." : "Confirmer la commande"}
+          {submitting ? "Envoi en cours..." : isPickup ? "Confirmer le retrait" : "Confirmer la commande"}
         </Button>
       </div>
     </div>
