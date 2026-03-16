@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
 import { Eye, Search, Bike, ShieldBan } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -50,6 +51,7 @@ const AdminOrders = () => {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
   const [detailOpen, setDetailOpen] = useState(false);
+  const [banDialogOpen, setBanDialogOpen] = useState(false);
 
   useEffect(() => { fetchData(); }, []);
 
@@ -259,26 +261,45 @@ const AdminOrders = () => {
                 variant="destructive"
                 size="sm"
                 className="w-full mt-4"
-                onClick={async () => {
-                  if (!confirm(`Bannir toutes les adresses IP associées à ${selectedOrder.profiles?.name || 'ce client'} ?\n\nCette action bloquera l'accès depuis tous les appareils utilisés par ce compte.`)) return;
-                  try {
-                    const { data, error } = await supabase.functions.invoke('ip-manager', {
-                      body: { action: 'ban', user_id: selectedOrder.user_id, reason: 'Fausse commande' },
-                    });
-                    if (error) throw error;
-                    if (data?.banned > 0) {
-                      toast({ title: "IP bannies", description: `${data.banned} adresse(s) IP bannie(s) pour ce client.` });
-                    } else {
-                      toast({ title: "Aucune IP trouvée", description: "Aucune adresse IP n'est associée à ce compte.", variant: "destructive" });
-                    }
-                  } catch (err: any) {
-                    toast({ title: "Erreur", description: err.message, variant: "destructive" });
-                  }
-                }}
+                onClick={() => setBanDialogOpen(true)}
               >
                 <ShieldBan className="h-4 w-4 mr-2" />
                 Bannir l'IP du client
               </Button>
+
+              <AlertDialog open={banDialogOpen} onOpenChange={setBanDialogOpen}>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Bannir les IP de {selectedOrder.profiles?.name || 'ce client'} ?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Cette action bloquera l'accès depuis tous les appareils utilisés par ce compte. Cette action est irréversible depuis cette interface.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Annuler</AlertDialogCancel>
+                    <AlertDialogAction
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      onClick={async () => {
+                        try {
+                          const { data, error } = await supabase.functions.invoke('ip-manager', {
+                            body: { action: 'ban', user_id: selectedOrder.user_id, reason: 'Fausse commande' },
+                          });
+                          if (error) throw error;
+                          if (data?.banned > 0) {
+                            toast({ title: "IP bannies", description: `${data.banned} adresse(s) IP bannie(s) pour ce client.` });
+                          } else {
+                            toast({ title: "Aucune IP trouvée", description: "Aucune adresse IP n'est associée à ce compte.", variant: "destructive" });
+                          }
+                        } catch (err: any) {
+                          toast({ title: "Erreur", description: err.message, variant: "destructive" });
+                        }
+                      }}
+                    >
+                      Confirmer le bannissement
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           )}
         </DialogContent>
