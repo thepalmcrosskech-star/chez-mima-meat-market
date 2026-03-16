@@ -29,6 +29,9 @@ interface Order {
   notes: string | null;
   created_at: string | null;
   driver_id: string | null;
+  payment_method: string;
+  cash_bill_amount: number | null;
+  delivery_mode: string;
   profiles?: { name: string; email: string; phone: string | null };
   delivery_address_snapshot?: any;
 }
