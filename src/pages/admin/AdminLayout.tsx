@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import logo from "@/assets/logo.jpeg";
 import {
-  LayoutDashboard, Package, Tags, ShoppingBag, Truck, Users, MapPin, Settings, LogOut, Menu, X, ChevronRight, Image,
+  LayoutDashboard, Package, Tags, ShoppingBag, Truck, Users, MapPin, Settings, LogOut, Menu, X, ChevronRight, Image, Shield,
 } from "lucide-react";
 
 const navItems = [
@@ -17,6 +17,7 @@ const navItems = [
   { label: "Livreurs", icon: Truck, path: "/admin/drivers" },
   { label: "Utilisateurs", icon: Users, path: "/admin/users" },
   { label: "Zones de livraison", icon: MapPin, path: "/admin/zones" },
+  { label: "IP Bannies", icon: Shield, path: "/admin/banned-ips" },
   { label: "Paramètres", icon: Settings, path: "/admin/settings" },
 ];
 

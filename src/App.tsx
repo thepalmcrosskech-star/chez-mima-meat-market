@@ -23,6 +23,7 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminDeliveryZones from "./pages/admin/AdminDeliveryZones";
 import AdminBanners from "./pages/admin/AdminBanners";
 import AdminSettings from "./pages/admin/AdminSettings";
+import AdminBannedIPs from "./pages/admin/AdminBannedIPs";
 import DriverProfile from "./pages/driver/DriverProfile";
 import ProductPage from "./pages/ProductPage";
 import CheckoutPage from "./pages/CheckoutPage";
@@ -90,6 +91,7 @@ const AppContent = () => {
             <Route path="zones" element={<AdminDeliveryZones />} />
             <Route path="banners" element={<AdminBanners />} />
             <Route path="settings" element={<AdminSettings />} />
+            <Route path="banned-ips" element={<AdminBannedIPs />} />
           </Route>
           <Route path="/driver" element={<DriverProfile />} />
           <Route path="*" element={<NotFound />} />
