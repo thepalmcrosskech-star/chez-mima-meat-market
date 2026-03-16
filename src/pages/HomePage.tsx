@@ -13,6 +13,7 @@ import BottomNav from "@/components/BottomNav";
 import FavoriteProducts from "@/components/FavoriteProducts";
 import { useWishlist, WishlistButton } from "@/components/WishlistButton";
 import NotificationBell from "@/components/NotificationBell";
+import { usePushSubscription } from "@/hooks/usePushSubscription";
 
 import { Product, Category } from "@/types/product";
 import { formatPrice } from "@/lib/format";
@@ -31,6 +32,7 @@ const HomePage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { toggle: toggleWishlist, isFavorite } = useWishlist();
   const { addItem } = useCart();
+  usePushSubscription();
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(searchParams.get("cat") ?? "all");
