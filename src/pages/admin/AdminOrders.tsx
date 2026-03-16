@@ -51,6 +51,7 @@ const AdminOrders = () => {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
   const [detailOpen, setDetailOpen] = useState(false);
+  const [banDialogOpen, setBanDialogOpen] = useState(false);
 
   useEffect(() => { fetchData(); }, []);
 
