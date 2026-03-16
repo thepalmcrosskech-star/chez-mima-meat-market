@@ -319,16 +319,20 @@ const HomePage = () => {
                       <img
                         src={product.image_url}
                         alt={product.name}
-                        className={`w-full h-full object-cover transition-all duration-300 ${unavailable ? "grayscale-[40%] opacity-75" : ""}`}
+                        className={`w-full h-full object-cover transition-all duration-300 ${unavailable ? "grayscale opacity-50 blur-[1px]" : ""}`}
                       />
                     ) : (
                       <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-primary/40 animate-pulse"></div>
                     )}
 
                     {unavailable && (
-                      <div className="absolute bottom-0 left-0 right-0 z-20 bg-black/70 backdrop-blur-sm px-3 py-2 flex items-center justify-center gap-1.5">
-                        <span className="text-[11px] font-bold tracking-widest uppercase" style={{ color: '#d4a853' }}>✦ Bientôt de retour ✦</span>
-                      </div>
+                      <>
+                        <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/60 via-black/30 to-black/10" />
+                        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center pointer-events-none">
+                          <span className="text-[13px] font-extrabold tracking-[0.15em] uppercase text-white/90 drop-shadow-md">Épuisé</span>
+                          <span className="text-[9px] font-medium tracking-wider text-white/60 mt-0.5">Bientôt de retour</span>
+                        </div>
+                      </>
                     )}
                   </div>
 
