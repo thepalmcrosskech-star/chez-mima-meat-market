@@ -23,6 +23,7 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminDeliveryZones from "./pages/admin/AdminDeliveryZones";
 import AdminBanners from "./pages/admin/AdminBanners";
 import AdminSettings from "./pages/admin/AdminSettings";
+import AdminBannedIPs from "./pages/admin/AdminBannedIPs";
 import DriverProfile from "./pages/driver/DriverProfile";
 import ProductPage from "./pages/ProductPage";
 import CheckoutPage from "./pages/CheckoutPage";
