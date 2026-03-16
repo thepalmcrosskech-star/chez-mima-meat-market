@@ -120,10 +120,8 @@ const SearchPage = () => {
                     )}
 
                     {unavailable && (
-                      <div className="absolute top-2 left-2 z-20">
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-foreground/60 backdrop-blur-md text-background text-[10px] font-semibold tracking-wide uppercase shadow-lg">
-                          Épuisé
-                        </span>
+                      <div className="absolute bottom-0 left-0 right-0 z-20 bg-black/70 backdrop-blur-sm px-3 py-2 flex items-center justify-center gap-1.5">
+                        <span className="text-[11px] font-bold tracking-widest uppercase" style={{ color: '#d4a853' }}>✦ Bientôt de retour ✦</span>
                       </div>
                     )}
 
