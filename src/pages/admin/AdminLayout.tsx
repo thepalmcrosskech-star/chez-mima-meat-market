@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import logo from "@/assets/logo.jpeg";
 import {
-  LayoutDashboard, Package, Tags, ShoppingBag, Truck, Users, MapPin, Settings, LogOut, Menu, X, ChevronRight, Image,
+  LayoutDashboard, Package, Tags, ShoppingBag, Truck, Users, MapPin, Settings, LogOut, Menu, X, ChevronRight, Image, Shield,
 } from "lucide-react";
 
 const navItems = [
