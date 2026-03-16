@@ -91,6 +91,7 @@ const AppContent = () => {
             <Route path="zones" element={<AdminDeliveryZones />} />
             <Route path="banners" element={<AdminBanners />} />
             <Route path="settings" element={<AdminSettings />} />
+            <Route path="banned-ips" element={<AdminBannedIPs />} />
           </Route>
           <Route path="/driver" element={<DriverProfile />} />
           <Route path="*" element={<NotFound />} />

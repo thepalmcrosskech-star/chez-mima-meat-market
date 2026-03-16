@@ -17,6 +17,7 @@ const navItems = [
   { label: "Livreurs", icon: Truck, path: "/admin/drivers" },
   { label: "Utilisateurs", icon: Users, path: "/admin/users" },
   { label: "Zones de livraison", icon: MapPin, path: "/admin/zones" },
+  { label: "IP Bannies", icon: Shield, path: "/admin/banned-ips" },
   { label: "Paramètres", icon: Settings, path: "/admin/settings" },
 ];
 
