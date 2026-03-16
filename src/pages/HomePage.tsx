@@ -300,14 +300,20 @@ const HomePage = () => {
                 to={`/product/${product.id}`}
                 className="block h-full"
               >
-                <Card
-                  className={`relative overflow-hidden rounded-2xl border-0 shadow-lg transition-all duration-500 group bg-card h-full flex flex-col ${unavailable ? "opacity-80 saturate-50" : "hover:shadow-2xl hover-scale"}`}
+                 <Card
+                  className={`relative overflow-hidden rounded-2xl border-0 shadow-lg transition-all duration-500 group bg-card h-full flex flex-col ${unavailable ? "" : "hover:shadow-2xl hover-scale"}`}
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
                   {unavailable && (
                     <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
-                      <div className="bg-red-600 text-white px-4 py-2 rounded-full shadow-xl">
-                        <p className="text-xs font-extrabold whitespace-nowrap">Victime de son succès 🔥</p>
+                      <div
+                        className="bg-red-500 text-white py-1.5 shadow-xl text-center"
+                        style={{
+                          width: "150%",
+                          transform: "rotate(-35deg)",
+                        }}
+                      >
+                        <p className="text-xs font-extrabold whitespace-nowrap tracking-wide">Victime de son succès 🔥</p>
                       </div>
                     </div>
                   )}
@@ -327,7 +333,7 @@ const HomePage = () => {
                       <img
                         src={product.image_url}
                         alt={product.name}
-                        className="w-full h-full object-cover"
+                        className={`w-full h-full object-cover ${unavailable ? "grayscale-[30%] opacity-70" : ""}`}
                       />
                     ) : (
                       <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-primary/40 animate-pulse"></div>

@@ -107,11 +107,14 @@ const SearchPage = () => {
               const unavailable = !product.is_active;
               return (
               <Link key={product.id} to={`/product/${product.id}`} className="block">
-                <Card className={`overflow-hidden border-0 shadow-lg group bg-card relative ${unavailable ? "opacity-80 saturate-50" : ""}`}>
+                <Card className={`overflow-hidden border-0 shadow-lg group bg-card relative`}>
                   {unavailable && (
                     <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
-                      <div className="bg-red-600 text-white px-3 py-1.5 rounded-full shadow-xl">
-                        <p className="text-xs font-extrabold whitespace-nowrap">Victime de son succès 🔥</p>
+                      <div
+                        className="bg-red-500 text-white py-1.5 shadow-xl text-center"
+                        style={{ width: "150%", transform: "rotate(-35deg)" }}
+                      >
+                        <p className="text-xs font-extrabold whitespace-nowrap tracking-wide">Victime de son succès 🔥</p>
                       </div>
                     </div>
                   )}
@@ -124,7 +127,7 @@ const SearchPage = () => {
                   )}
                   <div className="aspect-square bg-accent/30 flex items-center justify-center relative overflow-hidden">
                     {product.image_url ? (
-                      <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
+                      <img src={product.image_url} alt={product.name} className={`w-full h-full object-cover ${unavailable ? "grayscale-[30%] opacity-70" : ""}`} />
                     ) : (
                       <div className="w-16 h-16 rounded-full bg-primary/20 animate-pulse" />
                     )}
