@@ -18,6 +18,9 @@ interface Order {
   delivery_address_snapshot: any;
   driver_id: string | null;
   notes: string | null;
+  payment_method: string;
+  cash_bill_amount: number | null;
+  delivery_mode: string;
 }
 
 interface DriverLocation {
