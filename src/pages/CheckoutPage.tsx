@@ -390,6 +390,17 @@ const CheckoutPage = () => {
 
         <Separator />
 
+        {/* Payment Method */}
+        <PaymentMethodSelector
+          paymentMethod={paymentMethod}
+          onPaymentMethodChange={setPaymentMethod}
+          cashBillAmount={cashBillAmount}
+          onCashBillChange={setCashBillAmount}
+          total={total}
+        />
+
+        <Separator />
+
         {/* Order Notes */}
         <div>
           <Label className="text-sm font-semibold">Notes pour la commande (optionnel)</Label>

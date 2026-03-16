@@ -1,1 +1,4 @@
 project_id = "xvseukanpfjhrujckoao"
+
+[functions.cmi-payment]
+verify_jwt = false
