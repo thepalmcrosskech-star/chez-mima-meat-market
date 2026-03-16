@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CartProvider } from "@/contexts/CartContext";
+import { useIpBanCheck } from "@/hooks/useIpBanCheck";
 import HomePage from "./pages/HomePage";
 import SearchPage from "./pages/SearchPage";
 import CartPage from "./pages/CartPage";
@@ -31,7 +32,21 @@ import ErrorBoundary from "./components/ErrorBoundary";
 
 const queryClient = new QueryClient();
 
-const App = () => {
+const BannedScreen = () => (
+  <div className="min-h-screen bg-background flex items-center justify-center px-6">
+    <div className="text-center max-w-md space-y-4">
+      <div className="text-6xl">🚫</div>
+      <h1 className="text-2xl font-bold text-foreground">Accès bloqué</h1>
+      <p className="text-muted-foreground">
+        Votre accès à Chez Mima a été suspendu suite à un comportement inapproprié.
+        Si vous pensez qu'il s'agit d'une erreur, veuillez nous contacter.
+      </p>
+    </div>
+  </div>
+);
+
+const AppContent = () => {
+  const { banned, checked } = useIpBanCheck();
   const [showSplash, setShowSplash] = useState(false);
 
   useEffect(() => {
@@ -47,45 +62,53 @@ const App = () => {
     setShowSplash(false);
   };
 
+  if (banned) return <BannedScreen />;
+
   return (
-    <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <CartProvider>
-          <TooltipProvider>
-            {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/search" element={<SearchPage />} />
-                <Route path="/product/:id" element={<ProductPage />} />
-                <Route path="/cart" element={<CartPage />} />
-                <Route path="/orders" element={<OrdersPage />} />
-                <Route path="/order-tracking/:id" element={<OrderTrackingPage />} />
-                <Route path="/checkout" element={<CheckoutPage />} />
-                <Route path="/profile" element={<ProfilePage />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/admin" element={<AdminLayout />}>
-                  <Route index element={<AdminOverview />} />
-                  <Route path="orders" element={<AdminOrders />} />
-                  <Route path="products" element={<AdminProducts />} />
-                  <Route path="categories" element={<AdminCategories />} />
-                  <Route path="drivers" element={<AdminDrivers />} />
-                  <Route path="users" element={<AdminUsers />} />
-                  <Route path="zones" element={<AdminDeliveryZones />} />
-                  <Route path="banners" element={<AdminBanners />} />
-                  <Route path="settings" element={<AdminSettings />} />
-                </Route>
-                <Route path="/driver" element={<DriverProfile />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </BrowserRouter>
-          </TooltipProvider>
-        </CartProvider>
-      </QueryClientProvider>
-    </ErrorBoundary>
+    <>
+      {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/search" element={<SearchPage />} />
+          <Route path="/product/:id" element={<ProductPage />} />
+          <Route path="/cart" element={<CartPage />} />
+          <Route path="/orders" element={<OrdersPage />} />
+          <Route path="/order-tracking/:id" element={<OrderTrackingPage />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminOverview />} />
+            <Route path="orders" element={<AdminOrders />} />
+            <Route path="products" element={<AdminProducts />} />
+            <Route path="categories" element={<AdminCategories />} />
+            <Route path="drivers" element={<AdminDrivers />} />
+            <Route path="users" element={<AdminUsers />} />
+            <Route path="zones" element={<AdminDeliveryZones />} />
+            <Route path="banners" element={<AdminBanners />} />
+            <Route path="settings" element={<AdminSettings />} />
+          </Route>
+          <Route path="/driver" element={<DriverProfile />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
+    </>
   );
 };
+
+const App = () => (
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <CartProvider>
+        <TooltipProvider>
+          <AppContent />
+        </TooltipProvider>
+      </CartProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
+);
 
 export default App;
