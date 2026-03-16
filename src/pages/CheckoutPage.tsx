@@ -54,6 +54,8 @@ const CheckoutPage = () => {
   const [notes, setNotes] = useState("");
   const [whatsappPhone, setWhatsappPhone] = useState("");
   const [deliveryMode, setDeliveryMode] = useState<"delivery" | "pickup">("delivery");
+  const [paymentMethod, setPaymentMethod] = useState<"cash" | "card">("cash");
+  const [cashBillAmount, setCashBillAmount] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [storeAddress, setStoreAddress] = useState("");
