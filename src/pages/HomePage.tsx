@@ -13,6 +13,7 @@ import BottomNav from "@/components/BottomNav";
 import FavoriteProducts from "@/components/FavoriteProducts";
 import { useWishlist, WishlistButton } from "@/components/WishlistButton";
 import NotificationBell from "@/components/NotificationBell";
+import { usePushSubscription } from "@/hooks/usePushSubscription";
 
 import { Product, Category } from "@/types/product";
 import { formatPrice } from "@/lib/format";
