@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
-import { ArrowLeft, Bike, Car, Truck, Star, MapPin, Phone, Clock, Navigation, Loader2 } from "lucide-react";
+import { ArrowLeft, Bike, Car, Truck, Star, MapPin, Phone, Clock, Navigation, Loader2, Package, Banknote, CreditCard } from "lucide-react";
+import { formatPrice, getStatusInfo } from "@/lib/format";
 
 interface DriverProfileData {
   id: string;
@@ -25,6 +26,19 @@ interface Profile {
   phone: string | null;
 }
 
+interface DriverOrder {
+  id: string;
+  status: string;
+  total_price: number;
+  payment_method: string;
+  cash_bill_amount: number | null;
+  delivery_mode: string;
+  notes: string | null;
+  created_at: string | null;
+  delivery_address_snapshot: any;
+  profiles?: { name: string; phone: string | null };
+}
+
 const GPS_INTERVAL = 30_000; // 30 seconds
 
 const DriverProfilePage = () => {
@@ -34,6 +48,7 @@ const DriverProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [gpsActive, setGpsActive] = useState(false);
   const [lastGpsUpdate, setLastGpsUpdate] = useState<Date | null>(null);
+  const [assignedOrders, setAssignedOrders] = useState<DriverOrder[]>([]);
   const gpsIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const watchIdRef = useRef<number | null>(null);
 
@@ -68,6 +83,15 @@ const DriverProfilePage = () => {
 
       setDriverProfile(driverRes.data);
       setProfile(profileRes.data);
+
+      // Fetch assigned orders
+      const { data: ordersData } = await supabase
+        .from("orders")
+        .select("*, profiles(name, phone)")
+        .eq("driver_id", driverRes.data.id)
+        .in("status", ["confirmed", "preparing", "ready", "delivering"])
+        .order("created_at", { ascending: false });
+      if (ordersData) setAssignedOrders(ordersData as unknown as DriverOrder[]);
     } catch (error: any) {
       toast({ title: "Erreur", description: "Profil livreur introuvable", variant: "destructive" });
       navigate("/");
@@ -246,6 +270,95 @@ const DriverProfilePage = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Assigned Orders */}
+      {assignedOrders.length > 0 && (
+        <div className="px-4 mt-6 space-y-3">
+          <h3 className="text-lg font-bold flex items-center gap-2">
+            <Package className="h-5 w-5 text-primary" />
+            Commandes assignées ({assignedOrders.length})
+          </h3>
+          {assignedOrders.map((order) => {
+            const statusInfo = getStatusInfo(order.status);
+            return (
+              <Card key={order.id} className="overflow-hidden">
+                <CardContent className="p-4 space-y-3">
+                  {/* Header: client + status */}
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-semibold">{order.profiles?.name || "Client"}</p>
+                      {order.profiles?.phone && (
+                        <a href={`tel:${order.profiles.phone}`} className="text-xs text-primary flex items-center gap-1 mt-0.5">
+                          <Phone className="h-3 w-3" /> {order.profiles.phone}
+                        </a>
+                      )}
+                    </div>
+                    <Badge className={`${statusInfo.color} border-0`}>{statusInfo.label}</Badge>
+                  </div>
+
+                  {/* Address */}
+                  {order.delivery_address_snapshot && !order.delivery_address_snapshot.pickup && (
+                    <div className="flex items-start gap-2 text-sm">
+                      <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+                      <span className="text-muted-foreground">{order.delivery_address_snapshot.full_address}</span>
+                    </div>
+                  )}
+
+                  {/* Payment info */}
+                  <div className="rounded-lg border border-border p-3 space-y-2 bg-muted/30">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground flex items-center gap-1">
+                        {order.payment_method === "cash" ? <Banknote className="h-4 w-4" /> : order.payment_method === "on_site" ? <CreditCard className="h-4 w-4" /> : <CreditCard className="h-4 w-4" />}
+                        Paiement
+                      </span>
+                      <Badge variant={order.payment_method === "cash" ? "secondary" : order.payment_method === "on_site" ? "outline" : "default"}>
+                        {order.payment_method === "cash" ? "Espèces" : order.payment_method === "on_site" ? "Sur place" : "CB"}
+                      </Badge>
+                    </div>
+
+                    <div className="flex items-center justify-between text-sm font-semibold">
+                      <span>Total à encaisser</span>
+                      <span className="text-primary">{formatPrice(order.total_price)}</span>
+                    </div>
+
+                    {order.payment_method === "cash" && (
+                      <>
+                        {order.cash_bill_amount ? (
+                          <>
+                            <div className="flex items-center justify-between text-sm">
+                              <span className="text-muted-foreground">Montant remis</span>
+                              <span className="font-medium">{formatPrice(order.cash_bill_amount)}</span>
+                            </div>
+                            {order.cash_bill_amount > order.total_price && (
+                              <div className="flex items-center justify-between text-sm font-bold text-amber-600 bg-amber-500/10 rounded-md px-2 py-1.5">
+                                <span>💰 Monnaie à rendre</span>
+                                <span>{formatPrice(order.cash_bill_amount - order.total_price)}</span>
+                              </div>
+                            )}
+                            {order.cash_bill_amount === order.total_price && (
+                              <p className="text-xs text-green-600 font-medium">✅ Montant exact</p>
+                            )}
+                          </>
+                        ) : (
+                          <p className="text-xs text-green-600 font-medium">✅ Le client paiera l'appoint</p>
+                        )}
+                      </>
+                    )}
+
+                    {order.payment_method === "on_site" && (
+                      <p className="text-xs text-muted-foreground">Le client paie sur place en boucherie</p>
+                    )}
+                  </div>
+
+                  {order.notes && (
+                    <p className="text-xs text-muted-foreground italic">📝 {order.notes}</p>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      )}
 
       {/* Info Cards */}
       <div className="px-4 mt-6 space-y-4 pb-24">
