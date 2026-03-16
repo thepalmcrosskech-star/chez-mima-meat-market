@@ -266,8 +266,8 @@ const AdminOrders = () => {
                 <p className="text-xs font-bold uppercase text-muted-foreground mb-1">💳 Paiement</p>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Méthode</span>
-                  <Badge variant={selectedOrder.payment_method === "cash" ? "secondary" : "default"}>
-                    {selectedOrder.payment_method === "cash" ? "Espèces" : "CB (CMI)"}
+                  <Badge variant={selectedOrder.payment_method === "cash" ? "secondary" : selectedOrder.payment_method === "on_site" ? "outline" : "default"}>
+                    {selectedOrder.payment_method === "cash" ? "Espèces" : selectedOrder.payment_method === "on_site" ? "Sur place" : "CB (CMI)"}
                   </Badge>
                 </div>
                 {selectedOrder.payment_method === "cash" && (
