@@ -108,28 +108,34 @@ const SearchPage = () => {
               return (
               <Link key={product.id} to={`/product/${product.id}`} className="block">
                 <Card className={`overflow-hidden border-0 shadow-lg group bg-card relative`}>
-                  {unavailable && (
-                    <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
-                      <div
-                        className="bg-red-500 text-white py-1.5 shadow-xl text-center"
-                        style={{ width: "150%", transform: "rotate(-35deg)" }}
-                      >
-                        <p className="text-xs font-extrabold whitespace-nowrap tracking-wide">Victime de son succès 🔥</p>
-                      </div>
-                    </div>
-                  )}
-                  {!unavailable && (
-                    <div className="absolute top-2 right-2 z-10">
-                      <Button variant="ghost" size="icon" className="w-7 h-7 rounded-full bg-background/80 backdrop-blur-sm" onClick={(e) => e.preventDefault()}>
-                        <Heart className="h-3.5 w-3.5 text-muted-foreground" />
-                      </Button>
-                    </div>
-                  )}
                   <div className="aspect-square bg-accent/30 flex items-center justify-center relative overflow-hidden">
                     {product.image_url ? (
-                      <img src={product.image_url} alt={product.name} className={`w-full h-full object-cover ${unavailable ? "grayscale-[30%] opacity-70" : ""}`} />
+                      <img
+                        src={product.image_url}
+                        alt={product.name}
+                        className={`w-full h-full object-cover transition-all duration-300 ${unavailable ? "grayscale-[20%] opacity-90" : ""}`}
+                      />
                     ) : (
                       <div className="w-16 h-16 rounded-full bg-primary/20 animate-pulse" />
+                    )}
+
+                    {unavailable && (
+                      <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
+                        <div
+                          className="bg-destructive text-destructive-foreground py-2 shadow-[0_0_22px_hsl(var(--destructive)/0.65)] text-center font-extrabold"
+                          style={{ width: "145%", transform: "rotate(-24deg)" }}
+                        >
+                          <p className="text-xs whitespace-nowrap tracking-wide">Victime de son succès 🔥</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {!unavailable && (
+                      <div className="absolute top-2 right-2 z-10">
+                        <Button variant="ghost" size="icon" className="w-7 h-7 rounded-full bg-background/80 backdrop-blur-sm" onClick={(e) => e.preventDefault()}>
+                          <Heart className="h-3.5 w-3.5 text-muted-foreground" />
+                        </Button>
+                      </div>
                     )}
                   </div>
                   <div className="p-3">

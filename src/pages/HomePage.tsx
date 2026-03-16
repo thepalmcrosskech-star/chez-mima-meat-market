@@ -304,20 +304,6 @@ const HomePage = () => {
                   className={`relative overflow-hidden rounded-2xl border-0 shadow-lg transition-all duration-500 group bg-card h-full flex flex-col ${unavailable ? "" : "hover:shadow-2xl hover-scale"}`}
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
-                  {unavailable && (
-                    <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
-                      <div
-                        className="bg-red-500 text-white py-1.5 shadow-xl text-center"
-                        style={{
-                          width: "150%",
-                          transform: "rotate(-35deg)",
-                        }}
-                      >
-                        <p className="text-xs font-extrabold whitespace-nowrap tracking-wide">Victime de son succès 🔥</p>
-                      </div>
-                    </div>
-                  )}
-
                   {!unavailable && (
                     <div className="absolute top-3 right-3 z-10">
                       <WishlistButton
@@ -333,10 +319,21 @@ const HomePage = () => {
                       <img
                         src={product.image_url}
                         alt={product.name}
-                        className={`w-full h-full object-cover ${unavailable ? "grayscale-[30%] opacity-70" : ""}`}
+                        className={`w-full h-full object-cover transition-all duration-300 ${unavailable ? "grayscale-[20%] opacity-90" : ""}`}
                       />
                     ) : (
                       <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-primary/40 animate-pulse"></div>
+                    )}
+
+                    {unavailable && (
+                      <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
+                        <div
+                          className="bg-destructive text-destructive-foreground py-2 shadow-[0_0_22px_hsl(var(--destructive)/0.65)] text-center font-extrabold"
+                          style={{ width: "145%", transform: "rotate(-24deg)" }}
+                        >
+                          <p className="text-xs whitespace-nowrap tracking-wide">Victime de son succès 🔥</p>
+                        </div>
+                      </div>
                     )}
                   </div>
 
