@@ -123,7 +123,7 @@ const SearchPage = () => {
                       <>
                         <div className="absolute inset-0 z-10 bg-black/20" />
                         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center pointer-events-none gap-1">
-                          <span className="bg-destructive text-destructive-foreground text-[11px] font-bold tracking-wider uppercase px-3 py-1 rounded-full shadow-lg animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite]">
+                          <span className="bg-destructive text-destructive-foreground text-[11px] font-bold tracking-wider uppercase px-3 py-1 rounded-full shadow-lg animate-vibrate">
                             Épuisé
                           </span>
                           <span className="text-white text-[11px] drop-shadow-md italic" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
