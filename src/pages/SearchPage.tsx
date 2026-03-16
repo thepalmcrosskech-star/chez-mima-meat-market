@@ -113,21 +113,24 @@ const SearchPage = () => {
                       <img
                         src={product.image_url}
                         alt={product.name}
-                        className={`w-full h-full object-cover transition-all duration-300 ${unavailable ? "grayscale-[20%] opacity-90" : ""}`}
+                        className={`w-full h-full object-cover transition-all duration-300 ${unavailable ? "grayscale-[40%] opacity-75" : ""}`}
                       />
                     ) : (
                       <div className="w-16 h-16 rounded-full bg-primary/20 animate-pulse" />
                     )}
 
                     {unavailable && (
-                      <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
-                        <div
-                          className="bg-destructive text-destructive-foreground py-2 shadow-[0_0_22px_hsl(var(--destructive)/0.65)] text-center font-extrabold"
-                          style={{ width: "145%", transform: "rotate(-24deg)" }}
-                        >
-                          <p className="text-xs whitespace-nowrap tracking-wide">Victime de son succès 🔥</p>
+                      <>
+                        <div className="absolute inset-0 z-10 bg-black/25" />
+                        <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
+                          <div
+                            className="bg-destructive/80 backdrop-blur-sm text-destructive-foreground py-1.5 text-center"
+                            style={{ width: "145%", transform: "rotate(-24deg)" }}
+                          >
+                            <p className="text-[11px] font-bold whitespace-nowrap tracking-wide">Victime de son succès 🔥</p>
+                          </div>
                         </div>
-                      </div>
+                      </>
                     )}
 
                     {!unavailable && (
