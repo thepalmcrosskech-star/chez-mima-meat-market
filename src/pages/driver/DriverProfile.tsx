@@ -48,6 +48,7 @@ const DriverProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [gpsActive, setGpsActive] = useState(false);
   const [lastGpsUpdate, setLastGpsUpdate] = useState<Date | null>(null);
+  const [assignedOrders, setAssignedOrders] = useState<DriverOrder[]>([]);
   const gpsIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const watchIdRef = useRef<number | null>(null);
 
