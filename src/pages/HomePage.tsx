@@ -327,10 +327,11 @@ const HomePage = () => {
 
                     {unavailable && (
                       <>
-                        <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/60 via-black/30 to-black/10" />
-                        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center pointer-events-none">
-                          <span className="text-[13px] font-extrabold tracking-[0.15em] uppercase text-white/90 drop-shadow-md">Épuisé</span>
-                          <span className="text-[9px] font-medium tracking-wider text-white/60 mt-0.5">Bientôt de retour</span>
+                        <div className="absolute inset-0 z-10 bg-black/20" />
+                        <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
+                          <span className="bg-destructive text-destructive-foreground text-[11px] font-bold tracking-wider uppercase px-3 py-1 rounded-full shadow-lg">
+                            Épuisé
+                          </span>
                         </div>
                       </>
                     )}
