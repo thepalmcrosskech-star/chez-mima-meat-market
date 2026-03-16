@@ -83,6 +83,15 @@ const DriverProfilePage = () => {
 
       setDriverProfile(driverRes.data);
       setProfile(profileRes.data);
+
+      // Fetch assigned orders
+      const { data: ordersData } = await supabase
+        .from("orders")
+        .select("*, profiles(name, phone)")
+        .eq("driver_id", driverRes.data.id)
+        .in("status", ["confirmed", "preparing", "ready", "delivering"])
+        .order("created_at", { ascending: false });
+      if (ordersData) setAssignedOrders(ordersData as unknown as DriverOrder[]);
     } catch (error: any) {
       toast({ title: "Erreur", description: "Profil livreur introuvable", variant: "destructive" });
       navigate("/");
