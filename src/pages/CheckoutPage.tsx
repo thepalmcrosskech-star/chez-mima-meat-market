@@ -388,16 +388,25 @@ const CheckoutPage = () => {
           </Card>
         )}
 
-        <Separator />
+        {!isPickup && (
+          <>
+            <Separator />
+            {/* Payment Method */}
+            <PaymentMethodSelector
+              paymentMethod={paymentMethod}
+              onPaymentMethodChange={setPaymentMethod}
+              cashBillAmount={cashBillAmount}
+              onCashBillChange={setCashBillAmount}
+              total={total}
+            />
+          </>
+        )}
 
-        {/* Payment Method */}
-        <PaymentMethodSelector
-          paymentMethod={paymentMethod}
-          onPaymentMethodChange={setPaymentMethod}
-          cashBillAmount={cashBillAmount}
-          onCashBillChange={setCashBillAmount}
-          total={total}
-        />
+        {isPickup && (
+          <Card className="p-4 border-primary/30 bg-primary/5">
+            <p className="text-sm font-medium">💳 Paiement sur place à la boucherie</p>
+          </Card>
+        )}
 
         <Separator />
 
