@@ -26,6 +26,19 @@ interface Profile {
   phone: string | null;
 }
 
+interface DriverOrder {
+  id: string;
+  status: string;
+  total_price: number;
+  payment_method: string;
+  cash_bill_amount: number | null;
+  delivery_mode: string;
+  notes: string | null;
+  created_at: string | null;
+  delivery_address_snapshot: any;
+  profiles?: { name: string; phone: string | null };
+}
+
 const GPS_INTERVAL = 30_000; // 30 seconds
 
 const DriverProfilePage = () => {
