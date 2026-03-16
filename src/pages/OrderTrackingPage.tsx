@@ -18,6 +18,9 @@ interface Order {
   delivery_address_snapshot: any;
   driver_id: string | null;
   notes: string | null;
+  payment_method: string;
+  cash_bill_amount: number | null;
+  delivery_mode: string;
 }
 
 interface DriverLocation {
@@ -284,13 +287,42 @@ const OrderTrackingPage = () => {
             <span>{formatPrice(order.subtotal)}</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Livraison</span>
-            <span>{order.delivery_fee === 0 ? "Gratuite" : formatPrice(order.delivery_fee)}</span>
+            <span className="text-muted-foreground">{order.delivery_mode === "pickup" ? "Retrait" : "Livraison"}</span>
+            <span>{order.delivery_fee === 0 ? "Gratuit" : formatPrice(order.delivery_fee)}</span>
           </div>
           <div className="flex justify-between font-bold text-lg border-t border-border pt-2">
             <span>Total</span>
             <span className="text-primary">{formatPrice(order.total_price)}</span>
           </div>
+        </Card>
+
+        {/* Payment Info */}
+        <Card className="p-4 space-y-2">
+          <h3 className="font-bold mb-1">💳 Paiement</h3>
+          <div className="flex justify-between text-sm">
+            <span className="text-muted-foreground">Mode</span>
+            <span>{order.payment_method === "cash" ? "Espèces" : "Carte bancaire"}</span>
+          </div>
+          {order.payment_method === "cash" && order.cash_bill_amount && (
+            <>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Montant remis</span>
+                <span>{formatPrice(order.cash_bill_amount)}</span>
+              </div>
+              {order.cash_bill_amount > order.total_price && (
+                <div className="flex justify-between text-sm font-semibold text-amber-500">
+                  <span>💰 Monnaie à rendre</span>
+                  <span>{formatPrice(order.cash_bill_amount - order.total_price)}</span>
+                </div>
+              )}
+              {order.cash_bill_amount === order.total_price && (
+                <p className="text-xs text-green-500 font-medium">✅ Appoint exact</p>
+              )}
+            </>
+          )}
+          {order.payment_method === "cash" && !order.cash_bill_amount && (
+            <p className="text-xs text-green-500 font-medium">✅ Le client paiera l'appoint</p>
+          )}
         </Card>
       </div>
     </div>

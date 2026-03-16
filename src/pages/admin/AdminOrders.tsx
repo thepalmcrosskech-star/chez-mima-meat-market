@@ -29,6 +29,9 @@ interface Order {
   notes: string | null;
   created_at: string | null;
   driver_id: string | null;
+  payment_method: string;
+  cash_bill_amount: number | null;
+  delivery_mode: string;
   profiles?: { name: string; email: string; phone: string | null };
   delivery_address_snapshot?: any;
 }
@@ -252,9 +255,44 @@ const AdminOrders = () => {
               </div>
 
               <div className="space-y-1 text-sm">
+                <div className="flex justify-between"><span className="text-muted-foreground">Mode</span><span>{selectedOrder.delivery_mode === "pickup" ? "🏪 Click & Collect" : "🚚 Livraison"}</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Sous-total</span><span>{formatPrice(selectedOrder.subtotal)}</span></div>
-                <div className="flex justify-between"><span className="text-muted-foreground">Livraison</span><span>{formatPrice(selectedOrder.delivery_fee)}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Livraison</span><span>{selectedOrder.delivery_fee === 0 ? "Gratuit" : formatPrice(selectedOrder.delivery_fee)}</span></div>
                 <div className="flex justify-between font-bold text-lg border-t border-border pt-2"><span>Total</span><span className="text-primary">{formatPrice(selectedOrder.total_price)}</span></div>
+              </div>
+
+              {/* Cash payment info for driver */}
+              <div className="rounded-lg border border-border p-3 space-y-1">
+                <p className="text-xs font-bold uppercase text-muted-foreground mb-1">💳 Paiement</p>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Méthode</span>
+                  <Badge variant={selectedOrder.payment_method === "cash" ? "secondary" : "default"}>
+                    {selectedOrder.payment_method === "cash" ? "Espèces" : "CB (CMI)"}
+                  </Badge>
+                </div>
+                {selectedOrder.payment_method === "cash" && (
+                  <>
+                    {selectedOrder.cash_bill_amount ? (
+                      <>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Montant remis</span>
+                          <span className="font-semibold">{formatPrice(selectedOrder.cash_bill_amount)}</span>
+                        </div>
+                        {selectedOrder.cash_bill_amount > selectedOrder.total_price && (
+                          <div className="flex justify-between text-sm font-bold text-amber-500">
+                            <span>💰 Monnaie à rendre</span>
+                            <span>{formatPrice(selectedOrder.cash_bill_amount - selectedOrder.total_price)}</span>
+                          </div>
+                        )}
+                        {selectedOrder.cash_bill_amount === selectedOrder.total_price && (
+                          <p className="text-xs text-green-500 font-medium">✅ Montant exact</p>
+                        )}
+                      </>
+                    ) : (
+                      <p className="text-xs text-green-500 font-medium">✅ Le client paiera l'appoint</p>
+                    )}
+                  </>
+                )}
               </div>
 
               <Button
