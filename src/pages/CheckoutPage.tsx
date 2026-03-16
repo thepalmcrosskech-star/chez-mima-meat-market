@@ -139,7 +139,7 @@ const CheckoutPage = () => {
   const total = isPickup ? subtotal : (deliveryFee !== null ? subtotal + deliveryFee : subtotal);
   const hasAddress = selectedAddressId || newAddress;
   const isValidPhone = whatsappPhone.replace(/\s/g, "").length >= 9;
-  const canOrder = isPickup ? isValidPhone : (hasAddress && deliveryZone && deliveryFee !== null && isValidPhone);
+  const canOrder = paymentMethod === "card" ? false : (isPickup ? isValidPhone : (hasAddress && deliveryZone && deliveryFee !== null && isValidPhone));
 
   const handleSubmit = async () => {
     if (!userId) return;
