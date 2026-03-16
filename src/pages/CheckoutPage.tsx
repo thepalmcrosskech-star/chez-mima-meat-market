@@ -139,7 +139,7 @@ const CheckoutPage = () => {
   const total = isPickup ? subtotal : (deliveryFee !== null ? subtotal + deliveryFee : subtotal);
   const hasAddress = selectedAddressId || newAddress;
   const isValidPhone = whatsappPhone.replace(/\s/g, "").length >= 9;
-  const canOrder = paymentMethod === "card" ? false : (isPickup ? isValidPhone : (hasAddress && deliveryZone && deliveryFee !== null && isValidPhone));
+  const canOrder = isPickup ? isValidPhone : (paymentMethod === "card" ? false : (hasAddress && deliveryZone && deliveryFee !== null && isValidPhone));
 
   const handleSubmit = async () => {
     if (!userId) return;
@@ -190,9 +190,9 @@ const CheckoutPage = () => {
         delivery_address_snapshot: isPickup ? { pickup: true } : addressSnapshot,
         delivery_zone_id: isPickup ? null : deliveryZone!.id,
         delivery_mode: deliveryMode,
-        payment_method: paymentMethod,
-        payment_status: "pending",
-        cash_bill_amount: paymentMethod === "cash" ? cashBillAmount : null,
+        payment_method: isPickup ? "on_site" : paymentMethod,
+        payment_status: isPickup ? "pending_on_site" : "pending",
+        cash_bill_amount: !isPickup && paymentMethod === "cash" ? cashBillAmount : null,
         notes: notes || null,
         status: "pending",
       }).select().single();
@@ -388,16 +388,25 @@ const CheckoutPage = () => {
           </Card>
         )}
 
-        <Separator />
+        {!isPickup && (
+          <>
+            <Separator />
+            {/* Payment Method */}
+            <PaymentMethodSelector
+              paymentMethod={paymentMethod}
+              onPaymentMethodChange={setPaymentMethod}
+              cashBillAmount={cashBillAmount}
+              onCashBillChange={setCashBillAmount}
+              total={total}
+            />
+          </>
+        )}
 
-        {/* Payment Method */}
-        <PaymentMethodSelector
-          paymentMethod={paymentMethod}
-          onPaymentMethodChange={setPaymentMethod}
-          cashBillAmount={cashBillAmount}
-          onCashBillChange={setCashBillAmount}
-          total={total}
-        />
+        {isPickup && (
+          <Card className="p-4 border-primary/30 bg-primary/5">
+            <p className="text-sm font-medium">💳 Paiement sur place à la boucherie</p>
+          </Card>
+        )}
 
         <Separator />
 
