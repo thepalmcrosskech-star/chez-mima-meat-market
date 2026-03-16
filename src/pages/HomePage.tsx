@@ -32,6 +32,7 @@ const HomePage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { toggle: toggleWishlist, isFavorite } = useWishlist();
   const { addItem } = useCart();
+  usePushSubscription();
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(searchParams.get("cat") ?? "all");
