@@ -368,6 +368,9 @@ export type Database = {
       }
       orders: {
         Row: {
+          cash_bill_amount: number | null
+          cmi_order_id: string | null
+          cmi_transaction_id: string | null
           created_at: string | null
           delivery_address_id: string | null
           delivery_address_snapshot: Json | null
@@ -377,6 +380,8 @@ export type Database = {
           driver_id: string | null
           id: string
           notes: string | null
+          payment_method: string
+          payment_status: string
           status: string
           subtotal: number
           total_price: number
@@ -384,6 +389,9 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          cash_bill_amount?: number | null
+          cmi_order_id?: string | null
+          cmi_transaction_id?: string | null
           created_at?: string | null
           delivery_address_id?: string | null
           delivery_address_snapshot?: Json | null
@@ -393,6 +401,8 @@ export type Database = {
           driver_id?: string | null
           id?: string
           notes?: string | null
+          payment_method?: string
+          payment_status?: string
           status?: string
           subtotal: number
           total_price: number
@@ -400,6 +410,9 @@ export type Database = {
           user_id: string
         }
         Update: {
+          cash_bill_amount?: number | null
+          cmi_order_id?: string | null
+          cmi_transaction_id?: string | null
           created_at?: string | null
           delivery_address_id?: string | null
           delivery_address_snapshot?: Json | null
@@ -409,6 +422,8 @@ export type Database = {
           driver_id?: string | null
           id?: string
           notes?: string | null
+          payment_method?: string
+          payment_status?: string
           status?: string
           subtotal?: number
           total_price?: number
