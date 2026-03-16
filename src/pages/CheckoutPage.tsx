@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, MapPin, Loader2, Plus, Check, Phone, Store, Truck } from "lucide-react";
 import AddressPicker from "@/components/AddressPicker";
+import PaymentMethodSelector from "@/components/checkout/PaymentMethodSelector";
 
 interface SavedAddress {
   id: string;
