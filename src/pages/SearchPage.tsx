@@ -113,7 +113,7 @@ const SearchPage = () => {
                       <img
                         src={product.image_url}
                         alt={product.name}
-                        className={`w-full h-full object-cover transition-all duration-300 ${unavailable ? "opacity-40 blur-[2px]" : ""}`}
+                        className={`w-full h-full object-cover transition-all duration-300 ${unavailable ? "opacity-60 blur-[1px]" : ""}`}
                       />
                     ) : (
                       <div className="w-16 h-16 rounded-full bg-primary/20 animate-pulse" />
