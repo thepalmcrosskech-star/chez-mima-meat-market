@@ -120,17 +120,11 @@ const SearchPage = () => {
                     )}
 
                     {unavailable && (
-                      <>
-                        <div className="absolute inset-0 z-10 bg-black/25" />
-                        <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
-                          <div
-                            className="bg-destructive/80 backdrop-blur-sm text-destructive-foreground py-1.5 text-center"
-                            style={{ width: "145%", transform: "rotate(-24deg)" }}
-                          >
-                            <p className="text-[11px] font-bold whitespace-nowrap tracking-wide">Victime de son succès 🔥</p>
-                          </div>
-                        </div>
-                      </>
+                      <div className="absolute top-2 left-2 z-20">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-foreground/60 backdrop-blur-md text-background text-[10px] font-semibold tracking-wide uppercase shadow-lg">
+                          Épuisé
+                        </span>
+                      </div>
                     )}
 
                     {!unavailable && (
