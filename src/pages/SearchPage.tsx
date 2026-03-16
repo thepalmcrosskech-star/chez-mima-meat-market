@@ -129,6 +129,14 @@ const SearchPage = () => {
                         </div>
                       </div>
                     )}
+
+                    {!unavailable && (
+                      <div className="absolute top-2 right-2 z-10">
+                        <Button variant="ghost" size="icon" className="w-7 h-7 rounded-full bg-background/80 backdrop-blur-sm" onClick={(e) => e.preventDefault()}>
+                          <Heart className="h-3.5 w-3.5 text-muted-foreground" />
+                        </Button>
+                      </div>
+                    )}
                   </div>
                   <div className="p-3">
                     <h4 className="font-bold text-sm mb-1">{product.name}</h4>
