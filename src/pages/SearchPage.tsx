@@ -127,7 +127,7 @@ const SearchPage = () => {
                   )}
                   <div className="aspect-square bg-accent/30 flex items-center justify-center relative overflow-hidden">
                     {product.image_url ? (
-                      <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
+                      <img src={product.image_url} alt={product.name} className={`w-full h-full object-cover ${unavailable ? "grayscale-[30%] opacity-70" : ""}`} />
                     ) : (
                       <div className="w-16 h-16 rounded-full bg-primary/20 animate-pulse" />
                     )}
