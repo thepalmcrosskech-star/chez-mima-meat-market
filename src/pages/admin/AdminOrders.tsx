@@ -254,6 +254,31 @@ const AdminOrders = () => {
                 <div className="flex justify-between"><span className="text-muted-foreground">Livraison</span><span>{formatPrice(selectedOrder.delivery_fee)}</span></div>
                 <div className="flex justify-between font-bold text-lg border-t border-border pt-2"><span>Total</span><span className="text-primary">{formatPrice(selectedOrder.total_price)}</span></div>
               </div>
+
+              <Button
+                variant="destructive"
+                size="sm"
+                className="w-full mt-4"
+                onClick={async () => {
+                  if (!confirm(`Bannir toutes les adresses IP associées à ${selectedOrder.profiles?.name || 'ce client'} ?\n\nCette action bloquera l'accès depuis tous les appareils utilisés par ce compte.`)) return;
+                  try {
+                    const { data, error } = await supabase.functions.invoke('ip-manager', {
+                      body: { action: 'ban', user_id: selectedOrder.user_id, reason: 'Fausse commande' },
+                    });
+                    if (error) throw error;
+                    if (data?.banned > 0) {
+                      toast({ title: "IP bannies", description: `${data.banned} adresse(s) IP bannie(s) pour ce client.` });
+                    } else {
+                      toast({ title: "Aucune IP trouvée", description: "Aucune adresse IP n'est associée à ce compte.", variant: "destructive" });
+                    }
+                  } catch (err: any) {
+                    toast({ title: "Erreur", description: err.message, variant: "destructive" });
+                  }
+                }}
+              >
+                <ShieldBan className="h-4 w-4 mr-2" />
+                Bannir l'IP du client
+              </Button>
             </div>
           )}
         </DialogContent>
