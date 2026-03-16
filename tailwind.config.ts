@@ -80,16 +80,15 @@ export default {
             height: "0",
           },
         },
-        "vibrate": {
-          "0%, 100%": { transform: "translateX(0)" },
-          "10%, 30%, 50%, 70%, 90%": { transform: "translateX(-1px)" },
-          "20%, 40%, 60%, 80%": { transform: "translateX(1px)" },
+        "soft-pulse": {
+          "0%, 100%": { transform: "scale(1)" },
+          "50%": { transform: "scale(1.06)" },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "vibrate": "vibrate 0.4s ease-in-out infinite",
+        "soft-pulse": "soft-pulse 2.5s ease-in-out infinite",
       },
     },
   },
