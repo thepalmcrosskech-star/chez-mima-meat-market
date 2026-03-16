@@ -91,12 +91,26 @@ const AdminOrders = () => {
       };
       const notif = notifMessages[status];
       if (notif) {
+        // In-app notification
         await (supabase as any).from("notifications").insert({
           user_id: order.user_id,
           order_id: orderId,
           title: notif.title,
           message: notif.message,
         });
+
+        // External push notification for key statuses
+        const pushStatuses = ['confirmed', 'delivering', 'delivered', 'ready'];
+        if (pushStatuses.includes(status)) {
+          supabase.functions.invoke('send-push-notification', {
+            body: {
+              user_id: order.user_id,
+              title: notif.title,
+              body: notif.message,
+              data: { order_id: orderId },
+            },
+          }).catch(err => console.error('Push notification failed:', err));
+        }
       }
     }
 
