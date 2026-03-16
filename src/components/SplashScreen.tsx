@@ -7,9 +7,22 @@ interface SplashScreenProps {
 
 const SplashScreen = ({ onComplete }: SplashScreenProps) => {
   const [fadeOut, setFadeOut] = useState(false);
-  const [stage, setStage] = useState(0); // 0: hidden, 1: logo in, 2: text in, 3: dots in
+  const [stage, setStage] = useState(0);
+  const [imageLoaded, setImageLoaded] = useState(false);
+
+  // Wait for image to load before starting animation
+  useEffect(() => {
+    const img = new Image();
+    img.src = logo;
+    img.onload = () => setImageLoaded(true);
+    img.onerror = () => setImageLoaded(true); // proceed anyway on error
+    // If image is already cached
+    if (img.complete) setImageLoaded(true);
+  }, []);
 
   useEffect(() => {
+    if (!imageLoaded) return;
+
     const t1 = setTimeout(() => setStage(1), 100);
     const t2 = setTimeout(() => setStage(2), 600);
     const t3 = setTimeout(() => setStage(3), 1000);
@@ -23,7 +36,7 @@ const SplashScreen = ({ onComplete }: SplashScreenProps) => {
       clearTimeout(t4);
       clearTimeout(t5);
     };
-  }, [onComplete]);
+  }, [onComplete, imageLoaded]);
 
   return (
     <div
