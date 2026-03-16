@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, MapPin, Loader2, Plus, Check, Phone, Store, Truck } from "lucide-react";
 import AddressPicker from "@/components/AddressPicker";
+import PaymentMethodSelector from "@/components/checkout/PaymentMethodSelector";
 
 interface SavedAddress {
   id: string;
@@ -53,6 +54,8 @@ const CheckoutPage = () => {
   const [notes, setNotes] = useState("");
   const [whatsappPhone, setWhatsappPhone] = useState("");
   const [deliveryMode, setDeliveryMode] = useState<"delivery" | "pickup">("delivery");
+  const [paymentMethod, setPaymentMethod] = useState<"cash" | "card">("cash");
+  const [cashBillAmount, setCashBillAmount] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [storeAddress, setStoreAddress] = useState("");
@@ -136,7 +139,7 @@ const CheckoutPage = () => {
   const total = isPickup ? subtotal : (deliveryFee !== null ? subtotal + deliveryFee : subtotal);
   const hasAddress = selectedAddressId || newAddress;
   const isValidPhone = whatsappPhone.replace(/\s/g, "").length >= 9;
-  const canOrder = isPickup ? isValidPhone : (hasAddress && deliveryZone && deliveryFee !== null && isValidPhone);
+  const canOrder = paymentMethod === "card" ? false : (isPickup ? isValidPhone : (hasAddress && deliveryZone && deliveryFee !== null && isValidPhone));
 
   const handleSubmit = async () => {
     if (!userId) return;
@@ -187,6 +190,9 @@ const CheckoutPage = () => {
         delivery_address_snapshot: isPickup ? { pickup: true } : addressSnapshot,
         delivery_zone_id: isPickup ? null : deliveryZone!.id,
         delivery_mode: deliveryMode,
+        payment_method: paymentMethod,
+        payment_status: "pending",
+        cash_bill_amount: paymentMethod === "cash" ? cashBillAmount : null,
         notes: notes || null,
         status: "pending",
       }).select().single();
@@ -381,6 +387,17 @@ const CheckoutPage = () => {
             </p>
           </Card>
         )}
+
+        <Separator />
+
+        {/* Payment Method */}
+        <PaymentMethodSelector
+          paymentMethod={paymentMethod}
+          onPaymentMethodChange={setPaymentMethod}
+          cashBillAmount={cashBillAmount}
+          onCashBillChange={setCashBillAmount}
+          total={total}
+        />
 
         <Separator />
 
