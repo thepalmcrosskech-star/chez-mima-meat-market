@@ -271,6 +271,95 @@ const DriverProfilePage = () => {
         </Card>
       </div>
 
+      {/* Assigned Orders */}
+      {assignedOrders.length > 0 && (
+        <div className="px-4 mt-6 space-y-3">
+          <h3 className="text-lg font-bold flex items-center gap-2">
+            <Package className="h-5 w-5 text-primary" />
+            Commandes assignées ({assignedOrders.length})
+          </h3>
+          {assignedOrders.map((order) => {
+            const statusInfo = getStatusInfo(order.status);
+            return (
+              <Card key={order.id} className="overflow-hidden">
+                <CardContent className="p-4 space-y-3">
+                  {/* Header: client + status */}
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-semibold">{order.profiles?.name || "Client"}</p>
+                      {order.profiles?.phone && (
+                        <a href={`tel:${order.profiles.phone}`} className="text-xs text-primary flex items-center gap-1 mt-0.5">
+                          <Phone className="h-3 w-3" /> {order.profiles.phone}
+                        </a>
+                      )}
+                    </div>
+                    <Badge className={`${statusInfo.color} border-0`}>{statusInfo.label}</Badge>
+                  </div>
+
+                  {/* Address */}
+                  {order.delivery_address_snapshot && !order.delivery_address_snapshot.pickup && (
+                    <div className="flex items-start gap-2 text-sm">
+                      <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+                      <span className="text-muted-foreground">{order.delivery_address_snapshot.full_address}</span>
+                    </div>
+                  )}
+
+                  {/* Payment info */}
+                  <div className="rounded-lg border border-border p-3 space-y-2 bg-muted/30">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground flex items-center gap-1">
+                        {order.payment_method === "cash" ? <Banknote className="h-4 w-4" /> : order.payment_method === "on_site" ? <CreditCard className="h-4 w-4" /> : <CreditCard className="h-4 w-4" />}
+                        Paiement
+                      </span>
+                      <Badge variant={order.payment_method === "cash" ? "secondary" : order.payment_method === "on_site" ? "outline" : "default"}>
+                        {order.payment_method === "cash" ? "Espèces" : order.payment_method === "on_site" ? "Sur place" : "CB"}
+                      </Badge>
+                    </div>
+
+                    <div className="flex items-center justify-between text-sm font-semibold">
+                      <span>Total à encaisser</span>
+                      <span className="text-primary">{formatPrice(order.total_price)}</span>
+                    </div>
+
+                    {order.payment_method === "cash" && (
+                      <>
+                        {order.cash_bill_amount ? (
+                          <>
+                            <div className="flex items-center justify-between text-sm">
+                              <span className="text-muted-foreground">Montant remis</span>
+                              <span className="font-medium">{formatPrice(order.cash_bill_amount)}</span>
+                            </div>
+                            {order.cash_bill_amount > order.total_price && (
+                              <div className="flex items-center justify-between text-sm font-bold text-amber-600 bg-amber-500/10 rounded-md px-2 py-1.5">
+                                <span>💰 Monnaie à rendre</span>
+                                <span>{formatPrice(order.cash_bill_amount - order.total_price)}</span>
+                              </div>
+                            )}
+                            {order.cash_bill_amount === order.total_price && (
+                              <p className="text-xs text-green-600 font-medium">✅ Montant exact</p>
+                            )}
+                          </>
+                        ) : (
+                          <p className="text-xs text-green-600 font-medium">✅ Le client paiera l'appoint</p>
+                        )}
+                      </>
+                    )}
+
+                    {order.payment_method === "on_site" && (
+                      <p className="text-xs text-muted-foreground">Le client paie sur place en boucherie</p>
+                    )}
+                  </div>
+
+                  {order.notes && (
+                    <p className="text-xs text-muted-foreground italic">📝 {order.notes}</p>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      )}
+
       {/* Info Cards */}
       <div className="px-4 mt-6 space-y-4 pb-24">
         <Card className="animate-slide-up" style={{ animationDelay: "0.1s" }}>
