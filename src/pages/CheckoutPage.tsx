@@ -190,9 +190,9 @@ const CheckoutPage = () => {
         delivery_address_snapshot: isPickup ? { pickup: true } : addressSnapshot,
         delivery_zone_id: isPickup ? null : deliveryZone!.id,
         delivery_mode: deliveryMode,
-        payment_method: paymentMethod,
-        payment_status: "pending",
-        cash_bill_amount: paymentMethod === "cash" ? cashBillAmount : null,
+        payment_method: isPickup ? "on_site" : paymentMethod,
+        payment_status: isPickup ? "pending_on_site" : "pending",
+        cash_bill_amount: !isPickup && paymentMethod === "cash" ? cashBillAmount : null,
         notes: notes || null,
         status: "pending",
       }).select().single();
