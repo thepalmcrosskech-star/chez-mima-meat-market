@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
-import { Eye, Search, Bike, ShieldBan } from "lucide-react";
+import { Eye, Search, Bike, ShieldBan, Clock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatPrice, statusOptions, getStatusInfo } from "@/lib/format";
@@ -32,6 +32,7 @@ interface Order {
   payment_method: string;
   cash_bill_amount: number | null;
   delivery_mode: string;
+  scheduled_for: string | null;
   profiles?: { name: string; email: string; phone: string | null };
   delivery_address_snapshot?: any;
 }
@@ -180,7 +181,17 @@ const AdminOrders = () => {
                         <p className="text-xs text-muted-foreground">{o.profiles?.email}</p>
                       </div>
                     </TableCell>
-                    <TableCell className="text-sm">{o.created_at ? new Date(o.created_at).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }) : "—"}</TableCell>
+                    <TableCell className="text-sm">
+                      <div className="flex flex-col gap-1">
+                        <span>{o.created_at ? new Date(o.created_at).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }) : "—"}</span>
+                        {o.scheduled_for && (
+                          <Badge variant="outline" className="w-fit text-[10px] gap-1 border-amber-500/50 text-amber-500">
+                            <Clock className="h-3 w-3" />
+                            Programmée {new Date(o.scheduled_for).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
+                          </Badge>
+                        )}
+                      </div>
+                    </TableCell>
                     <TableCell className="font-semibold text-primary">{formatPrice(o.total_price)}</TableCell>
                     <TableCell>
                       <Select value={o.status} onValueChange={(v) => updateStatus(o.id, v)}>
@@ -256,6 +267,15 @@ const AdminOrders = () => {
 
               <div className="space-y-1 text-sm">
                 <div className="flex justify-between"><span className="text-muted-foreground">Mode</span><span>{selectedOrder.delivery_mode === "pickup" ? "🏪 Click & Collect" : "🚚 Livraison"}</span></div>
+                {selectedOrder.scheduled_for && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">Programmée pour</span>
+                    <Badge variant="outline" className="gap-1 border-amber-500/50 text-amber-500">
+                      <Clock className="h-3 w-3" />
+                      {new Date(selectedOrder.scheduled_for).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
+                    </Badge>
+                  </div>
+                )}
                 <div className="flex justify-between"><span className="text-muted-foreground">Sous-total</span><span>{formatPrice(selectedOrder.subtotal)}</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Livraison</span><span>{selectedOrder.delivery_fee === 0 ? "Gratuit" : formatPrice(selectedOrder.delivery_fee)}</span></div>
                 <div className="flex justify-between font-bold text-lg border-t border-border pt-2"><span>Total</span><span className="text-primary">{formatPrice(selectedOrder.total_price)}</span></div>
