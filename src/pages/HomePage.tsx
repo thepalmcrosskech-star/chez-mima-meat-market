@@ -272,8 +272,8 @@ const HomePage = () => {
             ))}
           </div>
           {/* Scroll hint arrow */}
-          <div className="absolute right-0 top-0 bottom-2 w-10 flex items-center justify-end pointer-events-none bg-gradient-to-l from-background via-background/80 to-transparent">
-            <ChevronRight className="h-5 w-5 text-muted-foreground animate-pulse" />
+          <div className="absolute right-0 top-0 bottom-2 w-12 flex items-center justify-end pointer-events-none bg-gradient-to-l from-background via-background/80 to-transparent">
+            <ChevronRight className="h-7 w-7 text-primary animate-pulse drop-shadow-md" />
           </div>
         </div>
       </section>
