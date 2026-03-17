@@ -267,6 +267,15 @@ const AdminOrders = () => {
 
               <div className="space-y-1 text-sm">
                 <div className="flex justify-between"><span className="text-muted-foreground">Mode</span><span>{selectedOrder.delivery_mode === "pickup" ? "🏪 Click & Collect" : "🚚 Livraison"}</span></div>
+                {selectedOrder.scheduled_for && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">Programmée pour</span>
+                    <Badge variant="outline" className="gap-1 border-amber-500/50 text-amber-500">
+                      <Clock className="h-3 w-3" />
+                      {new Date(selectedOrder.scheduled_for).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
+                    </Badge>
+                  </div>
+                )}
                 <div className="flex justify-between"><span className="text-muted-foreground">Sous-total</span><span>{formatPrice(selectedOrder.subtotal)}</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Livraison</span><span>{selectedOrder.delivery_fee === 0 ? "Gratuit" : formatPrice(selectedOrder.delivery_fee)}</span></div>
                 <div className="flex justify-between font-bold text-lg border-t border-border pt-2"><span>Total</span><span className="text-primary">{formatPrice(selectedOrder.total_price)}</span></div>
