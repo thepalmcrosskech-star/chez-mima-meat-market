@@ -341,7 +341,7 @@ const CheckoutPage = () => {
               <p className="text-xs text-muted-foreground">Réservez maintenant, on prépare demain à l'ouverture</p>
             </div>
           </div>
-        )
+        )}
 
         {/* Pickup Info */}
         {isPickup && (
