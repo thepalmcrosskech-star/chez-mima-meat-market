@@ -181,7 +181,17 @@ const AdminOrders = () => {
                         <p className="text-xs text-muted-foreground">{o.profiles?.email}</p>
                       </div>
                     </TableCell>
-                    <TableCell className="text-sm">{o.created_at ? new Date(o.created_at).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }) : "—"}</TableCell>
+                    <TableCell className="text-sm">
+                      <div className="flex flex-col gap-1">
+                        <span>{o.created_at ? new Date(o.created_at).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }) : "—"}</span>
+                        {o.scheduled_for && (
+                          <Badge variant="outline" className="w-fit text-[10px] gap-1 border-amber-500/50 text-amber-500">
+                            <Clock className="h-3 w-3" />
+                            Programmée {new Date(o.scheduled_for).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
+                          </Badge>
+                        )}
+                      </div>
+                    </TableCell>
                     <TableCell className="font-semibold text-primary">{formatPrice(o.total_price)}</TableCell>
                     <TableCell>
                       <Select value={o.status} onValueChange={(v) => updateStatus(o.id, v)}>
