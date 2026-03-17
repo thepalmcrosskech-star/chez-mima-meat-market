@@ -59,6 +59,9 @@ const CheckoutPage = () => {
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [storeAddress, setStoreAddress] = useState("");
+  const [openingHour, setOpeningHour] = useState("08:00");
+  const [closingHour, setClosingHour] = useState("20:00");
+  const [isScheduled, setIsScheduled] = useState(false);
 
   useEffect(() => {
     if (items.length === 0) { navigate("/cart"); return; }
