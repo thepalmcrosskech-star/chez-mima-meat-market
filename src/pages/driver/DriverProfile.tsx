@@ -367,6 +367,17 @@ const DriverProfilePage = () => {
                   {order.notes && (
                     <p className="text-xs text-muted-foreground italic">📝 {order.notes}</p>
                   )}
+
+                  {/* Mark as delivered button */}
+                  {(order.status === "delivering" || order.status === "ready") && (
+                    <Button
+                      className="w-full gap-2"
+                      onClick={() => markAsDelivered(order.id)}
+                    >
+                      <CheckCircle2 className="h-4 w-4" />
+                      Marquer comme livrée
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
             );
