@@ -27,6 +27,8 @@ const AdminSettings = () => {
     currency: "MAD",
     opening_hours: "",
     whatsapp_number: "",
+    store_opening_hour: "10:00",
+    store_closing_hour: "20:00",
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
