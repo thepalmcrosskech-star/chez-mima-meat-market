@@ -309,6 +309,40 @@ const CheckoutPage = () => {
 
         <Separator />
 
+        {/* Scheduled delivery banner */}
+        {!isStoreOpen && (
+          <Card className="p-4 border-amber-500/30 bg-amber-500/10">
+            <div className="flex items-start gap-3">
+              <CalendarClock className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
+              <div>
+                <p className="font-semibold text-sm text-amber-700">🌙 La boucherie est fermée</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Votre commande sera programmée pour demain à l'ouverture ({openingHour}).
+                  Elle sera préparée dès notre ouverture !
+                </p>
+              </div>
+            </div>
+          </Card>
+        )}
+
+        {isStoreOpen && (
+          <div
+            className="flex items-center gap-3 cursor-pointer"
+            onClick={() => setIsScheduled(!isScheduled)}
+          >
+            <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${isScheduled ? "border-primary bg-primary" : "border-muted-foreground"}`}>
+              {isScheduled && <Check className="h-3 w-3 text-primary-foreground" />}
+            </div>
+            <div>
+              <p className="text-sm font-medium flex items-center gap-1.5">
+                <Clock className="h-4 w-4 text-primary" />
+                Programmer pour demain ({openingHour})
+              </p>
+              <p className="text-xs text-muted-foreground">Réservez maintenant, on prépare demain à l'ouverture</p>
+            </div>
+          </div>
+        )
+
         {/* Pickup Info */}
         {isPickup && (
           <Card className="p-4 border-primary/30 bg-primary/5">
