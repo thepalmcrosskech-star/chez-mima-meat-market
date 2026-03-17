@@ -140,6 +140,29 @@ const CheckoutPage = () => {
     return { zone: null, fee: null };
   };
 
+  // Store open/close logic
+  const isStoreOpen = (() => {
+    const now = new Date();
+    const [oh, om] = openingHour.split(":").map(Number);
+    const [ch, cm] = closingHour.split(":").map(Number);
+    const mins = now.getHours() * 60 + now.getMinutes();
+    return mins >= (oh * 60 + om) && mins < (ch * 60 + cm);
+  })();
+
+  const getNextOpeningDate = () => {
+    const now = new Date();
+    const [oh, om] = openingHour.split(":").map(Number);
+    const next = new Date(now);
+    next.setDate(next.getDate() + 1);
+    next.setHours(oh, om, 0, 0);
+    return next;
+  };
+
+  // Auto-enable scheduling when store is closed
+  useEffect(() => {
+    if (!isStoreOpen) setIsScheduled(true);
+  }, [isStoreOpen]);
+
   const isPickup = deliveryMode === "pickup";
   const { zone: deliveryZone, fee: deliveryFee } = isPickup ? { zone: null, fee: 0 } : getDeliveryInfo();
   const total = isPickup ? subtotal : (deliveryFee !== null ? subtotal + deliveryFee : subtotal);
