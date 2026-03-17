@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
-import { Plus, Loader2, Sun, Moon } from "lucide-react";
+import { Plus, Loader2, Sun, Moon, ChevronRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
