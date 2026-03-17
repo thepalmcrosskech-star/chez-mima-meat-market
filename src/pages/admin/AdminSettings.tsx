@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { Save, MapPin, RotateCcw } from "lucide-react";
+import { Save, MapPin, RotateCcw, Clock } from "lucide-react";
 import MapboxMap from "@/components/MapboxMap";
 import mapboxgl from "mapbox-gl";
 
@@ -27,6 +27,8 @@ const AdminSettings = () => {
     currency: "MAD",
     opening_hours: "",
     whatsapp_number: "",
+    store_opening_hour: "10:00",
+    store_closing_hour: "20:00",
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -113,6 +115,25 @@ const AdminSettings = () => {
               <Input value={settings[f.key] || ""} onChange={(e) => updateSetting(f.key, e.target.value)} />
             </div>
           ))}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader><CardTitle className="flex items-center gap-2"><Clock className="h-5 w-5" /> Horaires de prise de commande</CardTitle></CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            En dehors de ces horaires, les clients pourront réserver pour le lendemain à l'ouverture.
+          </p>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label>Ouverture</Label>
+              <Input type="time" value={settings.store_opening_hour?.replace(/"/g, "") || "10:00"} onChange={(e) => updateSetting("store_opening_hour", e.target.value)} />
+            </div>
+            <div>
+              <Label>Fermeture commandes</Label>
+              <Input type="time" value={settings.store_closing_hour?.replace(/"/g, "") || "20:00"} onChange={(e) => updateSetting("store_closing_hour", e.target.value)} />
+            </div>
+          </div>
         </CardContent>
       </Card>
 
