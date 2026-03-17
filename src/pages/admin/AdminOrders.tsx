@@ -272,7 +272,7 @@ const AdminOrders = () => {
                     <span className="text-muted-foreground">Programmée pour</span>
                     <Badge variant="outline" className="gap-1 border-amber-500/50 text-amber-500">
                       <Clock className="h-3 w-3" />
-                      {new Date(selectedOrder.scheduled_for).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
+                      {new Date(selectedOrder.scheduled_for).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Africa/Casablanca" })}
                     </Badge>
                   </div>
                 )}
