@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
-import { ArrowLeft, Bike, Car, Truck, Star, MapPin, Phone, Clock, Navigation, Loader2, Package, Banknote, CreditCard } from "lucide-react";
+import { ArrowLeft, Bike, Car, Truck, Star, MapPin, Phone, Clock, Navigation, Loader2, Package, Banknote, CreditCard, CheckCircle2 } from "lucide-react";
 import { formatPrice, getStatusInfo } from "@/lib/format";
 
 interface DriverProfileData {
@@ -168,6 +168,20 @@ const DriverProfilePage = () => {
         title: "Statut mis à jour",
         description: `Vous êtes maintenant ${newStatus === "available" ? "disponible" : newStatus === "busy" ? "en livraison" : "hors ligne"}`,
       });
+    } catch (error: any) {
+      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+    }
+  };
+
+  const markAsDelivered = async (orderId: string) => {
+    try {
+      const { error } = await supabase
+        .from("orders")
+        .update({ status: "delivered" })
+        .eq("id", orderId);
+      if (error) throw error;
+      setAssignedOrders((prev) => prev.filter((o) => o.id !== orderId));
+      toast({ title: "✅ Commande livrée", description: "La commande a été marquée comme livrée" });
     } catch (error: any) {
       toast({ title: "Erreur", description: error.message, variant: "destructive" });
     }
@@ -352,6 +366,17 @@ const DriverProfilePage = () => {
 
                   {order.notes && (
                     <p className="text-xs text-muted-foreground italic">📝 {order.notes}</p>
+                  )}
+
+                  {/* Mark as delivered button */}
+                  {(order.status === "delivering" || order.status === "ready") && (
+                    <Button
+                      className="w-full gap-2"
+                      onClick={() => markAsDelivered(order.id)}
+                    >
+                      <CheckCircle2 className="h-4 w-4" />
+                      Marquer comme livrée
+                    </Button>
                   )}
                 </CardContent>
               </Card>
