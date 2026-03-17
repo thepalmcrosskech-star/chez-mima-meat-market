@@ -32,6 +32,7 @@ interface Order {
   payment_method: string;
   cash_bill_amount: number | null;
   delivery_mode: string;
+  scheduled_for: string | null;
   profiles?: { name: string; email: string; phone: string | null };
   delivery_address_snapshot?: any;
 }
