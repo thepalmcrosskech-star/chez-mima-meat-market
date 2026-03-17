@@ -173,6 +173,20 @@ const DriverProfilePage = () => {
     }
   };
 
+  const markAsDelivered = async (orderId: string) => {
+    try {
+      const { error } = await supabase
+        .from("orders")
+        .update({ status: "delivered" })
+        .eq("id", orderId);
+      if (error) throw error;
+      setAssignedOrders((prev) => prev.filter((o) => o.id !== orderId));
+      toast({ title: "✅ Commande livrée", description: "La commande a été marquée comme livrée" });
+    } catch (error: any) {
+      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+    }
+  };
+
   const getVehicleIcon = (type: string) => {
     switch (type) {
       case "moto": return <Bike className="h-6 w-6" />;
