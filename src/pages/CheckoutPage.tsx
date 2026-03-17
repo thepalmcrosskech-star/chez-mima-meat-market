@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, MapPin, Loader2, Plus, Check, Phone, Store, Truck, Clock, CalendarClock } from "lucide-react";
+import { ArrowLeft, MapPin, Loader2, Plus, Check, Phone, Store, Truck, Clock, CalendarClock, Navigation } from "lucide-react";
 import AddressPicker from "@/components/AddressPicker";
 import PaymentMethodSelector from "@/components/checkout/PaymentMethodSelector";
 
@@ -345,9 +345,9 @@ const CheckoutPage = () => {
 
         {/* Pickup Info */}
         {isPickup && (
-          <Card className="p-4 border-primary/30 bg-primary/5">
+          <Card className="p-4 border-primary/30 bg-primary/5 space-y-3">
             <div className="flex items-start gap-3">
-              <Store className="h-5 w-5 text-primary mt-0.5" />
+              <Store className="h-5 w-5 text-primary mt-0.5 shrink-0" />
               <div>
                 <p className="font-semibold text-sm">Retrait en boucherie</p>
                 <p className="text-xs text-muted-foreground mt-1">
@@ -355,6 +355,27 @@ const CheckoutPage = () => {
                 </p>
               </div>
             </div>
+            {(storeAddress || storeLocation) && (
+              <div className="border-t border-primary/20 pt-3 space-y-2">
+                {storeAddress && (
+                  <div className="flex items-start gap-2">
+                    <MapPin className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                    <p className="text-sm">{storeAddress}</p>
+                  </div>
+                )}
+                {storeLocation && (
+                  <a
+                    href={`https://www.google.com/maps/dir/?api=1&destination=${storeLocation.lat},${storeLocation.lng}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
+                  >
+                    <Navigation className="h-4 w-4" />
+                    Itinéraire GPS vers la boucherie
+                  </a>
+                )}
+              </div>
+            )}
           </Card>
         )}
 
