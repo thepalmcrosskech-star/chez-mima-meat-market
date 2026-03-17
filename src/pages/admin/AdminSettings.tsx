@@ -135,6 +135,7 @@ const AdminSettings = () => {
             </div>
           </div>
         </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
