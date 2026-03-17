@@ -237,38 +237,44 @@ const HomePage = () => {
 
       {/* Categories */}
       <section className="px-4 mb-6">
-        <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-          <Button
-            variant={selectedCategory === "all" ? "default" : "secondary"}
-            className={`rounded-full px-6 py-2 text-sm font-bold whitespace-nowrap transition-all duration-300 ${
-              selectedCategory === "all"
-                ? "bg-primary text-primary-foreground shadow-lg scale-105"
-                : "bg-secondary text-secondary-foreground hover:bg-secondary/80 hover-scale"
-            }`}
-            onClick={() => {
-              setSelectedCategory("all");
-              setSearchParams({}, { replace: true });
-            }}
-          >
-            🏠 Tous
-          </Button>
-          {categories.map((category) => (
+        <div className="relative">
+          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
             <Button
-              key={category.id}
-              variant={selectedCategory === category.id ? "default" : "secondary"}
+              variant={selectedCategory === "all" ? "default" : "secondary"}
               className={`rounded-full px-6 py-2 text-sm font-bold whitespace-nowrap transition-all duration-300 ${
-                selectedCategory === category.id
+                selectedCategory === "all"
                   ? "bg-primary text-primary-foreground shadow-lg scale-105"
                   : "bg-secondary text-secondary-foreground hover:bg-secondary/80 hover-scale"
               }`}
               onClick={() => {
-                setSelectedCategory(category.id);
-                setSearchParams({ cat: category.id }, { replace: true });
+                setSelectedCategory("all");
+                setSearchParams({}, { replace: true });
               }}
             >
-              {category.emoji} {category.name}
+              🏠 Tous
             </Button>
-          ))}
+            {categories.map((category) => (
+              <Button
+                key={category.id}
+                variant={selectedCategory === category.id ? "default" : "secondary"}
+                className={`rounded-full px-6 py-2 text-sm font-bold whitespace-nowrap transition-all duration-300 ${
+                  selectedCategory === category.id
+                    ? "bg-primary text-primary-foreground shadow-lg scale-105"
+                    : "bg-secondary text-secondary-foreground hover:bg-secondary/80 hover-scale"
+                }`}
+                onClick={() => {
+                  setSelectedCategory(category.id);
+                  setSearchParams({ cat: category.id }, { replace: true });
+                }}
+              >
+                {category.emoji} {category.name}
+              </Button>
+            ))}
+          </div>
+          {/* Scroll hint arrow */}
+          <div className="absolute right-0 top-0 bottom-2 w-10 flex items-center justify-end pointer-events-none bg-gradient-to-l from-background via-background/80 to-transparent">
+            <ChevronRight className="h-5 w-5 text-muted-foreground animate-pulse" />
+          </div>
         </div>
       </section>
 
