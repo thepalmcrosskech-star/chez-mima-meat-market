@@ -511,6 +511,12 @@ const CheckoutPage = () => {
               <span className="text-green-600 font-medium">Gratuit</span>
             </div>
           )}
+          {isScheduled && (
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground flex items-center gap-1"><CalendarClock className="h-3.5 w-3.5" /> Programmée pour</span>
+              <span className="font-medium text-amber-600">Demain {openingHour}</span>
+            </div>
+          )}
           <div className="flex justify-between font-bold text-lg border-t border-border pt-2">
             <span>Total</span>
             <span className="text-primary">{formatPrice(total)}</span>
@@ -520,7 +526,7 @@ const CheckoutPage = () => {
         {/* Submit */}
         <Button className="w-full py-6 text-base font-bold" disabled={!canOrder || submitting} onClick={handleSubmit}>
           {submitting ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
-          {submitting ? "Envoi en cours..." : isPickup ? "Confirmer le retrait" : "Confirmer la commande"}
+          {submitting ? "Envoi en cours..." : isScheduled ? "📅 Réserver pour demain" : isPickup ? "Confirmer le retrait" : "Confirmer la commande"}
         </Button>
       </div>
     </div>
