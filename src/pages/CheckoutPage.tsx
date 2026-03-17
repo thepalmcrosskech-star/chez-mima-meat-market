@@ -223,6 +223,7 @@ const CheckoutPage = () => {
         payment_status: isPickup ? "pending_on_site" : "pending",
         cash_bill_amount: !isPickup && paymentMethod === "cash" ? cashBillAmount : null,
         notes: notes || null,
+        scheduled_for: isScheduled ? getNextOpeningDate().toISOString() : null,
         status: "pending",
       }).select().single();
 
