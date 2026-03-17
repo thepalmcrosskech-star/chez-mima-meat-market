@@ -382,6 +382,7 @@ export type Database = {
           notes: string | null
           payment_method: string
           payment_status: string
+          scheduled_for: string | null
           status: string
           subtotal: number
           total_price: number
@@ -403,6 +404,7 @@ export type Database = {
           notes?: string | null
           payment_method?: string
           payment_status?: string
+          scheduled_for?: string | null
           status?: string
           subtotal: number
           total_price: number
@@ -424,6 +426,7 @@ export type Database = {
           notes?: string | null
           payment_method?: string
           payment_status?: string
+          scheduled_for?: string | null
           status?: string
           subtotal?: number
           total_price?: number
