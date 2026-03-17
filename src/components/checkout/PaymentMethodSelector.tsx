@@ -13,9 +13,7 @@ interface PaymentMethodSelectorProps {
   total: number;
 }
 
-const BILL_OPTIONS = [20, 50, 100, 200];
-
-type CashMode = "exact" | "bill" | "custom" | null;
+type CashMode = "exact" | "custom" | null;
 
 const PaymentMethodSelector = ({
   paymentMethod,
@@ -31,8 +29,7 @@ const PaymentMethodSelector = ({
     setCashMode(mode);
     if (mode === "exact") {
       onCashBillChange(null);
-    } else if (mode === "bill") {
-      onCashBillChange(null);
+      setCustomAmount("");
     } else if (mode === "custom") {
       onCashBillChange(null);
       setCustomAmount("");
@@ -132,73 +129,7 @@ const PaymentMethodSelector = ({
             </div>
           </button>
 
-          {/* Option: Pick a bill */}
-          <button
-            type="button"
-            onClick={() => handleCashModeChange("bill")}
-            className={`w-full flex items-center gap-3 rounded-xl border-2 p-3 transition-all text-left ${
-              cashMode === "bill"
-                ? "border-primary bg-primary/10"
-                : "border-border bg-background hover:border-primary/50"
-            }`}
-          >
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
-              cashMode === "bill" ? "bg-primary" : "bg-muted"
-            }`}>
-              {cashMode === "bill" ? (
-                <Check className="h-4 w-4 text-primary-foreground" />
-              ) : (
-                <Banknote className="h-4 w-4 text-muted-foreground" />
-              )}
-            </div>
-            <div>
-              <p className="text-sm font-semibold">Non, je paie avec un billet</p>
-              <p className="text-xs text-muted-foreground">Choisissez votre billet</p>
-            </div>
-          </button>
-
-          {/* Bill selector */}
-          {cashMode === "bill" && (
-            <div className="space-y-2 pl-2">
-              <div className="grid grid-cols-4 gap-2">
-                {BILL_OPTIONS.map((bill) => {
-                  const isSelected = cashBillAmount === bill;
-                  const isDisabled = bill < total;
-                  return (
-                    <button
-                      key={bill}
-                      type="button"
-                      disabled={isDisabled}
-                      onClick={() => onCashBillChange(isSelected ? null : bill)}
-                      className={`relative rounded-xl border-2 p-3 text-center transition-all ${
-                        isDisabled
-                          ? "border-muted bg-muted/30 text-muted-foreground/40 cursor-not-allowed"
-                          : isSelected
-                          ? "border-primary bg-primary/10 text-primary shadow-sm"
-                          : "border-border bg-background text-foreground hover:border-primary/50"
-                      }`}
-                    >
-                      {isSelected && (
-                        <div className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
-                          <Check className="h-3 w-3 text-primary-foreground" />
-                        </div>
-                      )}
-                      <span className="text-lg font-bold">{bill}</span>
-                      <span className="block text-[10px] text-muted-foreground">MAD</span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {cashBillAmount && cashBillAmount >= total && (
-                <p className="text-xs text-green-600 font-medium">
-                  💰 Monnaie à rendre : {formatPrice(cashBillAmount - total)}
-                </p>
-              )}
-            </div>
-          )}
-
-          {/* Option: Custom amount */}
+          {/* Option: Specify amount */}
           <button
             type="button"
             onClick={() => handleCashModeChange("custom")}
@@ -218,8 +149,8 @@ const PaymentMethodSelector = ({
               )}
             </div>
             <div>
-              <p className="text-sm font-semibold">Autre montant</p>
-              <p className="text-xs text-muted-foreground">Saisissez le montant que vous donnerez</p>
+              <p className="text-sm font-semibold">Non, combien allez-vous donner ?</p>
+              <p className="text-xs text-muted-foreground">Indiquez le montant exact que vous donnerez au livreur</p>
             </div>
           </button>
 
