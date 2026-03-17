@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
-import { ArrowLeft, Bike, Car, Truck, Star, MapPin, Phone, Clock, Navigation, Loader2, Package, Banknote, CreditCard } from "lucide-react";
+import { ArrowLeft, Bike, Car, Truck, Star, MapPin, Phone, Clock, Navigation, Loader2, Package, Banknote, CreditCard, CheckCircle2 } from "lucide-react";
 import { formatPrice, getStatusInfo } from "@/lib/format";
 
 interface DriverProfileData {
