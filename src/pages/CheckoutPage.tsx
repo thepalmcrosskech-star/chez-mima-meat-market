@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, MapPin, Loader2, Plus, Check, Phone, Store, Truck } from "lucide-react";
+import { ArrowLeft, MapPin, Loader2, Plus, Check, Phone, Store, Truck, Clock, CalendarClock } from "lucide-react";
 import AddressPicker from "@/components/AddressPicker";
 import PaymentMethodSelector from "@/components/checkout/PaymentMethodSelector";
 
@@ -59,6 +59,9 @@ const CheckoutPage = () => {
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [storeAddress, setStoreAddress] = useState("");
+  const [openingHour, setOpeningHour] = useState("08:00");
+  const [closingHour, setClosingHour] = useState("20:00");
+  const [isScheduled, setIsScheduled] = useState(false);
 
   useEffect(() => {
     if (items.length === 0) { navigate("/cart"); return; }
@@ -70,12 +73,14 @@ const CheckoutPage = () => {
     if (!user) { navigate("/login"); return; }
     setUserId(user.id);
 
-    const [addrRes, zonesRes, latRes, lngRes, profileRes] = await Promise.all([
+    const [addrRes, zonesRes, latRes, lngRes, profileRes, openRes, closeRes] = await Promise.all([
       supabase.from("user_addresses").select("*").eq("user_id", user.id).order("is_default", { ascending: false }),
       supabase.from("delivery_zones").select("*").eq("is_active", true),
       supabase.from("app_settings").select("value").eq("key", "store_latitude").single(),
       supabase.from("app_settings").select("value").eq("key", "store_longitude").single(),
       supabase.from("profiles").select("phone").eq("id", user.id).single(),
+      supabase.from("app_settings").select("value").eq("key", "store_opening_hour").single(),
+      supabase.from("app_settings").select("value").eq("key", "store_closing_hour").single(),
     ]);
 
     if (addrRes.data) {
@@ -90,10 +95,11 @@ const CheckoutPage = () => {
     const storeLng = lngRes.data ? parseFloat(String(lngRes.data.value)) : -8.019;
     setStoreLocation({ lat: storeLat, lng: storeLng });
 
-    // Pre-fill WhatsApp phone from profile
     if (profileRes.data?.phone) setWhatsappPhone(profileRes.data.phone);
 
-    // Load store address for pickup
+    if (openRes.data?.value) setOpeningHour(String(openRes.data.value).replace(/"/g, ""));
+    if (closeRes.data?.value) setClosingHour(String(closeRes.data.value).replace(/"/g, ""));
+
     const { data: storeAddrData } = await supabase.from("app_settings").select("value").eq("key", "store_address").single();
     if (storeAddrData?.value) setStoreAddress(String(storeAddrData.value));
 
@@ -133,6 +139,29 @@ const CheckoutPage = () => {
     }
     return { zone: null, fee: null };
   };
+
+  // Store open/close logic
+  const isStoreOpen = (() => {
+    const now = new Date();
+    const [oh, om] = openingHour.split(":").map(Number);
+    const [ch, cm] = closingHour.split(":").map(Number);
+    const mins = now.getHours() * 60 + now.getMinutes();
+    return mins >= (oh * 60 + om) && mins < (ch * 60 + cm);
+  })();
+
+  const getNextOpeningDate = () => {
+    const now = new Date();
+    const [oh, om] = openingHour.split(":").map(Number);
+    const next = new Date(now);
+    next.setDate(next.getDate() + 1);
+    next.setHours(oh, om, 0, 0);
+    return next;
+  };
+
+  // Auto-enable scheduling when store is closed
+  useEffect(() => {
+    if (!isStoreOpen) setIsScheduled(true);
+  }, [isStoreOpen]);
 
   const isPickup = deliveryMode === "pickup";
   const { zone: deliveryZone, fee: deliveryFee } = isPickup ? { zone: null, fee: 0 } : getDeliveryInfo();
@@ -194,6 +223,7 @@ const CheckoutPage = () => {
         payment_status: isPickup ? "pending_on_site" : "pending",
         cash_bill_amount: !isPickup && paymentMethod === "cash" ? cashBillAmount : null,
         notes: notes || null,
+        scheduled_for: isScheduled ? getNextOpeningDate().toISOString() : null,
         status: "pending",
       }).select().single();
 
@@ -278,6 +308,40 @@ const CheckoutPage = () => {
         </div>
 
         <Separator />
+
+        {/* Scheduled delivery banner */}
+        {!isStoreOpen && (
+          <Card className="p-4 border-amber-500/30 bg-amber-500/10">
+            <div className="flex items-start gap-3">
+              <CalendarClock className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
+              <div>
+                <p className="font-semibold text-sm text-amber-700">🌙 La boucherie est fermée</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Votre commande sera programmée pour demain à l'ouverture ({openingHour}).
+                  Elle sera préparée dès notre ouverture !
+                </p>
+              </div>
+            </div>
+          </Card>
+        )}
+
+        {isStoreOpen && (
+          <div
+            className="flex items-center gap-3 cursor-pointer"
+            onClick={() => setIsScheduled(!isScheduled)}
+          >
+            <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${isScheduled ? "border-primary bg-primary" : "border-muted-foreground"}`}>
+              {isScheduled && <Check className="h-3 w-3 text-primary-foreground" />}
+            </div>
+            <div>
+              <p className="text-sm font-medium flex items-center gap-1.5">
+                <Clock className="h-4 w-4 text-primary" />
+                Programmer pour demain ({openingHour})
+              </p>
+              <p className="text-xs text-muted-foreground">Réservez maintenant, on prépare demain à l'ouverture</p>
+            </div>
+          </div>
+        )}
 
         {/* Pickup Info */}
         {isPickup && (
@@ -447,6 +511,12 @@ const CheckoutPage = () => {
               <span className="text-green-600 font-medium">Gratuit</span>
             </div>
           )}
+          {isScheduled && (
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground flex items-center gap-1"><CalendarClock className="h-3.5 w-3.5" /> Programmée pour</span>
+              <span className="font-medium text-amber-600">Demain {openingHour}</span>
+            </div>
+          )}
           <div className="flex justify-between font-bold text-lg border-t border-border pt-2">
             <span>Total</span>
             <span className="text-primary">{formatPrice(total)}</span>
@@ -456,7 +526,7 @@ const CheckoutPage = () => {
         {/* Submit */}
         <Button className="w-full py-6 text-base font-bold" disabled={!canOrder || submitting} onClick={handleSubmit}>
           {submitting ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
-          {submitting ? "Envoi en cours..." : isPickup ? "Confirmer le retrait" : "Confirmer la commande"}
+          {submitting ? "Envoi en cours..." : isScheduled ? "📅 Réserver pour demain" : isPickup ? "Confirmer le retrait" : "Confirmer la commande"}
         </Button>
       </div>
     </div>
