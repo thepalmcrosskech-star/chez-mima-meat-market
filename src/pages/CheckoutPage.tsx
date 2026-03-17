@@ -73,12 +73,14 @@ const CheckoutPage = () => {
     if (!user) { navigate("/login"); return; }
     setUserId(user.id);
 
-    const [addrRes, zonesRes, latRes, lngRes, profileRes] = await Promise.all([
+    const [addrRes, zonesRes, latRes, lngRes, profileRes, openRes, closeRes] = await Promise.all([
       supabase.from("user_addresses").select("*").eq("user_id", user.id).order("is_default", { ascending: false }),
       supabase.from("delivery_zones").select("*").eq("is_active", true),
       supabase.from("app_settings").select("value").eq("key", "store_latitude").single(),
       supabase.from("app_settings").select("value").eq("key", "store_longitude").single(),
       supabase.from("profiles").select("phone").eq("id", user.id).single(),
+      supabase.from("app_settings").select("value").eq("key", "store_opening_hour").single(),
+      supabase.from("app_settings").select("value").eq("key", "store_closing_hour").single(),
     ]);
 
     if (addrRes.data) {
@@ -93,10 +95,11 @@ const CheckoutPage = () => {
     const storeLng = lngRes.data ? parseFloat(String(lngRes.data.value)) : -8.019;
     setStoreLocation({ lat: storeLat, lng: storeLng });
 
-    // Pre-fill WhatsApp phone from profile
     if (profileRes.data?.phone) setWhatsappPhone(profileRes.data.phone);
 
-    // Load store address for pickup
+    if (openRes.data?.value) setOpeningHour(String(openRes.data.value).replace(/"/g, ""));
+    if (closeRes.data?.value) setClosingHour(String(closeRes.data.value).replace(/"/g, ""));
+
     const { data: storeAddrData } = await supabase.from("app_settings").select("value").eq("key", "store_address").single();
     if (storeAddrData?.value) setStoreAddress(String(storeAddrData.value));
 
