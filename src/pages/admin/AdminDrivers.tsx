@@ -9,12 +9,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, Bike, Car, Truck, Star } from "lucide-react";
+import { Plus, Pencil, Trash2, Bike, Car, Truck, Star, Users, TrendingUp, MapPin } from "lucide-react";
+import MapboxMap from "@/components/MapboxMap";
+import mapboxgl from "mapbox-gl";
 
 interface Profile { id: string; name: string; email: string; phone: string | null; role: string; }
 interface DriverProfile {
   id: string; user_id: string; vehicle_type: string; license_plate: string | null;
   status: string; rating: number | null; total_deliveries: number | null;
+  latitude: number | null; longitude: number | null;
   profiles?: Profile;
 }
 
@@ -28,8 +31,26 @@ const AdminDrivers = () => {
   const [selectedUserId, setSelectedUserId] = useState("");
   const [vehicleType, setVehicleType] = useState("moto");
   const [licensePlate, setLicensePlate] = useState("");
+  const [showMap, setShowMap] = useState(false);
+  const markersRef = useState<mapboxgl.Marker[]>([])[0];
 
   useEffect(() => { fetchData(); }, []);
+
+  // Realtime driver locations
+  useEffect(() => {
+    const channel = supabase
+      .channel("admin-driver-locations")
+      .on("postgres_changes", {
+        event: "*",
+        schema: "public",
+        table: "driver_locations",
+      }, () => {
+        // Refresh driver data on location update
+        fetchData();
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, []);
 
   const fetchData = async () => {
     const [d, u] = await Promise.all([
@@ -89,7 +110,25 @@ const AdminDrivers = () => {
     return <Badge variant={v[s] || "secondary"}>{l[s] || s}</Badge>;
   };
 
+  const handleMapReady = (map: mapboxgl.Map) => {
+    // Add markers for active drivers
+    drivers.forEach((d) => {
+      if (d.latitude && d.longitude && d.status !== "offline") {
+        const color = d.status === "available" ? "#A855F7" : "#EF4444";
+        const marker = new mapboxgl.Marker({ color })
+          .setLngLat([Number(d.longitude), Number(d.latitude)])
+          .setPopup(new mapboxgl.Popup().setHTML(`<b>${d.profiles?.name || "Livreur"}</b><br/>${d.status === "available" ? "Disponible" : "En livraison"}`))
+          .addTo(map);
+        markersRef.push(marker);
+      }
+    });
+  };
+
   if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary" /></div>;
+
+  const activeCount = drivers.filter(d => d.status === "available").length;
+  const busyCount = drivers.filter(d => d.status === "busy").length;
+  const totalDeliveries = drivers.reduce((sum, d) => sum + (d.total_deliveries || 0), 0);
 
   const VehicleForm = () => (
     <>
@@ -115,25 +154,92 @@ const AdminDrivers = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Livreurs</h1>
-        <Dialog open={isAddOpen} onOpenChange={(o) => { setIsAddOpen(o); if (!o) resetForm(); }}>
-          <DialogTrigger asChild><Button className="gap-2"><Plus className="h-4 w-4" /> Ajouter</Button></DialogTrigger>
-          <DialogContent>
-            <DialogHeader><DialogTitle>Ajouter un livreur</DialogTitle></DialogHeader>
-            <div className="space-y-4 mt-4">
-              <div>
-                <Label>Utilisateur</Label>
-                <Select value={selectedUserId} onValueChange={setSelectedUserId}>
-                  <SelectTrigger><SelectValue placeholder="Sélectionner" /></SelectTrigger>
-                  <SelectContent>{users.map((u) => <SelectItem key={u.id} value={u.id}>{u.name} ({u.email})</SelectItem>)}</SelectContent>
-                </Select>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setShowMap(!showMap)}>
+            <MapPin className="h-4 w-4 mr-1" /> {showMap ? "Masquer" : "Carte"}
+          </Button>
+          <Dialog open={isAddOpen} onOpenChange={(o) => { setIsAddOpen(o); if (!o) resetForm(); }}>
+            <DialogTrigger asChild><Button className="gap-2"><Plus className="h-4 w-4" /> Ajouter</Button></DialogTrigger>
+            <DialogContent>
+              <DialogHeader><DialogTitle>Ajouter un livreur</DialogTitle></DialogHeader>
+              <div className="space-y-4 mt-4">
+                <div>
+                  <Label>Utilisateur</Label>
+                  <Select value={selectedUserId} onValueChange={setSelectedUserId}>
+                    <SelectTrigger><SelectValue placeholder="Sélectionner" /></SelectTrigger>
+                    <SelectContent>{users.map((u) => <SelectItem key={u.id} value={u.id}>{u.name} ({u.email})</SelectItem>)}</SelectContent>
+                  </Select>
+                </div>
+                <VehicleForm />
+                <Button onClick={addDriver} className="w-full">Ajouter</Button>
               </div>
-              <VehicleForm />
-              <Button onClick={addDriver} className="w-full">Ajouter</Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
+      {/* Stats Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <Card>
+          <CardContent className="p-4 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center">
+              <Users className="h-5 w-5 text-green-500" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold">{activeCount}</p>
+              <p className="text-xs text-muted-foreground">Disponibles</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center">
+              <Bike className="h-5 w-5 text-amber-500" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold">{busyCount}</p>
+              <p className="text-xs text-muted-foreground">En livraison</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center">
+              <TrendingUp className="h-5 w-5 text-purple-500" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold">{totalDeliveries}</p>
+              <p className="text-xs text-muted-foreground">Total livraisons</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+              <Star className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold">{drivers.length}</p>
+              <p className="text-xs text-muted-foreground">Total livreurs</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Realtime Map */}
+      {showMap && (
+        <Card className="overflow-hidden">
+          <MapboxMap
+            className="w-full h-[300px]"
+            center={[-8.0083, 31.6295]}
+            zoom={12}
+            interactive={true}
+            onMapReady={handleMapReady}
+          />
+        </Card>
+      )}
+
+      {/* Drivers Table */}
       <Card>
         <CardContent className="p-0">
           <Table>
