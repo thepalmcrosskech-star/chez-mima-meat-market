@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 import { CartProvider } from "@/contexts/CartContext";
 import { useIpBanCheck } from "@/hooks/useIpBanCheck";
 import HomePage from "./pages/HomePage";
@@ -34,7 +34,7 @@ import CheckoutPage from "./pages/CheckoutPage";
 import OrderTrackingPage from "./pages/OrderTrackingPage";
 import SplashScreen from "./components/SplashScreen";
 import ErrorBoundary from "./components/ErrorBoundary";
-
+import { supabase } from "@/integrations/supabase/client";
 const queryClient = new QueryClient();
 
 const BannedScreen = () => (
@@ -49,6 +49,40 @@ const BannedScreen = () => (
     </div>
   </div>
 );
+
+// Redirect drivers/admins away from client routes on session restore
+const RoleRedirect = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const clientRoutes = ["/", "/search", "/cart", "/orders", "/checkout", "/profile"];
+    const isClientRoute = clientRoutes.includes(location.pathname) || location.pathname.startsWith("/product/");
+
+    if (!isClientRoute) return;
+
+    const checkRole = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", session.user.id)
+        .single();
+
+      if (profile?.role === "driver" && !location.pathname.startsWith("/driver")) {
+        navigate("/driver", { replace: true });
+      } else if (profile?.role === "admin" && !location.pathname.startsWith("/admin")) {
+        navigate("/admin", { replace: true });
+      }
+    };
+
+    checkRole();
+  }, [location.pathname]);
+
+  return null;
+};
 
 const AppContent = () => {
   const { banned, checked } = useIpBanCheck();
@@ -75,6 +109,7 @@ const AppContent = () => {
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <RoleRedirect />
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/search" element={<SearchPage />} />
