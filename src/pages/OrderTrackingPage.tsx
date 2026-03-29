@@ -4,7 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Loader2, Package, Bike, CheckCircle2, Clock, MapPin, Phone, Star } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { ArrowLeft, Loader2, Package, Bike, CheckCircle2, Clock, MapPin, Phone, Star, XCircle } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 import MapboxMap, { getMapboxToken } from "@/components/MapboxMap";
 import mapboxgl from "mapbox-gl";
 import { formatPrice } from "@/lib/format";
@@ -51,6 +53,8 @@ const OrderTrackingPage = () => {
   const [distanceLeft, setDistanceLeft] = useState<string | null>(null);
   const [showDelivered, setShowDelivered] = useState(false);
   const [showRating, setShowRating] = useState(false);
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
 
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const driverMarkerRef = useRef<mapboxgl.Marker | null>(null);
@@ -508,8 +512,57 @@ const OrderTrackingPage = () => {
           )}
           {order.payment_method === "cash" && !order.cash_bill_amount && (
             <p className="text-xs text-green-500 font-medium">✅ Le client paiera l'appoint</p>
-          )}
+           )}
         </Card>
+
+        {/* Cancel Button - only for pending/confirmed */}
+        {["pending", "confirmed"].includes(order.status) && (
+          <>
+            <Button
+              variant="destructive"
+              className="w-full"
+              onClick={() => setCancelDialogOpen(true)}
+            >
+              <XCircle className="h-4 w-4 mr-2" />
+              Annuler la commande
+            </Button>
+
+            <AlertDialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Annuler cette commande ?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Cette action est irréversible. Votre commande sera définitivement annulée.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Non, garder</AlertDialogCancel>
+                  <AlertDialogAction
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    disabled={cancelling}
+                    onClick={async () => {
+                      setCancelling(true);
+                      const { error } = await supabase
+                        .from("orders")
+                        .update({ status: "cancelled" })
+                        .eq("id", order.id);
+                      setCancelling(false);
+                      if (error) {
+                        toast({ title: "Erreur", description: error.message, variant: "destructive" });
+                      } else {
+                        setOrder((prev) => prev ? { ...prev, status: "cancelled" } : null);
+                        toast({ title: "Commande annulée" });
+                      }
+                    }}
+                  >
+                    {cancelling ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                    Oui, annuler
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </>
+        )}
       </div>
     </div>
   );
