@@ -53,6 +53,8 @@ const OrderTrackingPage = () => {
   const [distanceLeft, setDistanceLeft] = useState<string | null>(null);
   const [showDelivered, setShowDelivered] = useState(false);
   const [showRating, setShowRating] = useState(false);
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
 
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const driverMarkerRef = useRef<mapboxgl.Marker | null>(null);
