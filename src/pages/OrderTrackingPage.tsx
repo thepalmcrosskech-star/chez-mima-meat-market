@@ -512,8 +512,57 @@ const OrderTrackingPage = () => {
           )}
           {order.payment_method === "cash" && !order.cash_bill_amount && (
             <p className="text-xs text-green-500 font-medium">✅ Le client paiera l'appoint</p>
-          )}
+           )}
         </Card>
+
+        {/* Cancel Button - only for pending/confirmed */}
+        {["pending", "confirmed"].includes(order.status) && (
+          <>
+            <Button
+              variant="destructive"
+              className="w-full"
+              onClick={() => setCancelDialogOpen(true)}
+            >
+              <XCircle className="h-4 w-4 mr-2" />
+              Annuler la commande
+            </Button>
+
+            <AlertDialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Annuler cette commande ?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Cette action est irréversible. Votre commande sera définitivement annulée.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Non, garder</AlertDialogCancel>
+                  <AlertDialogAction
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    disabled={cancelling}
+                    onClick={async () => {
+                      setCancelling(true);
+                      const { error } = await supabase
+                        .from("orders")
+                        .update({ status: "cancelled" })
+                        .eq("id", order.id);
+                      setCancelling(false);
+                      if (error) {
+                        toast({ title: "Erreur", description: error.message, variant: "destructive" });
+                      } else {
+                        setOrder((prev) => prev ? { ...prev, status: "cancelled" } : null);
+                        toast({ title: "Commande annulée" });
+                      }
+                    }}
+                  >
+                    {cancelling ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                    Oui, annuler
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </>
+        )}
       </div>
     </div>
   );
