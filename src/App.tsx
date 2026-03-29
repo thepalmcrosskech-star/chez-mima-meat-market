@@ -24,7 +24,11 @@ import AdminDeliveryZones from "./pages/admin/AdminDeliveryZones";
 import AdminBanners from "./pages/admin/AdminBanners";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminBannedIPs from "./pages/admin/AdminBannedIPs";
-import DriverProfile from "./pages/driver/DriverProfile";
+import DriverLayout from "./pages/driver/DriverLayout";
+import DriverDashboard from "./pages/driver/DriverDashboard";
+import DriverActiveDelivery from "./pages/driver/DriverActiveDelivery";
+import DriverHistory from "./pages/driver/DriverHistory";
+import DriverProfilePage from "./pages/driver/DriverProfilePage";
 import ProductPage from "./pages/ProductPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import OrderTrackingPage from "./pages/OrderTrackingPage";
@@ -93,7 +97,12 @@ const AppContent = () => {
             <Route path="settings" element={<AdminSettings />} />
             <Route path="banned-ips" element={<AdminBannedIPs />} />
           </Route>
-          <Route path="/driver" element={<DriverProfile />} />
+          <Route path="/driver" element={<DriverLayout />}>
+            <Route index element={<DriverDashboard />} />
+            <Route path="delivery/:orderId" element={<DriverActiveDelivery />} />
+            <Route path="history" element={<DriverHistory />} />
+            <Route path="profile" element={<DriverProfilePage />} />
+          </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

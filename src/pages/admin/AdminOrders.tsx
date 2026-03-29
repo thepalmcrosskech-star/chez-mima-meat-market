@@ -97,7 +97,6 @@ const AdminOrders = () => {
       };
       const notif = notifMessages[status];
       if (notif) {
-        // In-app notification
         await (supabase as any).from("notifications").insert({
           user_id: order.user_id,
           order_id: orderId,
@@ -105,7 +104,6 @@ const AdminOrders = () => {
           message: notif.message,
         });
 
-        // External push notification for key statuses
         const pushStatuses = ['confirmed', 'delivering', 'delivered', 'ready'];
         if (pushStatuses.includes(status)) {
           supabase.functions.invoke('send-push-notification', {
@@ -117,6 +115,17 @@ const AdminOrders = () => {
             },
           }).catch(err => console.error('Push notification failed:', err));
         }
+      }
+
+      // Auto-assign driver when order is ready (delivery mode only)
+      if (status === "ready" && order.delivery_mode !== "pickup") {
+        supabase.functions.invoke("assign-driver", { body: { order_id: orderId } })
+          .then(() => {
+            toast({ title: "🔍 Recherche d'un livreur...", description: "Attribution automatique en cours" });
+          })
+          .catch((err) => {
+            console.error("Auto-assign failed:", err);
+          });
       }
     }
 
