@@ -107,7 +107,7 @@ const DriverDashboard = () => {
     if (!user) return;
 
     const { data: dp } = await supabase.from("driver_profiles").select("*").eq("user_id", user.id).single();
-    if (!dp) return;
+    if (!dp) { setLoading(false); return; }
 
     setDriverProfile(dp);
     setIsAvailable(dp.status === "available" || dp.status === "busy");
