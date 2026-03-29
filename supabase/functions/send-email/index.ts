@@ -42,16 +42,6 @@ serve(async (req) => {
       );
     }
 
-    // Check admin role
-    const userId = claimsData.claims.sub;
-    const { data: profile } = await supabase.from("profiles").select("role").eq("id", userId).single();
-    if (profile?.role !== "admin") {
-      return new Response(
-        JSON.stringify({ success: false, error: "Forbidden" }),
-        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
     if (!RESEND_API_KEY) {
       throw new Error("RESEND_API_KEY is not configured");
