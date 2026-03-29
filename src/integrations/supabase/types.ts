@@ -130,6 +130,66 @@ export type Database = {
         }
         Relationships: []
       }
+      delivery_assignments: {
+        Row: {
+          assigned_at: string | null
+          created_at: string | null
+          delivered_at: string | null
+          distance_to_shop: number | null
+          driver_id: string
+          estimated_duration: number | null
+          expires_at: string | null
+          id: string
+          order_id: string
+          picked_up_at: string | null
+          responded_at: string | null
+          status: string
+        }
+        Insert: {
+          assigned_at?: string | null
+          created_at?: string | null
+          delivered_at?: string | null
+          distance_to_shop?: number | null
+          driver_id: string
+          estimated_duration?: number | null
+          expires_at?: string | null
+          id?: string
+          order_id: string
+          picked_up_at?: string | null
+          responded_at?: string | null
+          status?: string
+        }
+        Update: {
+          assigned_at?: string | null
+          created_at?: string | null
+          delivered_at?: string | null
+          distance_to_shop?: number | null
+          driver_id?: string
+          estimated_duration?: number | null
+          expires_at?: string | null
+          id?: string
+          order_id?: string
+          picked_up_at?: string | null
+          responded_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "delivery_assignments_driver_id_fkey"
+            columns: ["driver_id"]
+            isOneToOne: false
+            referencedRelation: "driver_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "delivery_assignments_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       delivery_zones: {
         Row: {
           color: string | null
@@ -174,6 +234,44 @@ export type Database = {
           sort_order?: number | null
         }
         Relationships: []
+      }
+      driver_locations: {
+        Row: {
+          driver_id: string
+          heading: number | null
+          id: string
+          latitude: number
+          longitude: number
+          speed: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          driver_id: string
+          heading?: number | null
+          id?: string
+          latitude: number
+          longitude: number
+          speed?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          driver_id?: string
+          heading?: number | null
+          id?: string
+          latitude?: number
+          longitude?: number
+          speed?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "driver_locations_driver_id_fkey"
+            columns: ["driver_id"]
+            isOneToOne: false
+            referencedRelation: "driver_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       driver_profiles: {
         Row: {
@@ -223,6 +321,58 @@ export type Database = {
             foreignKeyName: "driver_profiles_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      driver_ratings: {
+        Row: {
+          comment: string | null
+          created_at: string | null
+          driver_id: string
+          id: string
+          order_id: string
+          rating: number
+          user_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string | null
+          driver_id: string
+          id?: string
+          order_id: string
+          rating: number
+          user_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string | null
+          driver_id?: string
+          id?: string
+          order_id?: string
+          rating?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "driver_ratings_driver_id_fkey"
+            columns: ["driver_id"]
+            isOneToOne: false
+            referencedRelation: "driver_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "driver_ratings_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "driver_ratings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -368,6 +518,8 @@ export type Database = {
       }
       orders: {
         Row: {
+          assignment_attempts: number | null
+          assignment_status: string | null
           cash_bill_amount: number | null
           cmi_order_id: string | null
           cmi_transaction_id: string | null
@@ -390,6 +542,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          assignment_attempts?: number | null
+          assignment_status?: string | null
           cash_bill_amount?: number | null
           cmi_order_id?: string | null
           cmi_transaction_id?: string | null
@@ -412,6 +566,8 @@ export type Database = {
           user_id: string
         }
         Update: {
+          assignment_attempts?: number | null
+          assignment_status?: string | null
           cash_bill_amount?: number | null
           cmi_order_id?: string | null
           cmi_transaction_id?: string | null
