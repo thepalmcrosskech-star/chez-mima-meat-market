@@ -34,7 +34,7 @@ import CheckoutPage from "./pages/CheckoutPage";
 import OrderTrackingPage from "./pages/OrderTrackingPage";
 import SplashScreen from "./components/SplashScreen";
 import ErrorBoundary from "./components/ErrorBoundary";
-
+import { supabase } from "@/integrations/supabase/client";
 const queryClient = new QueryClient();
 
 const BannedScreen = () => (
