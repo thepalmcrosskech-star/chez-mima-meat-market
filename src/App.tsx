@@ -50,6 +50,40 @@ const BannedScreen = () => (
   </div>
 );
 
+// Redirect drivers/admins away from client routes on session restore
+const RoleRedirect = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const clientRoutes = ["/", "/search", "/cart", "/orders", "/checkout", "/profile"];
+    const isClientRoute = clientRoutes.includes(location.pathname) || location.pathname.startsWith("/product/");
+
+    if (!isClientRoute) return;
+
+    const checkRole = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", session.user.id)
+        .single();
+
+      if (profile?.role === "driver" && !location.pathname.startsWith("/driver")) {
+        navigate("/driver", { replace: true });
+      } else if (profile?.role === "admin" && !location.pathname.startsWith("/admin")) {
+        navigate("/admin", { replace: true });
+      }
+    };
+
+    checkRole();
+  }, [location.pathname]);
+
+  return null;
+};
+
 const AppContent = () => {
   const { banned, checked } = useIpBanCheck();
   const [showSplash, setShowSplash] = useState(false);
