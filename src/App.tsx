@@ -97,7 +97,12 @@ const AppContent = () => {
             <Route path="settings" element={<AdminSettings />} />
             <Route path="banned-ips" element={<AdminBannedIPs />} />
           </Route>
-          <Route path="/driver" element={<DriverProfile />} />
+          <Route path="/driver" element={<DriverLayout />}>
+            <Route index element={<DriverDashboard />} />
+            <Route path="delivery/:orderId" element={<DriverActiveDelivery />} />
+            <Route path="history" element={<DriverHistory />} />
+            <Route path="profile" element={<DriverProfilePage />} />
+          </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
