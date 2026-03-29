@@ -148,6 +148,88 @@ Deno.serve(async (req) => {
       assignment_attempts: currentAttempts + 1,
     }).eq("id", order_id);
 
+    // Get driver's profile (email, name) for notifications
+    const { data: driverProfile } = await supabase
+      .from("profiles")
+      .select("email, name")
+      .eq("id", chosen.user_id)
+      .single();
+
+    // Get order client name
+    const { data: clientProfile } = await supabase
+      .from("profiles")
+      .select("name")
+      .eq("id", order.user_id)
+      .single();
+
+    const clientName = clientProfile?.name || "Client";
+    const orderTotal = order.total_price;
+    const deliveryAddress = (order.delivery_address_snapshot as any)?.full_address || "Adresse non disponible";
+
+    // Send push notification to driver
+    if (driverProfile) {
+      await supabase.functions.invoke("send-push-notification", {
+        body: {
+          user_id: chosen.user_id,
+          title: "🚚 Nouvelle livraison !",
+          body: `Commande de ${clientName} — ${orderTotal.toFixed(2)} MAD • ${chosen.distance.toFixed(1)} km`,
+          data: { order_id, type: "delivery_request" },
+        },
+      }).catch((err: any) => console.error("Push to driver failed:", err));
+    }
+
+    // Send email notification to driver
+    if (driverProfile?.email) {
+      const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+      if (RESEND_API_KEY) {
+        const driverName = driverProfile.name || "Livreur";
+        const emailHtml = `
+          <!DOCTYPE html>
+          <html>
+          <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+          <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="background: linear-gradient(135deg, #D3111A 0%, #b30f16 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+              <h1 style="color: white; margin: 0; font-size: 28px;">🚚 Nouvelle Livraison !</h1>
+            </div>
+            <div style="background: #fff; padding: 30px; border: 1px solid #e5e5e5; border-top: none;">
+              <p style="font-size: 16px;">Bonjour <strong>${driverName}</strong>,</p>
+              <p>Une nouvelle commande vous a été attribuée. Vous avez <strong>60 secondes</strong> pour accepter.</p>
+              <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <h3 style="margin: 0 0 15px 0; color: #D3111A;">📦 Détails</h3>
+                <p style="margin: 5px 0;"><strong>Client :</strong> ${clientName}</p>
+                <p style="margin: 5px 0;"><strong>Total :</strong> ${orderTotal.toFixed(2)} MAD</p>
+                <p style="margin: 5px 0;"><strong>Distance boutique :</strong> ${chosen.distance.toFixed(1)} km</p>
+                ${estimatedDuration ? `<p style="margin: 5px 0;"><strong>Durée estimée :</strong> ~${estimatedDuration} min</p>` : ""}
+                <p style="margin: 5px 0;"><strong>Adresse :</strong> ${deliveryAddress}</p>
+              </div>
+              <div style="text-align: center; margin: 25px 0;">
+                <a href="https://chezmima.lovable.app/driver" style="background: #D3111A; color: white; padding: 14px 30px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px; display: inline-block;">Ouvrir l'application livreur</a>
+              </div>
+              <p style="color: #666; font-size: 13px; text-align: center;">⏱️ Cette demande expire dans 60 secondes</p>
+            </div>
+            <div style="background: #f3f4f6; padding: 20px; text-align: center; border-radius: 0 0 10px 10px; border: 1px solid #e5e5e5; border-top: none;">
+              <p style="margin: 0; color: #666; font-size: 12px;">© 2024 Chez Mima - Tous droits réservés</p>
+            </div>
+          </body>
+          </html>
+        `;
+
+        fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${RESEND_API_KEY}`,
+          },
+          body: JSON.stringify({
+            from: "Chez Mima <contact@chezmima.app>",
+            to: [driverProfile.email],
+            subject: `🚚 Nouvelle livraison — ${clientName} (${orderTotal.toFixed(2)} MAD)`,
+            html: emailHtml,
+          }),
+        }).catch((err: any) => console.error("Email to driver failed:", err));
+      }
+    }
+
     return new Response(JSON.stringify({
       status: "assigned",
       driver_id: chosen.id,
