@@ -874,6 +874,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_driver_view_customer_profile: {
+        Args: { _customer_id: string }
+        Returns: boolean
+      }
       has_admin_role: { Args: { user_id: string }; Returns: boolean }
     }
     Enums: {
