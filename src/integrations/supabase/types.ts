@@ -878,7 +878,12 @@ export type Database = {
         Args: { _customer_id: string }
         Returns: boolean
       }
+      driver_has_pending_assignment_for_order: {
+        Args: { _order_id: string }
+        Returns: boolean
+      }
       has_admin_role: { Args: { user_id: string }; Returns: boolean }
+      user_owns_order: { Args: { _order_id: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
