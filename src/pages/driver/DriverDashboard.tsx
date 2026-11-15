@@ -289,7 +289,7 @@ const DriverDashboard = () => {
 
     // Trigger next driver assignment
     await supabase.functions.invoke("assign-driver", {
-      body: { order_id: incomingAssignment.order_id },
+      body: { order_id: incomingAssignment.order_id, response: "rejected" },
     });
 
     setIncomingAssignment(null);
@@ -306,7 +306,7 @@ const DriverDashboard = () => {
     }).eq("id", incomingAssignment.id);
 
     await supabase.functions.invoke("assign-driver", {
-      body: { order_id: incomingAssignment.order_id },
+      body: { order_id: incomingAssignment.order_id, response: "expired" },
     });
 
     setIncomingAssignment(null);

@@ -106,6 +106,15 @@ Deno.serve(async (req) => {
         responded_at: new Date().toISOString(),
       }).eq("id", assignment.id).eq("status", "pending");
       if (updateError) throw updateError;
+
+      if (payload.response === "rejected" || payload.response === "expired") {
+        const { data: order } = await supabase.from("orders").select("status, delivery_mode").eq("id", order_id).maybeSingle();
+        if (order?.delivery_mode === "delivery" && ["ready", "delivering"].includes(order.status)) {
+          return new Response(JSON.stringify({ status: payload.response }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+      }
     }
 
     // Get the order
@@ -130,6 +139,23 @@ Deno.serve(async (req) => {
 
     // Check max attempts
     const currentAttempts = order.assignment_attempts || 0;
+    if (!isAdmin && !isServiceRole && callerId) {
+      const { data: retryAssignment } = await supabase
+        .from("delivery_assignments")
+        .select("id")
+        .eq("order_id", order_id)
+        .eq("driver_id", driverId)
+        .in("status", ["rejected", "expired"])
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (!retryAssignment) {
+        return new Response(JSON.stringify({ error: "Forbidden" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
     if (currentAttempts >= 5) {
       await supabase.from("orders").update({ assignment_status: "failed" }).eq("id", order_id);
 
