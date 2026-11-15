@@ -29,6 +29,13 @@
       "when": 1794757119542,
       "tag": "0003_close_role_and_delivery_security_gaps",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1794757429252,
+      "tag": "0004_finalize_protected_access_and_order_workflows",
+      "breakpoints": true
     }
   ]
 }
