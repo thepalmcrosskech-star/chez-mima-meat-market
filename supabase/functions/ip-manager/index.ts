@@ -33,7 +33,8 @@ serve(async (req) => {
       || req.headers.get('x-real-ip')
       || 'unknown';
 
-    const { action, user_id } = await req.json();
+    const payload = await req.json();
+    const { action, user_id } = payload;
 
     if (action === 'track') {
       if (!callerId || !user_id || user_id !== callerId) {
@@ -92,8 +93,14 @@ serve(async (req) => {
         });
       }
 
-      const { target_user_id, reason } = await req.json().catch(() => ({ target_user_id: null, reason: null }));
-      const targetUserId = user_id;
+      const targetUserId = typeof user_id === 'string' && /^[0-9a-f-]{36}$/i.test(user_id) ? user_id : null;
+      const reason = typeof payload.reason === 'string' ? payload.reason.slice(0, 255) : 'Fausse commande';
+      if (!targetUserId) {
+        return new Response(JSON.stringify({ error: 'Invalid user_id' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
 
       // Get all IPs for target user
       const { data: userIps } = await supabaseAdmin
@@ -134,6 +141,13 @@ serve(async (req) => {
       if (!isAdmin) {
         return new Response(JSON.stringify({ error: 'Admin only' }), {
           status: 403,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      if (typeof user_id !== 'string' || !/^[0-9a-f-]{36}$/i.test(user_id)) {
+        return new Response(JSON.stringify({ error: 'Invalid user_id' }), {
+          status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }

@@ -86,7 +86,7 @@ Deno.serve(async (req) => {
         });
       }
 
-      const { data: responseResult, error: responseError } = await supabase.rpc("respond_to_driver_assignment", {
+      const { data: responseResult, error: responseError } = await authClient.rpc("respond_to_driver_assignment", {
         _order_id: order_id,
         _response: payload.response,
       });
