@@ -252,26 +252,16 @@ const DriverDashboard = () => {
   const handleAcceptDelivery = async () => {
     if (!incomingAssignment || !incomingOrder || !driverProfile) return;
 
-    await supabase.from("delivery_assignments").update({
-      status: "accepted",
-      responded_at: new Date().toISOString(),
-    }).eq("id", incomingAssignment.id);
-
-    await supabase.from("orders").update({
-      status: "delivering",
-      driver_id: driverProfile.id,
-      assignment_status: "assigned",
-    }).eq("id", incomingAssignment.order_id);
-
-    await supabase.from("driver_profiles").update({ status: "busy" }).eq("id", driverProfile.id);
-
-    // Notify customer
-    await supabase.from("notifications").insert({
-      user_id: incomingOrder.user_id,
-      title: "Livreur en route ! 🛵",
-      message: "Votre livreur est en route vers vous. Suivez votre commande en temps réel.",
-      order_id: incomingAssignment.order_id,
+    const { data, error } = await supabase.rpc("respond_to_driver_assignment", {
+      _order_id: incomingAssignment.order_id,
+      _response: "accepted",
     });
+    if (error || data !== "accepted") {
+      toast({ title: "Demande indisponible", description: error?.message ?? "Cette livraison a déjà été attribuée.", variant: "destructive" });
+      setIncomingAssignment(null);
+      setIncomingOrder(null);
+      return;
+    }
 
     setDriverProfile({ ...driverProfile, status: "busy" });
     setIncomingAssignment(null);
