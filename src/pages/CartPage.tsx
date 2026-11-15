@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { ShoppingCart, Trash2, Plus, Minus } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import BottomNav from "@/components/BottomNav";
+import { isWeightUnit } from "@/lib/product-units";
 
 const formatPrice = (n: number) =>
   new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(n) + " MAD";
@@ -12,8 +13,8 @@ const CartPage = () => {
   const navigate = useNavigate();
   const { items, updateQuantity, removeItem, subtotal } = useCart();
 
-  const getStep = (unitType: string) => unitType === "kg" ? 0.25 : 1;
-  const getMin = (unitType: string) => unitType === "kg" ? 0.25 : 1;
+  const getStep = (unitType: string) => isWeightUnit(unitType) ? 0.25 : 1;
+  const getMin = (unitType: string) => isWeightUnit(unitType) ? 0.25 : 1;
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -34,7 +35,7 @@ const CartPage = () => {
             {items.map((item) => {
               const step = getStep(item.unit_type);
               const min = getMin(item.unit_type);
-              const displayQty = item.unit_type === "kg" ? `${item.quantity} kg` : `${item.quantity}`;
+              const displayQty = isWeightUnit(item.unit_type) ? `${item.quantity} kg` : `${item.quantity}`;
               return (
                 <Card key={item.id} className="p-4 flex items-center gap-4">
                   <div className="w-16 h-16 rounded-lg bg-accent/30 flex items-center justify-center overflow-hidden shrink-0">

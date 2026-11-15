@@ -16,6 +16,7 @@ import NotificationBell from "@/components/NotificationBell";
 import { usePushSubscription } from "@/hooks/usePushSubscription";
 
 import { Product, Category } from "@/types/product";
+import { isWeightUnit } from "@/lib/product-units";
 import { formatPrice } from "@/lib/format";
 
 interface Banner {
@@ -133,7 +134,7 @@ const HomePage = () => {
       { id: product.id, name: product.name, price: product.price, unit_type: product.unit_type, image_url: product.image_url },
       quantity
     );
-    toast({ title: "Ajouté au panier", description: `${quantity} ${product.unit_type === "kg" ? "kg" : "×"} ${product.name}` });
+    toast({ title: "Ajouté au panier", description: `${quantity} ${isWeightUnit(product.unit_type) ? "kg" : "×"} ${product.name}` });
   };
 
   const filteredProducts = (() => {

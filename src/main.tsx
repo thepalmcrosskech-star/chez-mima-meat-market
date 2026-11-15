@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
+import { registerAppServiceWorker } from "./lib/registerAppServiceWorker";
 
 // Apply saved theme or default to dark
 const savedTheme = localStorage.getItem("theme") || "dark";
@@ -11,6 +12,7 @@ if (savedTheme === "dark") {
 }
 
 createRoot(document.getElementById("root")!).render(<App />);
+registerAppServiceWorker();
 
 // iOS Safari/PWA sometimes fails to repaint after resuming from background.
 // Force a repaint on resume, and reload client pages after a long absence.

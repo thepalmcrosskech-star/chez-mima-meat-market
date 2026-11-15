@@ -1,0 +1,1 @@
+export const isWeightUnit = (unitType: string) => unitType === "weight" || unitType === "kg";

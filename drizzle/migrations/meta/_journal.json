@@ -43,6 +43,13 @@
       "when": 1794757594930,
       "tag": "0005_restrict_direct_admin_and_delivery_writes",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1794758144704,
+      "tag": "0006_restrict_security_definer_access",
+      "breakpoints": true
     }
   ]
 }

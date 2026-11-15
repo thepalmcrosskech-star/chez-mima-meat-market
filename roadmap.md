@@ -1,4 +1,7 @@
-- [ ] Close unauthenticated access paths in payment, email, push, driver assignment, and IP-management functions.
-- [ ] Make order creation and totals server-authoritative; restrict direct customer inserts.
-- [ ] Replace public raw review access with a safe public review view; preserve public catalog and image URLs.
-- [ ] Update vulnerable dependencies and verify startup, build, security scans, and customer checkout flow.
+- [x] Close unauthenticated access paths in payment, email, push, driver assignment, and IP-management functions.
+- [x] Make order creation and totals server-authoritative; restrict direct customer inserts.
+- [x] Replace public raw review access with safe public review RPCs; preserve public catalog and image URLs.
+- [ ] Revoke public execution of internal security functions while preserving required signed-in workflows.
+- [ ] Update vulnerable dependencies; verify startup, builds, tests, security scans, and order-flow behavior.
+- [ ] Align weight and piece labels with stored product unit values.
+- [ ] Guard the app service worker in previews and ensure page navigation checks the network first.
