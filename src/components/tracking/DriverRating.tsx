@@ -28,24 +28,13 @@ const DriverRating = ({ orderId, driverId, onComplete }: DriverRatingProps) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      await supabase.from("driver_ratings").insert({
-        order_id: orderId,
-        driver_id: driverId,
-        user_id: user.id,
-        rating,
-        comment: comment || null,
+      const { error } = await supabase.rpc("submit_driver_rating", {
+        _order_id: orderId,
+        _driver_id: driverId,
+        _rating: rating,
+        _comment: comment.trim() || null,
       });
-
-      // Recalculate driver average rating
-      const { data: ratings } = await supabase
-        .from("driver_ratings")
-        .select("rating")
-        .eq("driver_id", driverId);
-
-      if (ratings && ratings.length > 0) {
-        const avg = ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length;
-        await supabase.from("driver_profiles").update({ rating: avg }).eq("id", driverId);
-      }
+      if (error) throw error;
 
       toast({ title: "Merci pour votre note ! ⭐" });
       onComplete();
