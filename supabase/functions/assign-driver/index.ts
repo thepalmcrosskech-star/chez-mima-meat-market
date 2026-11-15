@@ -79,41 +79,27 @@ Deno.serve(async (req) => {
     }
 
     if (!isAdmin) {
-      if (!driverId || !["rejected", "expired"].includes(payload?.response)) {
+      if (!driverId || !["accepted", "rejected", "expired"].includes(payload?.response)) {
         return new Response(JSON.stringify({ error: "Forbidden" }), {
           status: 403,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
 
-      const { data: assignment } = await supabase
-        .from("delivery_assignments")
-        .select("id, status, expires_at")
-        .eq("order_id", order_id)
-        .eq("driver_id", driverId)
-        .eq("status", "pending")
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      if (!assignment || (payload.response === "expired" && assignment.expires_at && new Date(assignment.expires_at) > new Date())) {
-        return new Response(JSON.stringify({ error: "Assignment is no longer actionable" }), {
+      const { data: responseResult, error: responseError } = await supabase.rpc("respond_to_driver_assignment", {
+        _order_id: order_id,
+        _response: payload.response,
+      });
+      if (responseError) {
+        return new Response(JSON.stringify({ error: responseError.message }), {
           status: 409,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      const { error: updateError } = await supabase.from("delivery_assignments").update({
-        status: payload.response,
-        responded_at: new Date().toISOString(),
-      }).eq("id", assignment.id).eq("status", "pending");
-      if (updateError) throw updateError;
-
-      if (payload.response === "rejected" || payload.response === "expired") {
-        const { data: order } = await supabase.from("orders").select("status, delivery_mode").eq("id", order_id).maybeSingle();
-        if (order?.delivery_mode === "delivery" && ["ready", "delivering"].includes(order.status)) {
-          return new Response(JSON.stringify({ status: payload.response }), {
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
-        }
+      if (responseResult === "accepted") {
+        return new Response(JSON.stringify({ status: responseResult }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
       }
     }
 
