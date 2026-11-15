@@ -943,6 +943,10 @@ export type Database = {
         Args: { _order_id: string; _response: string }
         Returns: string
       }
+      set_profile_role_as_admin: {
+        Args: { _new_role: string; _target_user_id: string }
+        Returns: undefined
+      }
       submit_driver_rating: {
         Args: {
           _comment?: string
