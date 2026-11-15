@@ -68,35 +68,49 @@ const HomePage = () => {
   }, [navigate]);
 
   const fetchData = async () => {
-    const [categoriesRes, productsRes, bannersRes, reviewsRes] = await Promise.all([
-      supabase.from("categories").select("*").order("sort_order"),
-      supabase.from("products").select("*"),
-      supabase.from("banners").select("*").eq("is_active", true).order("sort_order"),
-      supabase.from("product_reviews").select("product_id, rating"),
-    ]);
+    setLoading(true);
+    try {
+      const [categoriesRes, productsRes, bannersRes, reviewsRes] = await Promise.all([
+        supabase.from("categories").select("*").order("sort_order"),
+        supabase.from("products").select("*"),
+        supabase.from("banners").select("*").eq("is_active", true).order("sort_order"),
+        supabase.from("product_reviews").select("product_id, rating"),
+      ]);
 
-    if (categoriesRes.data) {
-      setCategories(categoriesRes.data);
-    }
-    if (productsRes.data) setProducts(productsRes.data);
-    if (bannersRes.data) setBanners(bannersRes.data as Banner[]);
-    
-    // Compute average ratings per product
-    if (reviewsRes.data) {
+      const hadErrors = [categoriesRes, productsRes, bannersRes, reviewsRes].some(({ error }) => error);
+      setCategories(categoriesRes.data ?? []);
+      setProducts(productsRes.data ?? []);
+      setBanners((bannersRes.data ?? []) as Banner[]);
+
       const ratingsMap: Record<string, { sum: number; count: number }> = {};
-      for (const r of reviewsRes.data) {
-        if (!ratingsMap[r.product_id]) ratingsMap[r.product_id] = { sum: 0, count: 0 };
-        ratingsMap[r.product_id].sum += r.rating;
-        ratingsMap[r.product_id].count += 1;
+      for (const review of reviewsRes.data ?? []) {
+        if (!ratingsMap[review.product_id]) ratingsMap[review.product_id] = { sum: 0, count: 0 };
+        ratingsMap[review.product_id].sum += review.rating;
+        ratingsMap[review.product_id].count += 1;
       }
+
       const avgMap: Record<string, number> = {};
-      for (const [pid, val] of Object.entries(ratingsMap)) {
-        avgMap[pid] = val.sum / val.count;
+      for (const [productId, value] of Object.entries(ratingsMap)) {
+        avgMap[productId] = value.sum / value.count;
       }
       setProductRatings(avgMap);
+
+      if (hadErrors) {
+        toast({
+          title: "Chargement incomplet",
+          description: "Certaines informations ne sont pas disponibles. Réessayez dans un instant.",
+          variant: "destructive",
+        });
+      }
+    } catch {
+      toast({
+        title: "Impossible de charger la boutique",
+        description: "Vérifiez votre connexion puis réessayez.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
-    
-    setLoading(false);
   };
 
   // Auto-rotate banners
