@@ -40,7 +40,7 @@ export function registerAppServiceWorker() {
   const isDisallowedContext = !import.meta.env.PROD
     || window.self !== window.top
     || isLovablePreview(hostname)
-    || window.location.searchParams?.has("sw=off");
+    || new URL(window.location.href).searchParams.get("sw") === "off";
 
   if (isDisallowedContext) {
     void unregisterAppWorker();
