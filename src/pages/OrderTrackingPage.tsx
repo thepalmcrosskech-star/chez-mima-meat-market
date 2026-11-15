@@ -491,7 +491,9 @@ const OrderTrackingPage = () => {
           <h3 className="font-bold mb-1">💳 Paiement</h3>
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Mode</span>
-            <span>{order.payment_method === "cash" ? "Espèces" : "Carte bancaire"}</span>
+            <span>
+              {order.payment_method === "cash" ? "Espèces" : order.payment_method === "on_site" ? "Sur place" : "Carte bancaire"}
+            </span>
           </div>
           {order.payment_method === "cash" && order.cash_bill_amount && (
             <>
