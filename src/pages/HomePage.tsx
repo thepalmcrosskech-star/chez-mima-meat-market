@@ -74,7 +74,7 @@ const HomePage = () => {
         supabase.from("categories").select("*").order("sort_order"),
         supabase.from("products").select("*"),
         supabase.from("banners").select("*").eq("is_active", true).order("sort_order"),
-        supabase.from("product_reviews").select("product_id, rating"),
+        supabase.rpc("get_public_product_ratings"),
       ]);
 
       const hadErrors = [categoriesRes, productsRes, bannersRes, reviewsRes].some(({ error }) => error);

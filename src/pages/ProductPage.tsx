@@ -42,11 +42,10 @@ interface Product {
 
 interface Review {
   id: string;
+  product_id: string;
   rating: number;
   comment: string | null;
-  created_at: string;
-  user_id: string;
-  profiles: { name: string } | null;
+  created_at: string | null;
 }
 
 import { formatPrice } from "@/lib/format";
@@ -128,11 +127,8 @@ const ProductPage = () => {
 
   const fetchReviews = async () => {
     const { data } = await supabase
-      .from("product_reviews")
-      .select("id, rating, comment, created_at, user_id, profiles(name)")
-      .eq("product_id", id!)
-      .order("created_at", { ascending: false });
-    if (data) setReviews(data as unknown as Review[]);
+      .rpc("get_public_product_reviews", { _product_id: id! });
+    if (data) setReviews(data as Review[]);
   };
 
   const handleAddToCart = () => {
@@ -470,10 +466,10 @@ const ProductPage = () => {
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-semibold text-foreground">
-                      {review.profiles?.name || "Anonyme"}
+                      Client
                     </span>
                     <span className="text-xs text-muted-foreground">
-                      {new Date(review.created_at).toLocaleDateString("fr-FR")}
+                      {review.created_at ? new Date(review.created_at).toLocaleDateString("fr-FR") : ""}
                     </span>
                   </div>
                   <StarRating rating={review.rating} size="h-4 w-4" />

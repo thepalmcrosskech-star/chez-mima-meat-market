@@ -209,55 +209,31 @@ const CheckoutPage = () => {
         }
       }
 
-      // Create order
-      const { data: order, error: orderErr } = await supabase.from("orders").insert({
-        user_id: userId,
-        subtotal,
-        delivery_fee: isPickup ? 0 : deliveryFee!,
-        total_price: total,
-        delivery_address_id: isPickup ? null : addressId,
-        delivery_address_snapshot: isPickup ? { pickup: true } : addressSnapshot,
-        delivery_zone_id: isPickup ? null : deliveryZone!.id,
-        delivery_mode: deliveryMode,
-        payment_method: isPickup ? "on_site" : paymentMethod,
-        payment_status: isPickup ? "pending_on_site" : "pending",
-        cash_bill_amount: !isPickup && paymentMethod === "cash" ? cashBillAmount : null,
-        notes: notes || null,
-        scheduled_for: isScheduled ? getNextOpeningDate().toISOString() : null,
-        status: "pending",
-      }).select().single();
+      const { data: orderId, error: orderErr } = await supabase.rpc("create_customer_order", {
+        _items: items.map((item) => ({ product_id: item.id, quantity_value: item.quantity })),
+        _delivery_mode: deliveryMode,
+        _delivery_address_id: isPickup ? null : addressId,
+        _delivery_zone_id: isPickup ? null : deliveryZone?.id ?? null,
+        _notes: notes || null,
+        _scheduled_for: isScheduled ? getNextOpeningDate().toISOString() : null,
+        _payment_method: isPickup ? "on_site" : paymentMethod,
+        _cash_bill_amount: !isPickup && paymentMethod === "cash" ? cashBillAmount : null,
+      });
 
       if (orderErr) throw orderErr;
-
-      // Create order items
-      const orderItems = items.map((item) => ({
-        order_id: order.id,
-        product_id: item.id,
-        product_name: item.name,
-        quantity: `${item.quantity} ${item.unit_type === "kg" ? "kg" : "x"}`,
-        quantity_value: item.quantity,
-        unit_price: item.price,
-        line_total: item.price * item.quantity,
-      }));
-
-      const { error: itemsErr } = await supabase.from("order_items").insert(orderItems);
-      if (itemsErr) throw itemsErr;
+      if (!orderId) throw new Error("La commande n’a pas pu être créée");
 
       // Send confirmation email (fire-and-forget)
       const { data: userProfile } = await supabase.from("profiles").select("email, name").eq("id", userId).single();
       if (userProfile?.email) {
         supabase.functions.invoke("send-email", {
-          body: {
-            to: userProfile.email,
-            subject: "Confirmation de votre commande - Chez Mima",
-            html: `<h2>Merci ${userProfile.name} !</h2><p>Votre commande de <strong>${formatPrice(total)}</strong> a été reçue et est en cours de traitement.</p><p>Vous pouvez suivre votre commande en temps réel depuis l'application.</p><p>À bientôt !<br/>L'équipe Chez Mima</p>`,
-          },
+          body: { order_id: orderId },
         }).catch(() => {}); // Don't block checkout on email failure
       }
 
       clearCart();
       toast({ title: "Commande passée !", description: "Votre commande a été envoyée avec succès" });
-      navigate(`/order-tracking/${order.id}`);
+      navigate(`/order-tracking/${orderId}`);
     } catch (err: any) {
       toast({ title: "Erreur", description: err.message || "Impossible de passer la commande", variant: "destructive" });
     } finally {
