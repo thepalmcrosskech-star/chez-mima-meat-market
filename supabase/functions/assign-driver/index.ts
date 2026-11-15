@@ -18,6 +18,16 @@ function haversineDistance(lat1: number, lng1: number, lat2: number, lng2: numbe
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+function escapeHtml(value: unknown): string {
+  return String(value ?? "").replace(/[&<>"']/g, (character) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
+  })[character] ?? character);
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -28,12 +38,74 @@ Deno.serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const { order_id } = await req.json();
-    if (!order_id) {
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const authClient = createClient(supabaseUrl, Deno.env.get("SUPABASE_ANON_KEY")!, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const { data: claimsData, error: claimsError } = await authClient.auth.getClaims(authHeader.slice(7));
+    const callerId = claimsData?.claims?.sub;
+    const isServiceRole = claimsData?.claims?.role === "service_role";
+    if (claimsError || (typeof callerId !== "string" && !isServiceRole)) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const payload = await req.json();
+    const order_id = payload?.order_id;
+    if (typeof order_id !== "string" || !/^[0-9a-f-]{36}$/i.test(order_id)) {
       return new Response(JSON.stringify({ error: "order_id is required" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+    }
+
+    let isAdmin = isServiceRole;
+    let driverId: string | null = null;
+    if (!isServiceRole && callerId) {
+      const [{ data: adminResult }, { data: driver }] = await Promise.all([
+        supabase.rpc("has_admin_role", { user_id: callerId }),
+        supabase.from("driver_profiles").select("id").eq("user_id", callerId).maybeSingle(),
+      ]);
+      isAdmin = adminResult === true;
+      driverId = driver?.id ?? null;
+    }
+
+    if (!isAdmin) {
+      if (!driverId || !["rejected", "expired"].includes(payload?.response)) {
+        return new Response(JSON.stringify({ error: "Forbidden" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const { data: assignment } = await supabase
+        .from("delivery_assignments")
+        .select("id, status, expires_at")
+        .eq("order_id", order_id)
+        .eq("driver_id", driverId)
+        .eq("status", "pending")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (!assignment || (payload.response === "expired" && assignment.expires_at && new Date(assignment.expires_at) > new Date())) {
+        return new Response(JSON.stringify({ error: "Assignment is no longer actionable" }), {
+          status: 409,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const { error: updateError } = await supabase.from("delivery_assignments").update({
+        status: payload.response,
+        responded_at: new Date().toISOString(),
+      }).eq("id", assignment.id).eq("status", "pending");
+      if (updateError) throw updateError;
     }
 
     // Get the order
@@ -46,6 +118,12 @@ Deno.serve(async (req) => {
     if (orderError || !order) {
       return new Response(JSON.stringify({ error: "Order not found" }), {
         status: 404,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    if (order.delivery_mode === "pickup" || !["ready", "delivering"].includes(order.status)) {
+      return new Response(JSON.stringify({ error: "Order is not eligible for driver assignment" }), {
+        status: 409,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -182,7 +260,9 @@ Deno.serve(async (req) => {
     if (driverProfile?.email) {
       const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
       if (RESEND_API_KEY) {
-        const driverName = driverProfile.name || "Livreur";
+        const driverName = escapeHtml(driverProfile.name || "Livreur");
+        const safeClientName = escapeHtml(clientName);
+        const safeAddress = escapeHtml(deliveryAddress);
         const emailHtml = `
           <!DOCTYPE html>
           <html>
@@ -196,11 +276,11 @@ Deno.serve(async (req) => {
               <p>Une nouvelle commande vous a été attribuée. Vous avez <strong>60 secondes</strong> pour accepter.</p>
               <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
                 <h3 style="margin: 0 0 15px 0; color: #D3111A;">📦 Détails</h3>
-                <p style="margin: 5px 0;"><strong>Client :</strong> ${clientName}</p>
+                <p style="margin: 5px 0;"><strong>Client :</strong> ${safeClientName}</p>
                 <p style="margin: 5px 0;"><strong>Total :</strong> ${orderTotal.toFixed(2)} MAD</p>
                 <p style="margin: 5px 0;"><strong>Distance boutique :</strong> ${chosen.distance.toFixed(1)} km</p>
                 ${estimatedDuration ? `<p style="margin: 5px 0;"><strong>Durée estimée :</strong> ~${estimatedDuration} min</p>` : ""}
-                <p style="margin: 5px 0;"><strong>Adresse :</strong> ${deliveryAddress}</p>
+                <p style="margin: 5px 0;"><strong>Adresse :</strong> ${safeAddress}</p>
               </div>
               <div style="text-align: center; margin: 25px 0;">
                 <a href="https://chezmima.lovable.app/driver" style="background: #D3111A; color: white; padding: 14px 30px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px; display: inline-block;">Ouvrir l'application livreur</a>
@@ -223,7 +303,7 @@ Deno.serve(async (req) => {
           body: JSON.stringify({
             from: "Chez Mima <contact@chezmima.app>",
             to: [driverProfile.email],
-            subject: `🚚 Nouvelle livraison — ${clientName} (${orderTotal.toFixed(2)} MAD)`,
+            subject: `🚚 Nouvelle livraison — ${clientName.replace(/[\r\n]/g, " ").slice(0, 80)} (${orderTotal.toFixed(2)} MAD)`,
             html: emailHtml,
           }),
         }).catch((err: any) => console.error("Email to driver failed:", err));
