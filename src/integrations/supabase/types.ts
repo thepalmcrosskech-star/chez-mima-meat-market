@@ -878,9 +878,39 @@ export type Database = {
         Args: { _customer_id: string }
         Returns: boolean
       }
+      create_customer_order: {
+        Args: {
+          _cash_bill_amount?: number
+          _delivery_address_id?: string
+          _delivery_mode: string
+          _delivery_zone_id?: string
+          _items: Json
+          _notes?: string
+          _payment_method?: string
+          _scheduled_for?: string
+        }
+        Returns: string
+      }
       driver_has_pending_assignment_for_order: {
         Args: { _order_id: string }
         Returns: boolean
+      }
+      get_public_product_ratings: {
+        Args: never
+        Returns: {
+          product_id: string
+          rating: number
+        }[]
+      }
+      get_public_product_reviews: {
+        Args: { _product_id: string }
+        Returns: {
+          comment: string
+          created_at: string
+          id: string
+          product_id: string
+          rating: number
+        }[]
       }
       has_admin_role: { Args: { user_id: string }; Returns: boolean }
       user_owns_order: { Args: { _order_id: string }; Returns: boolean }

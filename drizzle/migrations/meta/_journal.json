@@ -8,6 +8,13 @@
       "when": 1794751872699,
       "tag": "0000_tighten_storefront_access_rules",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1794752631766,
+      "tag": "0001_secure_order_creation_and_public_reviews",
+      "breakpoints": true
     }
   ]
 }
