@@ -155,9 +155,7 @@ const DriverActiveDelivery = () => {
 
   const handlePickup = async () => {
     if (!assignment) return;
-    const { error } = await supabase.from("delivery_assignments").update({
-      picked_up_at: new Date().toISOString(),
-    }).eq("id", assignment.id);
+    const { error } = await supabase.rpc("mark_driver_order_picked_up", { _order_id: orderId });
     if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
     setAssignment({ ...assignment, picked_up_at: new Date().toISOString() });
     toast({ title: "📦 Commande récupérée !", description: "Rendez-vous chez le client" });
@@ -166,21 +164,8 @@ const DriverActiveDelivery = () => {
   const handleDeliver = async () => {
     if (!assignment || !order || !driverProfile) return;
 
-    await supabase.from("delivery_assignments").update({
-      delivered_at: new Date().toISOString(),
-      status: "accepted", // keep accepted, delivered_at marks it
-    }).eq("id", assignment.id);
-
-    await supabase.from("orders").update({ status: "delivered" }).eq("id", order.id);
-    await supabase.from("driver_profiles").update({ status: "available" }).eq("id", driverProfile.id);
-
-    // Notify customer
-    await supabase.from("notifications").insert({
-      user_id: order.profiles ? (order as any).user_id : "",
-      title: "Commande livrée ✅",
-      message: "Votre commande a été livrée. Bon appétit ! 🥩",
-      order_id: order.id,
-    });
+    const { error } = await supabase.rpc("complete_driver_delivery", { _order_id: order.id });
+    if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
 
     toast({ title: "✅ Commande livrée !", description: "Bon travail !" });
     navigate("/driver");

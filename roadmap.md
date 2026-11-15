@@ -1,0 +1,4 @@
+- [ ] Close unauthenticated access paths in payment, email, push, driver assignment, and IP-management functions.
+- [ ] Make order creation and totals server-authoritative; restrict direct customer inserts.
+- [ ] Replace public raw review access with a safe public review view; preserve public catalog and image URLs.
+- [ ] Update vulnerable dependencies and verify startup, build, security scans, and customer checkout flow.
