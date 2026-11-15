@@ -282,15 +282,13 @@ const DriverDashboard = () => {
   const handleRejectDelivery = async () => {
     if (!incomingAssignment) return;
 
-    await supabase.from("delivery_assignments").update({
-      status: "rejected",
-      responded_at: new Date().toISOString(),
-    }).eq("id", incomingAssignment.id);
-
-    // Trigger next driver assignment
-    await supabase.functions.invoke("assign-driver", {
+    const { error } = await supabase.functions.invoke("assign-driver", {
       body: { order_id: incomingAssignment.order_id, response: "rejected" },
     });
+    if (error) {
+      toast({ title: "Erreur", description: "Impossible de transmettre le refus.", variant: "destructive" });
+      return;
+    }
 
     setIncomingAssignment(null);
     setIncomingOrder(null);
@@ -300,14 +298,13 @@ const DriverDashboard = () => {
   const handleExpireDelivery = async () => {
     if (!incomingAssignment) return;
 
-    await supabase.from("delivery_assignments").update({
-      status: "expired",
-      responded_at: new Date().toISOString(),
-    }).eq("id", incomingAssignment.id);
-
-    await supabase.functions.invoke("assign-driver", {
+    const { error } = await supabase.functions.invoke("assign-driver", {
       body: { order_id: incomingAssignment.order_id, response: "expired" },
     });
+    if (error) {
+      toast({ title: "Erreur", description: "Impossible de transmettre l’expiration de la demande.", variant: "destructive" });
+      return;
+    }
 
     setIncomingAssignment(null);
     setIncomingOrder(null);
