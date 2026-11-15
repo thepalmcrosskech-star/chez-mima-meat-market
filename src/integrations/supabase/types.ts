@@ -869,6 +869,24 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          role: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -917,9 +935,22 @@ export type Database = {
         }[]
       }
       has_admin_role: { Args: { user_id: string }; Returns: boolean }
+      mark_driver_order_picked_up: {
+        Args: { _order_id: string }
+        Returns: undefined
+      }
       respond_to_driver_assignment: {
         Args: { _order_id: string; _response: string }
         Returns: string
+      }
+      submit_driver_rating: {
+        Args: {
+          _comment?: string
+          _driver_id: string
+          _order_id: string
+          _rating: number
+        }
+        Returns: undefined
       }
       user_owns_order: { Args: { _order_id: string }; Returns: boolean }
     }
