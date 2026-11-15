@@ -70,7 +70,7 @@ serve(async (req) => {
         .eq('ip_address', ip)
         .maybeSingle();
 
-      return new Response(JSON.stringify({ ip, banned: !!banned, reason: banned?.reason }), {
+      return new Response(JSON.stringify({ banned: !!banned }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
