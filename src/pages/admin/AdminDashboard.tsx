@@ -100,10 +100,10 @@ const AdminDashboard = () => {
       if (driverError) throw driverError;
 
       // Update user role
-      const { error: roleError } = await supabase
-        .from("profiles")
-        .update({ role: "driver" })
-        .eq("id", selectedUserId);
+      const { error: roleError } = await supabase.rpc("set_profile_role_as_admin", {
+        _target_user_id: selectedUserId,
+        _new_role: "driver",
+      });
 
       if (roleError) throw roleError;
 
@@ -152,10 +152,10 @@ const AdminDashboard = () => {
       if (deleteError) throw deleteError;
 
       // Reset user role
-      const { error: roleError } = await supabase
-        .from("profiles")
-        .update({ role: "user" })
-        .eq("id", driver.user_id);
+      const { error: roleError } = await supabase.rpc("set_profile_role_as_admin", {
+        _target_user_id: driver.user_id,
+        _new_role: "user",
+      });
 
       if (roleError) throw roleError;
 

@@ -69,7 +69,10 @@ const AdminDrivers = () => {
     try {
       const { error: e1 } = await supabase.from("driver_profiles").insert({ user_id: selectedUserId, vehicle_type: vehicleType, license_plate: licensePlate || null, status: "offline" });
       if (e1) throw e1;
-      const { error: e2 } = await supabase.from("profiles").update({ role: "driver" }).eq("id", selectedUserId);
+      const { error: e2 } = await supabase.rpc("set_profile_role_as_admin", {
+        _target_user_id: selectedUserId,
+        _new_role: "driver",
+      });
       if (e2) throw e2;
       toast({ title: "Livreur ajouté" }); setIsAddOpen(false); resetForm(); fetchData();
     } catch (e: any) { toast({ title: "Erreur", description: e.message, variant: "destructive" }); }
@@ -89,7 +92,11 @@ const AdminDrivers = () => {
     try {
       const { error: e1 } = await supabase.from("driver_profiles").delete().eq("id", d.id);
       if (e1) throw e1;
-      await supabase.from("profiles").update({ role: "user" }).eq("id", d.user_id);
+      const { error: roleError } = await supabase.rpc("set_profile_role_as_admin", {
+        _target_user_id: d.user_id,
+        _new_role: "user",
+      });
+      if (roleError) throw roleError;
       toast({ title: "Livreur supprimé" }); fetchData();
     } catch (e: any) { toast({ title: "Erreur", description: e.message, variant: "destructive" }); }
   };

@@ -12,6 +12,7 @@ import BottomNav from "@/components/BottomNav";
 
 import { Product, Category } from "@/types/product";
 import { formatPrice } from "@/lib/format";
+import { isWeightUnit } from "@/lib/product-units";
 
 const SearchPage = () => {
   const navigate = useNavigate();
@@ -47,7 +48,7 @@ const SearchPage = () => {
       { id: product.id, name: product.name, price: product.price, unit_type: product.unit_type, image_url: product.image_url },
       quantity
     );
-    toast({ title: "Ajouté au panier", description: `${quantity} ${product.unit_type === "kg" ? "kg" : "×"} ${product.name}` });
+    toast({ title: "Ajouté au panier", description: `${quantity} ${isWeightUnit(product.unit_type) ? "kg" : "×"} ${product.name}` });
   };
 
   const filtered = products.filter((p) => {

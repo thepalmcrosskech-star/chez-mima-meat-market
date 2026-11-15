@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { isWeightUnit } from "@/lib/product-units";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -484,7 +485,7 @@ const CheckoutPage = () => {
           <h3 className="font-bold mb-2">Résumé</h3>
           {items.map((item) => (
             <div key={item.id} className="flex justify-between text-sm">
-              <span className="text-muted-foreground">{item.quantity}{item.unit_type === "kg" ? "kg" : "×"} {item.name}</span>
+              <span className="text-muted-foreground">{item.quantity}{isWeightUnit(item.unit_type) ? " kg" : " ×"} {item.name}</span>
               <span>{formatPrice(item.price * item.quantity)}</span>
             </div>
           ))}
