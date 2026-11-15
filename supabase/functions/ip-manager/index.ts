@@ -16,6 +16,17 @@ serve(async (req) => {
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
 
+    const authHeader = req.headers.get('Authorization');
+    const token = authHeader?.startsWith('Bearer ') ? authHeader.slice('Bearer '.length) : null;
+    let callerId: string | null = null;
+    if (token) {
+      const supabaseUser = createClient(supabaseUrl, Deno.env.get('SUPABASE_ANON_KEY')!, {
+        global: { headers: { Authorization: authHeader! } },
+      });
+      const { data, error } = await supabaseUser.auth.getClaims(token);
+      if (!error && typeof data?.claims?.sub === 'string') callerId = data.claims.sub;
+    }
+
     // Get client IP from headers
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
       || req.headers.get('cf-connecting-ip')
@@ -25,10 +36,9 @@ serve(async (req) => {
     const { action, user_id } = await req.json();
 
     if (action === 'track') {
-      // Track IP for authenticated user
-      if (!user_id) {
+      if (!callerId || !user_id || user_id !== callerId) {
         return new Response(JSON.stringify({ error: 'user_id required' }), {
-          status: 400,
+          status: callerId ? 403 : 401,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
@@ -67,27 +77,14 @@ serve(async (req) => {
 
     if (action === 'ban') {
       // Ban all IPs associated with a user (admin only)
-      const authHeader = req.headers.get('Authorization');
-      if (!authHeader) {
+      if (!callerId) {
         return new Response(JSON.stringify({ error: 'Unauthorized' }), {
           status: 401,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
 
-      // Verify admin
-      const supabaseUser = createClient(supabaseUrl, Deno.env.get('SUPABASE_ANON_KEY')!, {
-        global: { headers: { Authorization: authHeader } },
-      });
-      const { data: { user } } = await supabaseUser.auth.getUser();
-      if (!user) {
-        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-          status: 401,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-
-      const { data: isAdmin } = await supabaseAdmin.rpc('has_admin_role', { user_id: user.id });
+      const { data: isAdmin } = await supabaseAdmin.rpc('has_admin_role', { user_id: callerId });
       if (!isAdmin) {
         return new Response(JSON.stringify({ error: 'Admin only' }), {
           status: 403,
@@ -96,7 +93,7 @@ serve(async (req) => {
       }
 
       const { target_user_id, reason } = await req.json().catch(() => ({ target_user_id: null, reason: null }));
-      const targetUserId = user_id; // reuse from first parse
+      const targetUserId = user_id;
 
       // Get all IPs for target user
       const { data: userIps } = await supabaseAdmin
@@ -116,7 +113,7 @@ serve(async (req) => {
         const { error } = await supabaseAdmin.from('banned_ips').upsert({
           ip_address: entry.ip_address,
           reason: reason || 'Fausse commande',
-          banned_by: user.id,
+          banned_by: callerId,
         }, { onConflict: 'ip_address' });
         if (!error) banned++;
       }
@@ -127,19 +124,13 @@ serve(async (req) => {
     }
 
     if (action === 'unban') {
-      // Unban IPs for a user
-      const authHeader = req.headers.get('Authorization');
-      const supabaseUser = createClient(supabaseUrl, Deno.env.get('SUPABASE_ANON_KEY')!, {
-        global: { headers: { Authorization: authHeader || '' } },
-      });
-      const { data: { user } } = await supabaseUser.auth.getUser();
-      if (!user) {
+      if (!callerId) {
         return new Response(JSON.stringify({ error: 'Unauthorized' }), {
           status: 401,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
-      const { data: isAdmin } = await supabaseAdmin.rpc('has_admin_role', { user_id: user.id });
+      const { data: isAdmin } = await supabaseAdmin.rpc('has_admin_role', { user_id: callerId });
       if (!isAdmin) {
         return new Response(JSON.stringify({ error: 'Admin only' }), {
           status: 403,

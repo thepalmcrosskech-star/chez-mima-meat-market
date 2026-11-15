@@ -7,10 +7,9 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const MAX_SUBJECT_LENGTH = 500;
-const MAX_HTML_LENGTH = 50000;
-const MAX_TO_LENGTH = 255;
+const escapeHtml = (value: unknown) => String(value ?? "").replace(/[&<>"']/g, (char) => ({
+  "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+}[char] ?? char));
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -42,46 +41,46 @@ serve(async (req) => {
       );
     }
 
-    const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-    if (!RESEND_API_KEY) {
-      throw new Error("RESEND_API_KEY is not configured");
-    }
-
     const body = await req.json();
-    const to = typeof body.to === "string" ? body.to.trim() : "";
-    const subject = typeof body.subject === "string" ? body.subject.trim() : "";
-    const html = typeof body.html === "string" ? body.html : "";
-
-    // Validate required fields
-    if (!to || !subject || !html) {
+    const orderId = typeof body.order_id === "string" ? body.order_id : "";
+    if (!/^[0-9a-f-]{36}$/i.test(orderId)) {
       return new Response(
-        JSON.stringify({ success: false, error: "Missing required fields: to, subject, html" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ success: false, error: "Invalid order_id" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
 
-    // Validate email format
-    if (to.length > MAX_TO_LENGTH || !EMAIL_REGEX.test(to)) {
-      return new Response(
-        JSON.stringify({ success: false, error: "Invalid recipient email address" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const admin = createClient(Deno.env.get("SUPABASE_URL")!, serviceRoleKey);
+    const { data: order, error: orderError } = await admin
+      .from("orders")
+      .select("id, user_id, subtotal, delivery_fee, total_price, delivery_address_snapshot")
+      .eq("id", orderId)
+      .eq("user_id", claimsData.claims.sub)
+      .single();
+    if (orderError || !order) {
+      return new Response(JSON.stringify({ success: false, error: "Order not found" }), {
+        status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-    // Validate lengths
-    if (subject.length > MAX_SUBJECT_LENGTH) {
-      return new Response(
-        JSON.stringify({ success: false, error: "Subject too long" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    const [{ data: profile }, { data: items }] = await Promise.all([
+      admin.from("profiles").select("email, name").eq("id", order.user_id).single(),
+      admin.from("order_items").select("product_name, quantity, line_total").eq("order_id", order.id),
+    ]);
+    if (!profile?.email || !items?.length) {
+      return new Response(JSON.stringify({ success: false, error: "Order details unavailable" }), {
+        status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-    if (html.length > MAX_HTML_LENGTH) {
-      return new Response(
-        JSON.stringify({ success: false, error: "HTML content too long" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
+    const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+    if (!RESEND_API_KEY) throw new Error("RESEND_API_KEY is not configured");
+    const itemRows = items.map((item) => `<li>${escapeHtml(item.product_name)} — ${escapeHtml(item.quantity)} (${Number(item.line_total).toFixed(2)} MAD)</li>`).join("");
+    const customerName = escapeHtml(profile.name || "Client");
+    const total = Number(order.total_price).toFixed(2);
+    const subject = "Confirmation de votre commande - Chez Mima";
+    const html = `<h2>Merci ${customerName} !</h2><p>Votre commande de <strong>${total} MAD</strong> a été reçue et est en cours de traitement.</p><ul>${itemRows}</ul><p>À bientôt !<br/>L'équipe Chez Mima</p>`;
 
     // Always use fixed from address — never allow caller override
     const response = await fetch("https://api.resend.com/emails", {
@@ -92,7 +91,7 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         from: "Chez Mima <contact@chezmima.app>",
-        to: [to],
+        to: [profile.email],
         subject,
         html,
       }),
@@ -105,7 +104,7 @@ serve(async (req) => {
       throw new Error(data.message || "Failed to send email");
     }
 
-    console.log("Email sent successfully:", data);
+    console.log("Order confirmation sent successfully");
 
     return new Response(JSON.stringify({ success: true, data }), {
       status: 200,

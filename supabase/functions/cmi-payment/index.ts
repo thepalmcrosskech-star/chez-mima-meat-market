@@ -13,9 +13,29 @@ serve(async (req) => {
   }
 
   try {
-    const { action, orderId } = await req.json();
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsError } = await supabaseAuth.auth.getClaims(token);
+    const userId = claimsData?.claims?.sub;
+    if (claimsError || typeof userId !== "string") {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const { action, orderId } = await req.json();
+
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
@@ -35,11 +55,17 @@ serve(async (req) => {
     }
 
     if (action === "initiate") {
-      // Get order details
+      if (typeof orderId !== "string" || !/^[0-9a-f-]{36}$/i.test(orderId)) {
+        return new Response(JSON.stringify({ error: "Invalid orderId" }), {
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
       const { data: order, error: orderErr } = await supabase
         .from("orders")
         .select("*")
         .eq("id", orderId)
+        .eq("user_id", userId)
         .single();
 
       if (orderErr || !order) {
@@ -47,6 +73,16 @@ serve(async (req) => {
           JSON.stringify({ error: "Order not found" }),
           { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
+      }
+
+      const { count: itemCount, error: itemsError } = await supabase
+        .from("order_items")
+        .select("id", { count: "exact", head: true })
+        .eq("order_id", orderId);
+      if (itemsError || !itemCount || order.payment_method !== "card" || order.payment_status !== "pending" || order.total_price <= 0) {
+        return new Response(JSON.stringify({ error: "Order is not eligible for card payment" }), {
+          status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
       }
 
       // Generate CMI form data with HMAC signature
@@ -116,8 +152,12 @@ serve(async (req) => {
     }
 
     if (action === "capture") {
-      // Admin captures the pre-authorized amount
-      // This will be implemented when CMI credentials are ready
+      const { data: isAdmin, error: roleError } = await supabase.rpc("has_admin_role", { user_id: userId });
+      if (roleError || !isAdmin) {
+        return new Response(JSON.stringify({ error: "Admin only" }), {
+          status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
       return new Response(
         JSON.stringify({ message: "Capture not yet implemented" }),
         { status: 501, headers: { ...corsHeaders, "Content-Type": "application/json" } }

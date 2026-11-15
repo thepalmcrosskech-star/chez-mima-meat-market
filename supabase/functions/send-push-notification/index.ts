@@ -139,6 +139,47 @@ serve(async (req) => {
       });
     }
 
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const token = authHeader.slice('Bearer '.length);
+    const supabaseAuth = createClient(supabaseUrl, Deno.env.get('SUPABASE_ANON_KEY')!, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const { data: claimsData, error: claimsError } = await supabaseAuth.auth.getClaims(token);
+    const claims = claimsData?.claims;
+    if (claimsError || !claims) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const isInternal = claims.role === 'service_role';
+    const callerId = typeof claims.sub === 'string' ? claims.sub : null;
+    let isAdmin = false;
+    if (!isInternal && callerId && callerId !== user_id) {
+      const { data } = await supabaseAdmin.rpc('has_admin_role', { user_id: callerId });
+      isAdmin = data === true;
+    }
+    if (!isInternal && callerId !== user_id && !isAdmin) {
+      return new Response(JSON.stringify({ error: 'Forbidden' }), {
+        status: 403,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+    if (typeof title !== 'string' || title.length > 120 || typeof body !== 'string' || body.length > 1000) {
+      return new Response(JSON.stringify({ error: 'Invalid notification content' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     // Get VAPID keys
     const { data: settings } = await supabaseAdmin
       .from('app_settings')
