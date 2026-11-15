@@ -878,6 +878,10 @@ export type Database = {
         Args: { _customer_id: string }
         Returns: boolean
       }
+      complete_driver_delivery: {
+        Args: { _order_id: string }
+        Returns: undefined
+      }
       create_customer_order: {
         Args: {
           _cash_bill_amount?: number
@@ -913,6 +917,10 @@ export type Database = {
         }[]
       }
       has_admin_role: { Args: { user_id: string }; Returns: boolean }
+      respond_to_driver_assignment: {
+        Args: { _order_id: string; _response: string }
+        Returns: string
+      }
       user_owns_order: { Args: { _order_id: string }; Returns: boolean }
     }
     Enums: {
