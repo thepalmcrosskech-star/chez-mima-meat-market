@@ -5,4 +5,8 @@
 - [ ] Update vulnerable dependencies; verify startup, builds, tests, security scans, and order-flow behavior.
 - [ ] Align weight and piece labels with stored product unit values.
 - [ ] Guard the app service worker in previews and ensure page navigation checks the network first.
-- [ ] Re-enter the RESEND_API_KEY secret in this remixed project so order confirmation emails send again.
+- [x] Re-enter the RESEND_API_KEY secret in this remixed project so order confirmation emails send again.
+- [x] Restore the signup profile trigger so new customers get a profile and client role automatically.
+- [ ] Restore catalog data (products, categories, delivery zones) in the remixed database; waiting on the user's choice of source.
+- [ ] Get a verified sender domain so customer confirmation emails actually deliver; waiting on the user's choice of Resend verification or Lovable's built-in sending.
+- [ ] Publish the remixed app and attach the custom domain so customers can reach it.
