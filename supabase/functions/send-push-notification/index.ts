@@ -1,10 +1,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+import { canNotifyOrderOwner, orderStatusNotification } from "../_shared/notification-policy.ts";
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
 
 function base64UrlToUint8Array(base64Url: string): Uint8Array {
   const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -126,14 +124,16 @@ serve(async (req) => {
   }
 
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    const anonKey = Deno.env.get('SUPABASE_ANON_KEY');
+    if (!supabaseUrl || !serviceRoleKey || !anonKey) throw new Error('Server configuration missing');
     const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
 
-    const { user_id, title, body, data } = await req.json();
+    let { user_id, title, body, data } = await req.json();
 
-    if (!user_id || !title || !body) {
-      return new Response(JSON.stringify({ error: 'Missing user_id, title or body' }), {
+    if (typeof user_id !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(user_id)) {
+      return new Response(JSON.stringify({ error: 'Invalid user_id' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -148,30 +148,40 @@ serve(async (req) => {
     }
 
     const token = authHeader.slice('Bearer '.length);
-    const supabaseAuth = createClient(supabaseUrl, Deno.env.get('SUPABASE_ANON_KEY')!, {
+    const isInternal = token === serviceRoleKey;
+    const supabaseAuth = createClient(supabaseUrl, anonKey, {
       global: { headers: { Authorization: authHeader } },
     });
-    const { data: claimsData, error: claimsError } = await supabaseAuth.auth.getClaims(token);
+    const { data: claimsData, error: claimsError } = isInternal
+      ? { data: null, error: null }
+      : await supabaseAuth.auth.getClaims(token);
     const claims = claimsData?.claims;
-    if (claimsError || !claims) {
+    if (!isInternal && (claimsError || !claims)) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    const isInternal = claims.role === 'service_role';
-    const callerId = typeof claims.sub === 'string' ? claims.sub : null;
-    let isAdmin = false;
-    if (!isInternal && callerId && callerId !== user_id) {
-      const { data } = await supabaseAdmin.rpc('has_admin_role', { user_id: callerId });
-      isAdmin = data === true;
-    }
-    if (!isInternal && callerId !== user_id && !isAdmin) {
-      return new Response(JSON.stringify({ error: 'Forbidden' }), {
-        status: 403,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+    if (!isInternal) {
+      const callerId = typeof claims?.sub === 'string' ? claims.sub : null;
+      const orderId = data?.order_id;
+      const { data: isAdmin } = callerId
+        ? await supabaseAdmin.rpc('has_admin_role', { user_id: callerId })
+        : { data: false };
+      if (!isAdmin || typeof orderId !== 'string' || !/^[0-9a-f-]{36}$/i.test(orderId)) {
+        return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      }
+      const { data: order, error: orderError } = await supabaseAdmin.from('orders')
+        .select('id, user_id, status, delivery_mode').eq('id', orderId).maybeSingle();
+      if (orderError || !order || !canNotifyOrderOwner(callerId, isAdmin === true, order.user_id, user_id)) {
+        return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      }
+      const notification = orderStatusNotification(order);
+      if (!notification) {
+        return new Response(JSON.stringify({ error: 'Order status cannot be notified' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      }
+      ({ title, body, data } = notification);
     }
     if (typeof title !== 'string' || title.length > 120 || typeof body !== 'string' || body.length > 1000) {
       return new Response(JSON.stringify({ error: 'Invalid notification content' }), {

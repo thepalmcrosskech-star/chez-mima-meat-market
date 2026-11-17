@@ -1,10 +1,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+import { canTrackOwnIp } from "../_shared/notification-policy.ts";
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -12,19 +10,24 @@ serve(async (req) => {
   }
 
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    const anonKey = Deno.env.get('SUPABASE_ANON_KEY');
+    if (!supabaseUrl || !serviceRoleKey || !anonKey) throw new Error('Server configuration missing');
     const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
 
     const authHeader = req.headers.get('Authorization');
     const token = authHeader?.startsWith('Bearer ') ? authHeader.slice('Bearer '.length) : null;
     let callerId: string | null = null;
-    if (token) {
-      const supabaseUser = createClient(supabaseUrl, Deno.env.get('SUPABASE_ANON_KEY')!, {
-        global: { headers: { Authorization: authHeader! } },
+    if (token && authHeader) {
+      const supabaseUser = createClient(supabaseUrl, anonKey, {
+        global: { headers: { Authorization: authHeader } },
       });
       const { data, error } = await supabaseUser.auth.getClaims(token);
       if (!error && typeof data?.claims?.sub === 'string') callerId = data.claims.sub;
+    }
+    if (!callerId) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
     // Get client IP from headers
@@ -37,7 +40,7 @@ serve(async (req) => {
     const { action, user_id } = payload;
 
     if (action === 'track') {
-      if (!callerId || !user_id || user_id !== callerId) {
+      if (!canTrackOwnIp(callerId, action, user_id)) {
         return new Response(JSON.stringify({ error: 'user_id required' }), {
           status: callerId ? 403 : 401,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -59,19 +62,6 @@ serve(async (req) => {
         .maybeSingle();
 
       return new Response(JSON.stringify({ ip, banned: !!banned }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    if (action === 'check') {
-      // Check if current IP is banned
-      const { data: banned } = await supabaseAdmin
-        .from('banned_ips')
-        .select('id, reason')
-        .eq('ip_address', ip)
-        .maybeSingle();
-
-      return new Response(JSON.stringify({ banned: !!banned }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }

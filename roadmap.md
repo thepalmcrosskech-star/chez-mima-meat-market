@@ -1,6 +1,7 @@
 - [x] Close unauthenticated access paths in payment, email, push, driver assignment, and IP-management functions.
 - [x] Audit customer access and pickup checkout: public root redirects to login; signed-in catalogue, 250g basket at 30 MAD, pickup creation, tracking and cancellation verified. Seven unit tests passed; three credential-dependent integration tests skipped.
-- [ ] Finish delivery audit: blocked by zero active delivery zones and missing Mapbox configuration; deep security scan running. Password sign-in and email receipt remain unverified.
+- [ ] Finish delivery audit: blocked by zero active delivery zones and missing Mapbox configuration. Password sign-in and email receipt remain unverified.
+- [x] Correct and deploy both deep-scan warnings: administrator push content/recipient derived from a stored order; anonymous banned-IP checks removed. Eleven unit tests and seven live endpoint checks passed; intentionally public catalogue categories retained. Actual push receipt remains unverified without a subscribed device/order.
 - [x] Make order creation and totals server-authoritative; restrict direct customer inserts.
 - [x] Replace public raw review access with safe public review RPCs; preserve public catalog and image URLs.
 - [ ] Revoke public execution of internal security functions while preserving required signed-in workflows.
