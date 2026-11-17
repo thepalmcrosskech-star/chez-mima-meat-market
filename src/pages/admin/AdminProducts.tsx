@@ -294,7 +294,7 @@ const AdminProducts = () => {
 
       <Card>
         <CardContent className="p-0">
-          <Table>
+          <Table className="min-w-[600px]">
             <TableHeader>
               <TableRow>
                 <TableHead>Produit</TableHead>
@@ -313,7 +313,7 @@ const AdminProducts = () => {
                       ) : (
                         <div className="w-10 h-10 rounded-lg bg-accent flex items-center justify-center text-muted-foreground text-xs">IMG</div>
                       )}
-                      <div>
+                      <div className="min-w-[150px]">
                         <p className="font-medium">{p.name}</p>
                         <p className="text-xs text-muted-foreground">{p.unit_type === 'weight' ? 'Kg' : 'Pièce'}</p>
                       </div>
@@ -323,7 +323,7 @@ const AdminProducts = () => {
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <Switch checked={p.is_active ?? true} onCheckedChange={() => toggleActive(p)} />
-                      <span className={`text-xs font-medium ${p.is_active ? "text-success" : "text-muted-foreground"}`}>
+                      <span className={`hidden text-xs font-medium sm:inline ${p.is_active ? "text-success" : "text-muted-foreground"}`}>
                         {p.is_active ? "Disponible" : "Indisponible"}
                       </span>
                     </div>

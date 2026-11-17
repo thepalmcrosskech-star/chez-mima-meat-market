@@ -28,6 +28,8 @@
 - [x] Generate and integrate eight individual meat visuals; 19 of 211 catalogue products now have photos, with 23 images including the Freez gallery.
 - [x] Recount missing catalogue photos and integrate four individual Chez Mima illustrations (bavette, bifteck, lamb skewers, beef heart); all four load edge-to-edge on desktop and mobile, with no runtime errors or changes to commercial data. Inventory retained in .lovable/reviews/catalogue-illustrations.md.
 - [ ] Complete the remaining 176 catalogue photos in further requested batches; exact packaging references are needed for branded products to avoid misrepresentation.
+- [ ] Redo the generated product visuals in the real Chez Mima charter: black "CHEZ MIMA / BOUCHERIE - CHARCUTERIE" logo wall, thick wooden board on glossy black marble with reflection, chalk slate label on a pick, frontal framing, only peppercorns and a rosemary sprig. The slate-board / filigree-bull versions are rejected and must be replaced.
+- [ ] Fix the admin product list on mobile: product names wrap to 4-5 lines because the name column is too narrow.
 - [ ] Restore delivery zones in the remixed database; source details still needed.
 - [ ] Check and buy boucherichemima.com under the user's own Lovable account; blocked on availability and the user's checkout. Leave chezmima.app unchanged.
 - [ ] Verify email sending on the newly selected domain; blocked on domain purchase and setup. Leave the old domain unchanged.
