@@ -210,3 +210,10 @@ Après ce lot : 35 produits illustrés, 176 sans photo. La liste ci-dessous cons
 - Khlii Traditionnel 250 g — `76434a5f-581f-4a8b-8c85-bbf101c54f5c`
 - Khlii Traditionnel 500 g — `b7f8772b-a93e-44db-8ce2-4c62149e1f5e`
 
+
+## État au 17/11/2026
+
+- 51 produits sur 211 ont une photo, 160 restent sans photo.
+- Les 16 visuels générés hors charte (fond filigrane tête de taureau, planche d'ardoise, pas de plaque) ont été régénérés à partir de la photo de référence acceptée et contrôlés un par un : mur noir « CHEZ MIMA / BOUCHERIE - CHARCUTERIE », planche en bois sur marbre noir brillant avec reflet, petite ardoise au nom du produit, cadrage frontal.
+- Les anciens fichiers rejetés ont été supprimés du CDN ; les copies locales des images envoyées ont été retirées du dépôt.
+- Les marques (Coca, Fanta, Heinz, Knorr, etc.) restent sans visuel : un emballage exact est nécessaire pour ne pas tromper le client.
