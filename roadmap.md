@@ -9,5 +9,6 @@
 - [x] Restore the signup profile trigger so new customers get a profile and client role automatically.
 - [ ] Import all available butcher-shop products from its management software; blocked until the user identifies the software and an authorized connection or export is available.
 - [ ] Restore categories and delivery zones in the remixed database; source details still needed.
-- [ ] Verify chezmima.app in Resend for contact@chezmima.app; domain created and four DNS records provided. User reports management in Lovable, but live delegation is dns-parking.com and domain belongs to a different workspace; blocked on authorized DNS edits and successful verification.
+- [ ] Select and buy a new domain under the user's own Lovable account instead of recovering chezmima.app; available choices provided, blocked on the user's selection and checkout.
+- [ ] Verify email sending on the newly selected domain; blocked on domain purchase and setup. Leave the old domain unchanged.
 - [ ] Publish the remixed app and attach the custom domain so customers can reach it.
