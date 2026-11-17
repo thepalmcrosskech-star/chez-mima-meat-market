@@ -11,6 +11,7 @@
 - [x] Re-enter the RESEND_API_KEY secret in this remixed project so order confirmation emails send again.
 - [x] Restore the signup profile trigger so new customers get a profile and client role automatically.
 - [x] Import the supplied management catalogue: 211 products, exact counter prices, 8 departments, and original kg/piece units; no fabricated photos or stock quantities.
+- [x] Add brief French descriptions to the existing catalogue products, retaining prices, units, images and editable back-office descriptions.
 - [x] Add reserved, verified-email, single-use first-admin activation and protected role management; client denial and last-admin protection tested with signed-in accounts.
 - [ ] Activate the owner's first administrator account; awaits signup and email confirmation by the owner at /admin/setup.
 - [ ] Compact the desktop catalogue, product pages and navigation while preserving the mobile layout.
