@@ -14,6 +14,8 @@
 - [x] Integrate the seven supplied charcuterie illustrations, including confirmed Jambon Dinde Maison correspondence.
 - [x] Integrate the eight supplied beverage photos without creating new products or altering prices; preserve all five Freez views.
 - [x] Use the supplied original Chez Mima pattern as the background reference for new product visuals.
+- [x] Compare the resent photo references: all seven are identical to the integrated originals (848 × 1264 portrait); correct catalogue and product frames to fill edge-to-edge and verify desktop/mobile rendering.
+- [x] Inspect and integrate ten WebP, six PNG and four JPEG images: 12 additional products illustrated; nine brochette views grouped under the existing chicken skewer product without creating sellable variants.
 - [x] Generate and integrate eight individual meat visuals; 19 of 211 catalogue products now have photos, with 23 images including the Freez gallery.
 - [ ] Complete visuals for the remaining 192 catalogue products; branded packaging and ambiguous product names need exact references to avoid misrepresentation. Other clearly named cuts remain to generate in further batches.
 - [ ] Restore delivery zones in the remixed database; source details still needed.

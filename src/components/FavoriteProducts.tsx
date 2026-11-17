@@ -114,12 +114,12 @@ const FavoriteProducts = ({ onAddToCart }: FavoriteProductsProps) => {
                 </span>
               </div>
 
-              <div className="aspect-square bg-gradient-to-br from-muted/20 to-muted/40 flex items-center justify-center overflow-hidden">
+              <div className="relative aspect-square bg-gradient-to-br from-muted/20 to-muted/40 flex items-center justify-center overflow-hidden">
                 {product.image_url ? (
                   <img
                     src={product.image_url}
                     alt={product.name}
-                    className="w-full h-full object-contain"
+                    className="absolute inset-0 w-full h-full object-cover"
                     loading="lazy"
                   />
                 ) : (

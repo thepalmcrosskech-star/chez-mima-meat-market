@@ -272,7 +272,7 @@ const ProductPage = () => {
           <img
             src={displayedImage.url}
             alt={displayedImage.label}
-            className="w-full h-full object-contain"
+            className="absolute inset-0 w-full h-full object-cover"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
