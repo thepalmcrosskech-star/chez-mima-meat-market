@@ -86,7 +86,7 @@ const PaymentMethodSelector = ({
           />
           <p className="text-sm font-semibold">Carte bancaire</p>
           <p className="text-xs text-muted-foreground">Paiement en ligne</p>
-          <span className="absolute top-1 right-1 text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-medium">
+          <span className="absolute top-1 right-1 text-[10px] bg-warning text-warning px-1.5 py-0.5 rounded-full font-medium">
             Bientôt
           </span>
         </Card>
@@ -175,7 +175,7 @@ const PaymentMethodSelector = ({
                 </p>
               )}
               {cashBillAmount && cashBillAmount >= total && (
-                <p className="text-xs text-green-600 font-medium">
+                <p className="text-xs text-success font-medium">
                   💰 Monnaie à rendre : {formatPrice(cashBillAmount - total)}
                 </p>
               )}
@@ -186,11 +186,11 @@ const PaymentMethodSelector = ({
 
       {/* Card not available yet */}
       {paymentMethod === "card" && (
-        <Card className="p-4 border-amber-500/30 bg-amber-50">
-          <p className="text-sm text-amber-700 font-medium">
+        <Card className="p-4 border-warning/30 bg-warning">
+          <p className="text-sm text-warning font-medium">
             🏗️ Le paiement par carte bancaire (CMI) sera disponible très prochainement.
           </p>
-          <p className="text-xs text-amber-600 mt-1">
+          <p className="text-xs text-warning mt-1">
             En attendant, vous pouvez payer en espèces à la livraison.
           </p>
         </Card>

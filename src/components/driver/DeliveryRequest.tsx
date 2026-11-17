@@ -106,7 +106,7 @@ const DeliveryRequest = ({ assignment, order, onAccept, onReject, onExpire }: De
             <circle
               ref={svgRef}
               cx="56" cy="56" r="54"
-              stroke={timeLeft > 20 ? "#A855F7" : timeLeft > 10 ? "#F59E0B" : "#EF4444"}
+              stroke={timeLeft > 20 ? "hsl(var(--primary))" : timeLeft > 10 ? "hsl(var(--warning))" : "hsl(var(--destructive))"}
               strokeWidth="6"
               fill="none"
               strokeDasharray={circumference}
@@ -116,7 +116,7 @@ const DeliveryRequest = ({ assignment, order, onAccept, onReject, onExpire }: De
             />
           </svg>
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className={`text-3xl font-bold ${timeLeft <= 10 ? "text-red-500" : "text-foreground"}`}>
+            <span className={`text-3xl font-bold ${timeLeft <= 10 ? "text-destructive" : "text-foreground"}`}>
               {timeLeft}
             </span>
           </div>
@@ -141,7 +141,7 @@ const DeliveryRequest = ({ assignment, order, onAccept, onReject, onExpire }: De
             <span className="text-sm text-muted-foreground flex items-center gap-1">
               <Package className="h-4 w-4" /> Commande
             </span>
-            <span className="font-bold text-purple-500">{formatPrice(order.total_price)}</span>
+            <span className="font-bold text-primary">{formatPrice(order.total_price)}</span>
           </div>
           {assignment.distance_to_shop && (
             <div className="flex items-center justify-between">
@@ -169,7 +169,7 @@ const DeliveryRequest = ({ assignment, order, onAccept, onReject, onExpire }: De
       {/* Buttons */}
       <div className="px-4 pb-8 space-y-2">
         <Button
-          className="w-full h-14 text-lg font-bold bg-green-600 hover:bg-green-700 text-white"
+          className="w-full h-14 text-lg font-bold bg-success hover:bg-success text-primary-foreground"
           onClick={handleAccept}
           disabled={accepting}
         >
@@ -177,7 +177,7 @@ const DeliveryRequest = ({ assignment, order, onAccept, onReject, onExpire }: De
         </Button>
         <Button
           variant="outline"
-          className="w-full border-red-500/50 text-red-500 hover:bg-red-500/10"
+          className="w-full border-destructive/50 text-destructive hover:bg-destructive/10"
           onClick={onReject}
         >
           Refuser

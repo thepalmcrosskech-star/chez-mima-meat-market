@@ -1,3 +1,4 @@
+- [x] Harmonize all app screens with Chez Mima Gestion's visual identity (tokens, typography, project-owned logo, controls, headers and mobile touch layouts), without changing workflows or catalogue data. Customer catalogue/product/cart/pickup, all ten admin routes, auth pages, driver dashboard/history/profile verified at mobile and desktop sizes; 13 tests passed, 3 credential-dependent tests skipped. Populated order tracking and active delivery remain unverified without a real stored order and configured map; reviewed their presentation code only. No production order created for styling verification; temporary driver profile removed.
 - [x] Investigate the black startup screen reported on iPhone: public root reaches the visible login on fresh mobile Chromium and WebKit without failed requests or runtime errors; phone-specific cause remains unconfirmed and requires a fresh-tab/network comparison on the affected phone. No speculative startup changes applied.
 - [x] Reproduce and fix startup with a stalled logo: bounded image wait and stable completion callback; regression test passed, build OK, mobile WebKit login visible with the logo request stalled. Publication and confirmation on the affected physical iPhone remain required.
 - [x] Close unauthenticated access paths in payment, email, push, driver assignment, and IP-management functions.
@@ -16,7 +17,7 @@
 - [x] Add brief French descriptions to the existing catalogue products, retaining prices, units, images and editable back-office descriptions.
 - [x] Add reserved, verified-email, single-use first-admin activation and protected role management; client denial and last-admin protection tested with signed-in accounts.
 - [ ] Activate the owner's first administrator account; awaits signup and email confirmation by the owner at /admin/setup.
-- [ ] Compact the desktop catalogue, product pages and navigation while preserving the mobile layout.
+- [x] Compact the desktop catalogue, product pages and navigation while preserving the mobile layout; verified at 1280px and mobile 390/440px.
 - [x] Integrate the seven supplied charcuterie illustrations, including confirmed Jambon Dinde Maison correspondence.
 - [x] Integrate the eight supplied beverage photos without creating new products or altering prices; preserve all five Freez views.
 - [x] Use the supplied original Chez Mima pattern as the background reference for new product visuals.

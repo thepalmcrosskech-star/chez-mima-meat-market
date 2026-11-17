@@ -181,7 +181,7 @@ const DriverActiveDelivery = () => {
   if (loading || !order) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -203,7 +203,7 @@ const DriverActiveDelivery = () => {
         {(eta || distance) && (
           <div className="absolute top-3 left-3 right-3">
             <div className="bg-background/90 backdrop-blur-md rounded-xl px-4 py-2 flex items-center justify-between shadow-lg">
-              {eta && <div className="flex items-center gap-1 text-sm font-bold"><Clock className="h-4 w-4 text-purple-500" />{eta}</div>}
+              {eta && <div className="flex items-center gap-1 text-sm font-bold"><Clock className="h-4 w-4 text-primary" />{eta}</div>}
               {distance && <div className="text-sm text-muted-foreground">{distance}</div>}
             </div>
           </div>
@@ -236,7 +236,7 @@ const DriverActiveDelivery = () => {
           {/* Address */}
           {snapshot?.full_address && (
             <div className="flex items-start gap-2 text-sm">
-              <MapPin className="h-4 w-4 text-purple-500 mt-0.5 shrink-0" />
+              <MapPin className="h-4 w-4 text-primary mt-0.5 shrink-0" />
               <div>
                 <p>{snapshot.full_address}</p>
                 {snapshot.apartment && <p className="text-xs text-muted-foreground">Apt: {snapshot.apartment}</p>}
@@ -249,7 +249,7 @@ const DriverActiveDelivery = () => {
         {/* Order Items */}
         <Card className="p-4">
           <h3 className="font-bold mb-2 flex items-center gap-2">
-            <Package className="h-4 w-4 text-purple-500" />
+            <Package className="h-4 w-4 text-primary" />
             Articles ({orderItems.length})
           </h3>
           <div className="space-y-1">
@@ -276,7 +276,7 @@ const DriverActiveDelivery = () => {
           </div>
           <div className="flex justify-between font-bold text-lg">
             <span>Total</span>
-            <span className="text-purple-500">{formatPrice(order.total_price)}</span>
+            <span className="text-primary">{formatPrice(order.total_price)}</span>
           </div>
           {order.payment_method === "cash" && order.cash_bill_amount && (
             <>
@@ -285,7 +285,7 @@ const DriverActiveDelivery = () => {
                 <span>{formatPrice(order.cash_bill_amount)}</span>
               </div>
               {order.cash_bill_amount > order.total_price && (
-                <div className="flex justify-between text-sm font-bold text-amber-500 bg-amber-500/10 rounded-md px-2 py-1.5">
+                <div className="flex justify-between text-sm font-bold text-warning bg-warning/10 rounded-md px-2 py-1.5">
                   <span>💰 Monnaie à rendre</span>
                   <span>{formatPrice(order.cash_bill_amount - order.total_price)}</span>
                 </div>
@@ -304,14 +304,14 @@ const DriverActiveDelivery = () => {
         <div className="pb-4">
           {!assignment?.picked_up_at ? (
             <Button
-              className="w-full h-14 text-lg font-bold bg-purple-600 hover:bg-purple-700 text-white"
+              className="w-full h-14 text-lg font-bold bg-primary hover:bg-primary text-primary-foreground"
               onClick={handlePickup}
             >
               📦 J'ai récupéré la commande
             </Button>
           ) : !assignment?.delivered_at ? (
             <Button
-              className="w-full h-14 text-lg font-bold bg-green-600 hover:bg-green-700 text-white"
+              className="w-full h-14 text-lg font-bold bg-success hover:bg-success text-primary-foreground"
               onClick={handleDeliver}
             >
               ✅ Commande livrée

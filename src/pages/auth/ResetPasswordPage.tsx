@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import BrandHeader from "@/components/BrandHeader";
 
 export default function ResetPasswordPage() {
   const [valid, setValid] = useState(window.location.hash.includes("type=recovery"));
@@ -16,7 +17,7 @@ export default function ResetPasswordPage() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(event => { if (event === "PASSWORD_RECOVERY") setValid(true); });
     return () => subscription.unsubscribe();
   }, []);
-  return <main className="min-h-screen flex items-center justify-center bg-background px-5"><form className="w-full max-w-sm space-y-5" onSubmit={async event => {
+  return <div className="min-h-svh flex flex-col bg-background"><BrandHeader /><main className="flex-1 flex items-center justify-center px-5 py-8"><form className="w-full max-w-sm space-y-5" onSubmit={async event => {
     event.preventDefault();
     if (!valid) return;
     if (password !== confirmation) { setError("Les mots de passe sont différents."); return; }
@@ -33,5 +34,5 @@ export default function ResetPasswordPage() {
       <Button className="w-full" disabled={busy} type="submit">Enregistrer</Button>
     </>}
     {error && <p role="alert" className="text-destructive">{error}</p>}
-  </form></main>;
+  </form></main></div>;
 }

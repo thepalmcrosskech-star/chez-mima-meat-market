@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import logo from "@/assets/logo-transparent.png";
+import { brandLogo as logo } from "@/lib/brand";
+import BrandHeader from "@/components/BrandHeader";
 import { destinationForRoles, getAccountAccess } from "@/lib/account-access";
 
 const LoginPage = () => {
@@ -70,22 +71,25 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <div className="w-full max-w-sm space-y-8">
+    <div className="min-h-svh flex flex-col bg-background">
+      <BrandHeader />
+      <main className="flex flex-1 items-center justify-center px-5 py-8">
+      <div className="w-full max-w-sm space-y-6">
 
         {/* Logo */}
         <div className="flex justify-center">
           <img
             src={logo}
             alt="Chez Mima"
-            className="w-full max-w-xs h-auto object-contain mx-auto"
+            className="w-48 h-36 object-contain mx-auto"
           />
         </div>
         {adminSetup && <h1 className="text-xl font-bold text-center">Compte administrateur</h1>}
 
         {/* Switcher */}
-        <div className="flex rounded-xl bg-muted p-1">
+        <div className="flex rounded-lg bg-muted p-1">
           <Button
+            variant={mode === "login" ? "default" : "ghost"}
             type="button"
             onClick={() => setMode("login")}
             className={`flex-1 rounded-lg py-3 text-sm font-bold tracking-widest uppercase transition-all ${
@@ -97,6 +101,7 @@ const LoginPage = () => {
             Connexion
           </Button>
           <Button
+            variant={mode === "register" ? "default" : "ghost"}
             type="button"
             onClick={() => setMode("register")}
             className={`flex-1 rounded-lg py-3 text-sm font-bold tracking-widest uppercase transition-all ${
@@ -188,6 +193,7 @@ const LoginPage = () => {
         </form>
         {!adminSetup && <Button asChild variant="link" className="w-full"><Link to="/admin/setup">Premier accès administrateur</Link></Button>}
       </div>
+      </main>
     </div>
   );
 };

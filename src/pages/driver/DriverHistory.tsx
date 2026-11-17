@@ -49,7 +49,7 @@ const DriverHistory = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -57,7 +57,7 @@ const DriverHistory = () => {
   return (
     <div className="px-4 py-4 space-y-4">
       <h1 className="text-xl font-bold flex items-center gap-2">
-        <Package className="h-5 w-5 text-purple-500" />
+        <Package className="h-5 w-5 text-primary" />
         Historique des livraisons
       </h1>
 
@@ -73,7 +73,7 @@ const DriverHistory = () => {
               <CardContent className="p-4 space-y-2">
                 <div className="flex items-center justify-between">
                   <p className="font-semibold">{item.orders?.profiles?.name || "Client"}</p>
-                  <Badge variant="secondary" className="bg-green-500/10 text-green-500 border-0">Livrée</Badge>
+                  <Badge variant="secondary" className="bg-success/10 text-success border-0">Livrée</Badge>
                 </div>
                 {item.orders?.delivery_address_snapshot?.full_address && (
                   <p className="text-xs text-muted-foreground flex items-center gap-1">
@@ -88,7 +88,7 @@ const DriverHistory = () => {
                       ? new Date(item.delivered_at).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Africa/Casablanca" })
                       : "—"}
                   </span>
-                  <span className="font-bold text-purple-500">{formatPrice(item.orders?.total_price || 0)}</span>
+                  <span className="font-bold text-primary">{formatPrice(item.orders?.total_price || 0)}</span>
                 </div>
               </CardContent>
             </Card>

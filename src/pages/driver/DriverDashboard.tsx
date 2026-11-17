@@ -303,7 +303,7 @@ const DriverDashboard = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -322,11 +322,11 @@ const DriverDashboard = () => {
       )}
 
       {/* Availability Toggle */}
-      <Card className="border-purple-500/20">
+      <Card className="border-primary/20">
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className={`w-3 h-3 rounded-full ${isAvailable ? "bg-green-500 animate-pulse" : "bg-muted-foreground"}`} />
+              <div className={`w-3 h-3 rounded-full ${isAvailable ? "bg-success animate-pulse" : "bg-muted-foreground"}`} />
               <div>
                 <p className="font-bold text-lg">
                   {driverProfile?.status === "busy" ? "En livraison" : isAvailable ? "Disponible" : "Hors ligne"}
@@ -340,7 +340,7 @@ const DriverDashboard = () => {
               checked={isAvailable}
               onCheckedChange={toggleAvailability}
               disabled={driverProfile?.status === "busy"}
-              className="data-[state=checked]:bg-green-500"
+              className="data-[state=checked]:bg-success"
             />
           </div>
         </CardContent>
@@ -350,28 +350,28 @@ const DriverDashboard = () => {
       <div className="grid grid-cols-2 gap-3">
         <Card>
           <CardContent className="p-4 text-center">
-            <Package className="h-5 w-5 text-purple-500 mx-auto mb-1" />
+            <Package className="h-5 w-5 text-primary mx-auto mb-1" />
             <p className="text-2xl font-bold">{todayDeliveries}</p>
             <p className="text-xs text-muted-foreground">Aujourd'hui</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4 text-center">
-            <Star className="h-5 w-5 text-amber-400 mx-auto mb-1" />
+            <Star className="h-5 w-5 text-warning mx-auto mb-1" />
             <p className="text-2xl font-bold">{driverProfile?.rating?.toFixed(1) || "4.5"}</p>
             <p className="text-xs text-muted-foreground">Note moyenne</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4 text-center">
-            <TrendingUp className="h-5 w-5 text-green-500 mx-auto mb-1" />
+            <TrendingUp className="h-5 w-5 text-success mx-auto mb-1" />
             <p className="text-2xl font-bold">{driverProfile?.total_deliveries || 0}</p>
             <p className="text-xs text-muted-foreground">Total livraisons</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4 text-center">
-            <Navigation className={`h-5 w-5 mx-auto mb-1 ${gpsActive ? "text-green-500" : "text-muted-foreground"}`} />
+            <Navigation className={`h-5 w-5 mx-auto mb-1 ${gpsActive ? "text-success" : "text-muted-foreground"}`} />
             <p className="text-2xl font-bold text-sm">
               {driverProfile?.status === "busy" ? "🔴 Occupé" : isAvailable ? "🟢 Dispo" : "⚫ Offline"}
             </p>
@@ -382,14 +382,14 @@ const DriverDashboard = () => {
 
       {/* Active Order */}
       {activeOrder && driverProfile?.status === "busy" && (
-        <Card className="border-purple-500/30 bg-purple-500/5">
+        <Card className="border-primary/30 bg-primary/5">
           <CardContent className="p-4 space-y-3">
             <div className="flex items-center justify-between">
               <h3 className="font-bold flex items-center gap-2">
-                <Package className="h-5 w-5 text-purple-500" />
+                <Package className="h-5 w-5 text-primary" />
                 Commande en cours
               </h3>
-              <Badge className="bg-purple-500/20 text-purple-400 border-0">
+              <Badge className="bg-primary/20 text-primary border-0">
                 {getStatusInfo(activeOrder.status).label}
               </Badge>
             </div>
@@ -401,10 +401,10 @@ const DriverDashboard = () => {
                   {activeOrder.delivery_address_snapshot.full_address}
                 </p>
               )}
-              <p className="text-sm font-bold text-purple-500">{formatPrice(activeOrder.total_price)}</p>
+              <p className="text-sm font-bold text-primary">{formatPrice(activeOrder.total_price)}</p>
             </div>
             <Button
-              className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+              className="w-full bg-primary hover:bg-primary text-primary-foreground"
               onClick={() => navigate(`/driver/delivery/${activeOrder.id}`)}
             >
               Voir la livraison

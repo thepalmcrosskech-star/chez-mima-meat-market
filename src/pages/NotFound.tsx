@@ -1,5 +1,7 @@
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
+import BrandHeader from "@/components/BrandHeader";
+import { Button } from "@/components/ui/button";
 
 const NotFound = () => {
   const location = useLocation();
@@ -9,13 +11,11 @@ const NotFound = () => {
   }, [location.pathname]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted">
-      <div className="text-center">
+    <div className="min-h-svh flex flex-col bg-background"><BrandHeader />
+      <div className="flex-1 flex flex-col items-center justify-center px-5 text-center">
         <h1 className="mb-4 text-4xl font-bold">404</h1>
-        <p className="mb-4 text-xl text-muted-foreground">Oops! Page not found</p>
-        <a href="/" className="text-primary underline hover:text-primary/90">
-          Return to Home
-        </a>
+        <p className="mb-4 text-xl text-muted-foreground">Page introuvable</p>
+        <Button asChild><a href="/">Retour à l’accueil</a></Button>
       </div>
     </div>
   );

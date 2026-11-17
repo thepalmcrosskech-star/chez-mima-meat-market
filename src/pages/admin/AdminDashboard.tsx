@@ -235,7 +235,7 @@ const AdminDashboard = () => {
             Déconnexion
           </Button>
         </div>
-        <p className="text-white/80">Gestion des livreurs et paramètres</p>
+        <p className="text-primary-foreground/80">Gestion des livreurs et paramètres</p>
       </div>
 
       {/* Stats */}
@@ -250,14 +250,14 @@ const AdminDashboard = () => {
           </Card>
           <Card className="shadow-lg animate-slide-up" style={{ animationDelay: "0.1s" }}>
             <CardContent className="pt-4 text-center">
-              <Bike className="h-6 w-6 mx-auto text-green-500 mb-2" />
+              <Bike className="h-6 w-6 mx-auto text-success mb-2" />
               <p className="text-2xl font-bold">{drivers.filter(d => d.status === "available").length}</p>
               <p className="text-xs text-muted-foreground">Disponibles</p>
             </CardContent>
           </Card>
           <Card className="shadow-lg animate-slide-up" style={{ animationDelay: "0.2s" }}>
             <CardContent className="pt-4 text-center">
-              <Star className="h-6 w-6 mx-auto text-amber-500 mb-2" />
+              <Star className="h-6 w-6 mx-auto text-warning mb-2" />
               <p className="text-2xl font-bold">
                 {(drivers.reduce((acc, d) => acc + (d.rating || 0), 0) / (drivers.length || 1)).toFixed(1)}
               </p>
@@ -350,7 +350,7 @@ const AdminDashboard = () => {
                       <TableCell>{getStatusBadge(driver.status)}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1">
-                          <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                          <Star className="h-3 w-3 fill-warning text-warning" />
                           {driver.rating?.toFixed(1) || "4.5"}
                         </div>
                       </TableCell>

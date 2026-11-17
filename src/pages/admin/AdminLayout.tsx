@@ -3,7 +3,7 @@ import { useNavigate, Outlet, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
-import logo from "@/assets/logo.jpeg";
+import { brandLogo as logo } from "@/lib/brand";
 import { getAccountAccess } from "@/lib/account-access";
 import {
   LayoutDashboard, Package, Tags, ShoppingBag, Truck, Users, MapPin, Settings, LogOut, Menu, X, ChevronRight, Image, Shield,
@@ -78,20 +78,20 @@ const AdminLayout = () => {
     <div className="min-h-screen bg-background flex">
       {/* Sidebar overlay on mobile */}
       {sidebarOpen && (
-        <div className="fixed inset-0 bg-black/60 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
+        <div className="fixed inset-0 bg-overlay/60 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
       {/* Sidebar */}
       <aside
-        className={`fixed lg:sticky top-0 left-0 z-50 h-screen w-64 bg-card border-r border-border flex flex-col transition-transform duration-300 ${
+        className={`brand-header fixed lg:sticky top-0 left-0 z-50 h-svh w-64 border-r border-sidebar-border flex flex-col transition-transform duration-300 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         }`}
       >
         {/* Logo */}
-        <div className="p-4 border-b border-border flex items-center justify-between">
+        <div className="p-4 border-b-4 border-primary flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src={logo} alt="Chez Mima" className="w-14 h-9 rounded-md object-contain bg-background/40 ring-1 ring-border p-1" />
-            <span className="font-bold text-lg gradient-text">ADMIN</span>
+            <img src={logo} alt="Chez Mima" className="w-16 h-12 object-contain" />
+            <span className="font-display text-2xl text-sidebar-foreground">ADMIN</span>
           </div>
           <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setSidebarOpen(false)}>
             <X className="h-5 w-5" />
@@ -101,19 +101,20 @@ const AdminLayout = () => {
         {/* Nav */}
         <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
           {navItems.map((item) => (
-            <button
+            <Button
+              variant="ghost"
               key={item.path}
               onClick={() => { navigate(item.path); setSidebarOpen(false); }}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+              className={`w-full justify-start gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${
                 isActive(item.path)
                   ? "bg-primary text-primary-foreground shadow-lg"
-                  : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                  : "text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent"
               }`}
             >
               <item.icon className="h-4 w-4 shrink-0" />
               {item.label}
               {isActive(item.path) && <ChevronRight className="h-4 w-4 ml-auto" />}
-            </button>
+            </Button>
           ))}
         </nav>
 
@@ -127,13 +128,13 @@ const AdminLayout = () => {
       </aside>
 
       {/* Main */}
-      <div className="flex-1 flex flex-col min-h-screen">
+      <div className="flex-1 min-w-0 flex flex-col min-h-screen">
         {/* Top bar (mobile) */}
-        <header className="sticky top-0 z-30 bg-card/80 backdrop-blur-md border-b border-border px-4 py-3 flex items-center gap-3 lg:hidden">
+        <header className="brand-header sticky top-0 z-30 border-b-4 border-primary px-4 py-3 flex items-center gap-3 lg:hidden">
           <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)}>
             <Menu className="h-5 w-5" />
           </Button>
-          <span className="font-bold gradient-text">CHEZ MIMA — Admin</span>
+          <span className="font-display text-2xl">CHEZ MIMA — Admin</span>
         </header>
 
         <main className="flex-1 p-4 lg:p-6 overflow-auto">

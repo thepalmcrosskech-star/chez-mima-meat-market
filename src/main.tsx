@@ -3,15 +3,16 @@ import App from "./App.tsx";
 import "./index.css";
 import { registerAppServiceWorker } from "./lib/registerAppServiceWorker";
 
-// Apply saved theme or default to dark
-const savedTheme = localStorage.getItem("theme") || "dark";
+// Apply saved theme or default to the management app's light identity.
+const savedTheme = localStorage.getItem("theme") || "light";
 if (savedTheme === "dark") {
   document.documentElement.classList.add("dark");
 } else {
   document.documentElement.classList.remove("dark");
 }
 
-createRoot(document.getElementById("root")!).render(<App />);
+const appRoot = document.getElementById("root");
+if (appRoot) createRoot(appRoot).render(<App />);
 registerAppServiceWorker();
 
 // iOS Safari/PWA sometimes fails to repaint after resuming from background.

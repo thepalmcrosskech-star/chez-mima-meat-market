@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { Loader2, LogOut, User, Mail, Phone, MapPin, ChevronRight } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
-import logo from "@/assets/logo.jpeg";
+import { brandLogo as logo } from "@/lib/brand";
 
 interface Profile {
   id: string;
@@ -67,14 +67,14 @@ const ProfilePage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="client-page min-h-screen bg-background">
       {/* Header */}
-      <div className="gradient-hero px-4 pt-8 pb-12 text-center">
-        <div className="w-36 h-20 rounded-2xl mx-auto mb-3 overflow-hidden border border-primary-foreground/30 bg-background/10 px-2 py-1 flex items-center justify-center">
+      <div className="brand-header border-b-4 border-primary px-4 pt-8 pb-12 text-center">
+        <div className="w-36 h-24 mx-auto mb-3 flex items-center justify-center">
           <img src={logo} alt="Chez Mima" className="w-full h-full object-contain" />
         </div>
-        <h2 className="text-xl font-bold text-primary-foreground">{profile?.name}</h2>
-        <p className="text-primary-foreground/70 text-sm">{profile?.email}</p>
+        <h2 className="text-xl font-bold text-sidebar-foreground">{profile?.name}</h2>
+        <p className="text-sidebar-foreground/80 text-sm break-all">{profile?.email}</p>
       </div>
 
       <div className="px-4 -mt-6 space-y-4">
@@ -106,7 +106,7 @@ const ProfilePage = () => {
                 </div>
                 <div className="flex items-center gap-3 py-2 border-t border-border">
                   <Mail className="h-5 w-5 text-muted-foreground" />
-                  <div className="flex-1"><p className="text-xs text-muted-foreground">Email</p><p className="font-medium">{profile?.email}</p></div>
+                  <div className="flex-1 min-w-0"><p className="text-xs text-muted-foreground">Email</p><p className="font-medium break-all">{profile?.email}</p></div>
                 </div>
                 <div className="flex items-center gap-3 py-2 border-t border-border">
                   <Phone className="h-5 w-5 text-muted-foreground" />

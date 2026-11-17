@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 import DriverBottomNav from "@/components/driver/DriverBottomNav";
 import { getAccountAccess } from "@/lib/account-access";
+import { brandLogo } from "@/lib/brand";
 
 const DriverLayout = () => {
   const navigate = useNavigate();
@@ -38,23 +39,24 @@ const DriverLayout = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="h-12 w-12 animate-spin text-purple-500" />
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background max-w-lg mx-auto relative">
+    <div className="client-page detail-page min-h-screen bg-background relative">
       {/* Header */}
-      <div className="sticky top-0 z-40 bg-background/95 backdrop-blur-md px-4 py-3 flex items-center justify-between border-b border-border/50">
-        <div className="flex items-center gap-3">
-          <span className="text-lg font-bold text-purple-500">🥩 CHEZ MIMA</span>
+      <div className="brand-header sticky top-0 z-40 px-4 py-3 flex items-center justify-between gap-3 border-b-4 border-primary">
+        <div className="flex shrink-0 items-center gap-3">
+          <img src={brandLogo} alt="Chez Mima" className="h-10 w-14 object-contain" />
+          <span className="font-display text-2xl">CHEZ MIMA</span>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-medium">{driverName}</span>
-          <div className={`w-2.5 h-2.5 rounded-full ${
-            driverStatus === "available" ? "bg-green-500" : 
-            driverStatus === "busy" ? "bg-purple-500 animate-pulse" : "bg-muted-foreground"
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="text-sm font-medium truncate">{driverName}</span>
+          <div className={`w-2.5 h-2.5 shrink-0 rounded-full ${
+            driverStatus === "available" ? "bg-success" :
+            driverStatus === "busy" ? "bg-primary animate-pulse" : "bg-muted-foreground"
           }`} />
         </div>
       </div>

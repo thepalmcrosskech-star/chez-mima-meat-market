@@ -323,7 +323,7 @@ const AdminProducts = () => {
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <Switch checked={p.is_active ?? true} onCheckedChange={() => toggleActive(p)} />
-                      <span className={`text-xs font-medium ${p.is_active ? "text-green-500" : "text-muted-foreground"}`}>
+                      <span className={`text-xs font-medium ${p.is_active ? "text-success" : "text-muted-foreground"}`}>
                         {p.is_active ? "Disponible" : "Indisponible"}
                       </span>
                     </div>

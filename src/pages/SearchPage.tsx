@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Search, Plus, Heart, Loader2 } from "lucide-react";
+import { Search, Plus, Heart, Loader2, Beef } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "@/hooks/use-toast";
 import QuantityDialog from "@/components/QuantityDialog";
@@ -58,8 +58,8 @@ const SearchPage = () => {
   });
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <div className="sticky top-0 z-40 bg-background/95 backdrop-blur-md px-4 py-4 border-b border-border/50">
+    <div className="client-page min-h-screen bg-background">
+      <div className="brand-header sticky top-0 z-40 px-4 py-4 border-b-4 border-primary">
         <h1 className="text-xl font-bold mb-3">Rechercher</h1>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -103,7 +103,7 @@ const SearchPage = () => {
             <p className="text-muted-foreground">Aucun résultat trouvé</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
             {filtered.map((product) => {
               const unavailable = !product.is_active;
               return (
@@ -118,17 +118,17 @@ const SearchPage = () => {
                         loading="lazy"
                       />
                     ) : (
-                      <div className="w-16 h-16 rounded-full bg-primary/20 animate-pulse" />
+                      <Beef className="h-14 w-14 text-muted-foreground/40" aria-hidden="true" />
                     )}
 
                     {unavailable && (
                       <>
-                        <div className="absolute inset-0 z-10 bg-black/20" />
+                        <div className="absolute inset-0 z-10 bg-overlay/20" />
                         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center pointer-events-none gap-1">
                           <span className="bg-destructive text-destructive-foreground text-[11px] font-bold tracking-wider uppercase px-3 py-1 rounded-full shadow-lg animate-soft-pulse">
                             Épuisé
                           </span>
-                          <span className="text-white text-[11px] drop-shadow-md italic" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
+                          <span className="text-primary-foreground text-[11px] drop-shadow-md italic" style={{ fontFamily: "'Bebas Neue', Barlow, sans-serif" }}>
                             Bientôt de retour
                           </span>
                         </div>
@@ -145,7 +145,7 @@ const SearchPage = () => {
                   </div>
                   <div className="p-3">
                     <h4 className="font-bold text-sm mb-1">{product.name}</h4>
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-wrap gap-1 items-center justify-between">
                       <div>
                         <span className="text-sm font-bold text-primary">{formatPrice(product.price)}</span>
                         <span className="text-xs text-muted-foreground">/{product.unit_type === "weight" ? "Kg" : "Pièce"}</span>

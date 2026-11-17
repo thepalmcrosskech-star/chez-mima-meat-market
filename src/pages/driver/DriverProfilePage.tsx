@@ -48,7 +48,7 @@ const DriverProfilePage = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -57,12 +57,12 @@ const DriverProfilePage = () => {
     <div className="px-4 py-4 space-y-4">
       {/* Profile Header */}
       <div className="text-center py-6">
-        <div className="w-20 h-20 rounded-full bg-purple-500/10 flex items-center justify-center mx-auto mb-3">
+        <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
           {getVehicleIcon(driverProfile?.vehicle_type || "moto")}
         </div>
         <h1 className="text-xl font-bold">{profile?.name}</h1>
         <div className="flex items-center justify-center gap-2 mt-1">
-          <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+          <Star className="h-4 w-4 fill-warning text-warning" />
           <span className="font-medium">{driverProfile?.rating?.toFixed(1) || "4.5"}</span>
           <span className="text-muted-foreground">• {driverProfile?.total_deliveries || 0} livraisons</span>
         </div>
@@ -72,13 +72,13 @@ const DriverProfilePage = () => {
       <div className="grid grid-cols-2 gap-3">
         <Card>
           <CardContent className="p-4 text-center">
-            <p className="text-3xl font-bold text-purple-500">{driverProfile?.total_deliveries || 0}</p>
+            <p className="text-3xl font-bold text-primary">{driverProfile?.total_deliveries || 0}</p>
             <p className="text-xs text-muted-foreground">Livraisons totales</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4 text-center">
-            <p className="text-3xl font-bold text-amber-500">{driverProfile?.rating?.toFixed(1) || "4.5"}</p>
+            <p className="text-3xl font-bold text-warning">{driverProfile?.rating?.toFixed(1) || "4.5"}</p>
             <p className="text-xs text-muted-foreground">Note moyenne</p>
           </CardContent>
         </Card>
@@ -116,7 +116,7 @@ const DriverProfilePage = () => {
       {/* Logout */}
       <Button
         variant="outline"
-        className="w-full border-red-500/50 text-red-500 hover:bg-red-500/10"
+        className="w-full border-destructive/50 text-destructive hover:bg-destructive/10"
         onClick={handleLogout}
       >
         <LogOut className="h-4 w-4 mr-2" />

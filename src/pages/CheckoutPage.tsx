@@ -251,9 +251,9 @@ const CheckoutPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-8">
+    <div className="detail-page min-h-screen bg-background pb-8">
       {/* Header */}
-      <div className="sticky top-0 z-40 bg-background/95 backdrop-blur-md px-4 py-3 flex items-center gap-3 border-b border-border/50">
+      <div className="brand-header sticky top-0 z-40 px-4 py-3 flex items-center gap-3 border-b-4 border-primary">
         <Button variant="ghost" size="icon" className="rounded-full" onClick={() => navigate(-1)}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
@@ -288,11 +288,11 @@ const CheckoutPage = () => {
 
         {/* Scheduled delivery banner */}
         {!isStoreOpen && (
-          <Card className="p-4 border-amber-500/30 bg-amber-500/10">
+          <Card className="p-4 border-warning/30 bg-warning/10">
             <div className="flex items-start gap-3">
-              <CalendarClock className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
+              <CalendarClock className="h-5 w-5 text-warning mt-0.5 shrink-0" />
               <div>
-                <p className="font-semibold text-sm text-amber-700">🌙 La boucherie est fermée</p>
+                <p className="font-semibold text-sm text-warning">🌙 La boucherie est fermée</p>
                 <p className="text-xs text-muted-foreground mt-1">
                   Votre commande sera programmée pour demain à l'ouverture ({openingHour}).
                   Elle sera préparée dès notre ouverture !
@@ -443,8 +443,8 @@ const CheckoutPage = () => {
         )}
 
         {!isPickup && deliveryZone && deliveryFee !== null && deliveryFee > 0 && deliveryZone.free_delivery_threshold && (
-          <Card className="p-3 border-amber-500/50 bg-amber-500/10">
-            <p className="text-sm text-amber-700 font-medium">
+          <Card className="p-3 border-warning/50 bg-warning/10">
+            <p className="text-sm text-warning font-medium">
               💡 Commande minimum de {formatPrice(deliveryZone.free_delivery_threshold)} pour obtenir la livraison GRATUITE dans cette zone.
             </p>
           </Card>
@@ -501,18 +501,18 @@ const CheckoutPage = () => {
             </div>
           )}
           {!isPickup && deliveryZone?.free_delivery_threshold && deliveryFee === 0 && (
-            <p className="text-xs text-green-600">🎉 Livraison gratuite à partir de {formatPrice(deliveryZone.free_delivery_threshold)}</p>
+            <p className="text-xs text-success">🎉 Livraison gratuite à partir de {formatPrice(deliveryZone.free_delivery_threshold)}</p>
           )}
           {isPickup && (
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Retrait en boucherie</span>
-              <span className="text-green-600 font-medium">Gratuit</span>
+              <span className="text-success font-medium">Gratuit</span>
             </div>
           )}
           {isScheduled && (
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground flex items-center gap-1"><CalendarClock className="h-3.5 w-3.5" /> Programmée pour</span>
-              <span className="font-medium text-amber-600">Demain {openingHour}</span>
+              <span className="font-medium text-warning">Demain {openingHour}</span>
             </div>
           )}
           <div className="flex justify-between font-bold text-lg border-t border-border pt-2">

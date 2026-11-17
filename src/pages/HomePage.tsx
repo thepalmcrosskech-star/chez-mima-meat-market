@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
-import { Plus, Loader2, Sun, Moon, ChevronRight } from "lucide-react";
+import { Plus, Loader2, Sun, Moon, ChevronRight, Beef } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "@/hooks/use-toast";
 import QuantityDialog from "@/components/QuantityDialog";
-import logo from "@/assets/logo-transparent.png";
+import { brandLogo as logo } from "@/lib/brand";
 import BottomNav from "@/components/BottomNav";
 import FavoriteProducts from "@/components/FavoriteProducts";
 import { useWishlist, WishlistButton } from "@/components/WishlistButton";
@@ -44,7 +44,7 @@ const HomePage = () => {
   const [banners, setBanners] = useState<Banner[]>([]);
   const [currentBanner, setCurrentBanner] = useState(0);
   const [productRatings, setProductRatings] = useState<Record<string, number>>({});
-  const [themeIcon, setThemeIcon] = useState<string>(localStorage.getItem("theme") || "dark");
+  const [themeIcon, setThemeIcon] = useState<string>(localStorage.getItem("theme") || "light");
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -157,15 +157,15 @@ const HomePage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="client-page min-h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-gradient-to-b from-background via-background/95 to-background/90 backdrop-blur-md px-4 py-3 flex items-center justify-between border-b border-border/50 animate-fade-in">
+      <header className="brand-header sticky top-0 z-40 px-4 py-3 flex items-center justify-between border-b-4 border-primary">
         <div className="flex items-center gap-2.5">
-          <img src={logo} alt="Chez Mima" className="h-12 object-contain drop-shadow-[0_1px_3px_rgba(0,0,0,0.3)] dark:drop-shadow-none" />
+          <img src={logo} alt="Chez Mima" className="h-12 w-16 object-contain" />
           <div className="flex flex-col leading-none">
-            <span className="text-[11px] font-medium tracking-[0.2em] uppercase text-muted-foreground">Boucherie & Charcuterie</span>
-            <span className="text-lg font-semibold tracking-wide text-foreground" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
-              Chez <span className="text-primary">Mima</span>
+            <span className="text-[11px] font-medium uppercase text-sidebar-foreground/80">Boucherie & Charcuterie</span>
+            <span className="font-display text-2xl text-sidebar-foreground">
+              Chez Mima
             </span>
           </div>
         </div>
@@ -202,18 +202,18 @@ const HomePage = () => {
             <Card className="relative w-full h-56 rounded-2xl overflow-hidden border-0 shadow-2xl">
               {banners[currentBanner]?.image_url && (
                 <img
-                  src={banners[currentBanner].image_url!}
+                  src={banners[currentBanner].image_url ?? undefined}
                   alt={banners[currentBanner].title}
                   className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
                 />
               )}
-              <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent" />
-              <div className="relative h-full flex flex-col justify-center px-6 text-white">
+              <div className="absolute inset-0 bg-gradient-to-r from-overlay/70 via-overlay/30 to-transparent" />
+              <div className="relative h-full flex flex-col justify-center px-6 text-primary-foreground">
                 <h2 className="text-3xl font-bold leading-tight mb-2">
                   {banners[currentBanner]?.title}
                 </h2>
                 {banners[currentBanner]?.subtitle && (
-                  <p className="text-white/90 text-base mb-4">
+                  <p className="text-primary-foreground/90 text-base mb-4">
                     {banners[currentBanner].subtitle}
                   </p>
                 )}
@@ -251,7 +251,7 @@ const HomePage = () => {
       )}
 
       {/* Categories */}
-      <section className="px-4 mb-6">
+      <section className="px-4 mt-5 mb-6">
         <div className="relative">
           <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
             <Button
@@ -299,13 +299,13 @@ const HomePage = () => {
       {/* Products Section */}
       <section className="px-4">
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-2xl font-bold text-foreground">Nos Meilleurs Produits</h3>
+          <h3 className="text-2xl font-normal text-foreground">Nos Meilleurs Produits</h3>
           <Button variant="link" className="text-primary font-semibold" onClick={() => navigate("/search")}>
             Voir tout
           </Button>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 items-stretch">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 items-stretch">
           {loading ? (
             <div className="col-span-2 flex items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -324,7 +324,7 @@ const HomePage = () => {
                 className="block h-full"
               >
                  <Card
-                  className={`relative overflow-hidden rounded-2xl border-0 shadow-lg transition-all duration-500 group bg-card h-full flex flex-col ${unavailable ? "" : "hover:shadow-2xl hover-scale"}`}
+                  className={`relative overflow-hidden rounded-lg border shadow-sm transition-colors group bg-card h-full flex flex-col ${unavailable ? "" : "hover:border-primary/50"}`}
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
                   {!unavailable && (
@@ -346,17 +346,17 @@ const HomePage = () => {
                         loading="lazy"
                       />
                     ) : (
-                      <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-primary/40 animate-pulse"></div>
+                      <Beef className="h-14 w-14 text-muted-foreground/40" aria-hidden="true" />
                     )}
 
                     {unavailable && (
                       <>
-                        <div className="absolute inset-0 z-10 bg-black/20" />
+                        <div className="absolute inset-0 z-10 bg-overlay/20" />
                         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center pointer-events-none gap-1">
                           <span className="bg-destructive text-destructive-foreground text-[11px] font-bold tracking-wider uppercase px-3 py-1 rounded-full shadow-lg animate-soft-pulse">
                             Épuisé
                           </span>
-                          <span className="text-white text-[11px] drop-shadow-md italic" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
+                          <span className="text-primary-foreground text-[11px] drop-shadow-md italic" style={{ fontFamily: "'Bebas Neue', Barlow, sans-serif" }}>
                             Bientôt de retour
                           </span>
                         </div>
@@ -364,15 +364,15 @@ const HomePage = () => {
                     )}
                   </div>
 
-                  <div className="p-4 flex flex-col flex-1 min-h-[110px]">
-                    <h4 className="font-bold text-card-foreground mb-1 group-hover:text-primary transition-colors line-clamp-1">
+                  <div className="p-3 flex flex-col flex-1 min-h-[130px]">
+                    <h4 className="font-semibold text-sm text-card-foreground mb-1 group-hover:text-primary transition-colors line-clamp-2 min-h-10">
                       {product.name}
                     </h4>
                     <p className="text-sm text-muted-foreground mb-3 line-clamp-1">
                       {product.description || "\u00A0"}
                     </p>
                     
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-wrap gap-1 items-center justify-between mt-auto">
                       <div>
                         <span className="text-lg font-bold text-primary">{formatPrice(product.price)}</span>
                         <span className="text-sm text-muted-foreground">/{product.unit_type === "weight" ? "Kg" : "Pièce"}</span>

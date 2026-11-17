@@ -49,12 +49,12 @@ const AdminOverview = () => {
     new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(n) + " MAD";
 
   const statCards = [
-    { label: "Commandes", value: stats.totalOrders, icon: ShoppingBag, color: "text-blue-400" },
-    { label: "En attente", value: stats.pendingOrders, icon: TrendingUp, color: "text-amber-400" },
-    { label: "Produits", value: stats.totalProducts, icon: Package, color: "text-emerald-400" },
-    { label: "Utilisateurs", value: stats.totalUsers, icon: Users, color: "text-purple-400" },
+    { label: "Commandes", value: stats.totalOrders, icon: ShoppingBag, color: "text-primary" },
+    { label: "En attente", value: stats.pendingOrders, icon: TrendingUp, color: "text-warning" },
+    { label: "Produits", value: stats.totalProducts, icon: Package, color: "text-success" },
+    { label: "Utilisateurs", value: stats.totalUsers, icon: Users, color: "text-primary" },
     { label: "Livreurs", value: stats.totalDrivers, icon: Truck, color: "text-primary" },
-    { label: "Revenus", value: formatPrice(stats.revenue), icon: DollarSign, color: "text-emerald-400" },
+    { label: "Revenus", value: formatPrice(stats.revenue), icon: DollarSign, color: "text-success" },
   ];
 
   const statusLabels: Record<string, string> = {

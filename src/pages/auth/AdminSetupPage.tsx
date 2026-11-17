@@ -4,6 +4,7 @@ import { ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { getAccountAccess } from "@/lib/account-access";
+import BrandHeader from "@/components/BrandHeader";
 
 export default function AdminSetupPage() {
   const [email, setEmail] = useState<string | null>(null);
@@ -28,7 +29,7 @@ export default function AdminSetupPage() {
     } catch (err) { setError(typeof err === "object" && err !== null && "message" in err ? String(err.message) : "Activation refusée."); }
     finally { setBusy(false); }
   };
-  return <main className="min-h-screen bg-background flex items-center justify-center px-5">
+  return <div className="min-h-svh flex flex-col bg-background"><BrandHeader /><main className="flex-1 flex items-center justify-center px-5 py-8">
     <div className="w-full max-w-sm space-y-6">
       <ShieldCheck className="h-10 w-10 text-primary" />
       <h1 className="text-2xl font-bold">Premier administrateur</h1>
@@ -43,5 +44,5 @@ export default function AdminSetupPage() {
       {error && <p role="alert" className="text-destructive">{error}</p>}
       <Button asChild variant="link"><Link to="/login">Connexion client</Link></Button>
     </div>
-  </main>;
+  </main></div>;
 }

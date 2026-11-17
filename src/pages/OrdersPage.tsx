@@ -52,8 +52,8 @@ const OrdersPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <div className="sticky top-0 z-40 bg-background/95 backdrop-blur-md px-4 py-4 border-b border-border/50">
+    <div className="client-page min-h-screen bg-background">
+      <div className="brand-header sticky top-0 z-40 px-4 py-4 border-b-4 border-primary">
         <h1 className="text-xl font-bold">Mes Commandes</h1>
       </div>
 
@@ -82,7 +82,7 @@ const OrdersPage = () => {
                     </p>
                     <Badge variant={info.variant}>{info.label}</Badge>
                   </div>
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-wrap gap-3 items-center justify-between">
                     <div className="text-sm text-muted-foreground">
                       Sous-total: {formatPrice(order.subtotal)} · Livraison: {formatPrice(order.delivery_fee)}
                     </div>

@@ -18,7 +18,7 @@ const BottomNav = forwardRef<HTMLElement>((_, ref) => {
   const { totalItems } = useCart();
 
   return (
-    <nav ref={ref} className="fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-t from-background via-background/95 to-background/90 backdrop-blur-xl border-t border-border/50 px-2 pt-3 pb-[calc(env(safe-area-inset-bottom)+4rem)]">
+    <nav ref={ref} className="bottom-navigation fixed bottom-0 left-0 right-0 z-50 border-t border-border px-2 pt-3 pb-[calc(env(safe-area-inset-bottom)+4rem)]">
       <div className="flex items-center justify-around max-w-md mx-auto">
         {navItems.map((item) => {
           const active = location.pathname === item.path;
@@ -27,7 +27,7 @@ const BottomNav = forwardRef<HTMLElement>((_, ref) => {
               key={item.path}
               variant="ghost"
               onClick={() => navigate(item.path)}
-              className={`flex items-center justify-center p-2 h-auto rounded-full relative transition-colors ${
+              className={`flex flex-col items-center justify-center gap-1 p-2 h-14 w-16 relative transition-colors ${
                 active ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground"
               }`}
               aria-label={item.label}
@@ -40,6 +40,7 @@ const BottomNav = forwardRef<HTMLElement>((_, ref) => {
                   </span>
                 )}
               </div>
+              <span className="text-[11px] leading-none">{item.label}</span>
             </Button>
           );
         })}

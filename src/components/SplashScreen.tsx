@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import logo from "@/assets/logo-transparent.png";
+import { brandLogo as logo } from "@/lib/brand";
 
 interface SplashScreenProps {
   onComplete: () => void;
@@ -50,27 +50,6 @@ const SplashScreen = ({ onComplete }: SplashScreenProps) => {
         fadeOut ? "opacity-0" : "opacity-100"
       }`}
     >
-      {/* Animated radial glow */}
-      <div
-        className="absolute w-[600px] h-[600px] rounded-full transition-all duration-1000 ease-out"
-        style={{
-          background: "radial-gradient(circle, hsl(var(--primary) / 0.06) 0%, transparent 70%)",
-          transform: stage >= 1 ? "scale(1)" : "scale(0)",
-          opacity: stage >= 1 ? 1 : 0,
-        }}
-      />
-
-      {/* Spinning ring */}
-      <div
-        className="absolute w-44 h-44 rounded-full border-2 border-primary/10 transition-all duration-700 ease-out"
-        style={{
-          transform: stage >= 1 ? "scale(1) rotate(0deg)" : "scale(0.5) rotate(-180deg)",
-          opacity: stage >= 1 ? 1 : 0,
-          animation: stage >= 1 ? "spin 8s linear infinite" : "none",
-          borderTopColor: "hsl(var(--primary) / 0.25)",
-        }}
-      />
-
       {/* Logo */}
       <div className="relative z-10 flex flex-col items-center gap-5">
         <div
@@ -80,14 +59,6 @@ const SplashScreen = ({ onComplete }: SplashScreenProps) => {
             opacity: stage >= 1 ? 1 : 0,
           }}
         >
-          {/* Glow behind logo */}
-          <div
-            className="absolute -inset-6 rounded-full blur-2xl transition-opacity duration-1000"
-            style={{
-              background: "hsl(var(--primary) / 0.12)",
-              opacity: stage >= 1 ? 1 : 0,
-            }}
-          />
           <div className="relative px-3 py-2">
             <img
               src={logo}

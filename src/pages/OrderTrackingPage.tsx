@@ -334,9 +334,9 @@ const OrderTrackingPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-8">
+    <div className="detail-page min-h-screen bg-background pb-8">
       {/* Header */}
-      <div className="sticky top-0 z-40 bg-background/95 backdrop-blur-md px-4 py-3 flex items-center gap-3 border-b border-border/50">
+      <div className="brand-header sticky top-0 z-40 px-4 py-3 flex items-center gap-3 border-b-4 border-primary">
         <Button variant="ghost" size="icon" className="rounded-full" onClick={() => navigate("/orders")}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
@@ -379,11 +379,11 @@ const OrderTrackingPage = () => {
                   <div className="flex items-center gap-1">
                     {driverInfo?.rating && (
                       <div className="flex items-center gap-0.5 text-xs">
-                        <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                        <Star className="h-3 w-3 fill-warning text-warning" />
                         {driverInfo.rating.toFixed(1)}
                       </div>
                     )}
-                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse ml-1" />
+                    <div className="w-2 h-2 rounded-full bg-success animate-pulse ml-1" />
                   </div>
                 </div>
               </div>
@@ -402,7 +402,7 @@ const OrderTrackingPage = () => {
                 <div>
                   <p className="font-semibold">{driverInfo.profiles?.name}</p>
                   <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                    <Star className="h-3 w-3 fill-warning text-warning" />
                     {driverInfo.rating?.toFixed(1) || "4.5"} • {driverInfo.vehicle_type}
                   </div>
                 </div>
@@ -502,18 +502,18 @@ const OrderTrackingPage = () => {
                 <span>{formatPrice(order.cash_bill_amount)}</span>
               </div>
               {order.cash_bill_amount > order.total_price && (
-                <div className="flex justify-between text-sm font-semibold text-amber-500">
+                <div className="flex justify-between text-sm font-semibold text-warning">
                   <span>💰 Monnaie à rendre</span>
                   <span>{formatPrice(order.cash_bill_amount - order.total_price)}</span>
                 </div>
               )}
               {order.cash_bill_amount === order.total_price && (
-                <p className="text-xs text-green-500 font-medium">✅ Appoint exact</p>
+                <p className="text-xs text-success font-medium">✅ Appoint exact</p>
               )}
             </>
           )}
           {order.payment_method === "cash" && !order.cash_bill_amount && (
-            <p className="text-xs text-green-500 font-medium">✅ Le client paiera l'appoint</p>
+            <p className="text-xs text-success font-medium">✅ Le client paiera l'appoint</p>
            )}
         </Card>
 

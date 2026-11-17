@@ -121,7 +121,7 @@ const AdminDrivers = () => {
     // Add markers for active drivers
     drivers.forEach((d) => {
       if (d.latitude && d.longitude && d.status !== "offline") {
-        const color = d.status === "available" ? "#A855F7" : "#EF4444";
+        const color = d.status === "available" ? "hsl(var(--success))" : "hsl(var(--primary))";
         const marker = new mapboxgl.Marker({ color })
           .setLngLat([Number(d.longitude), Number(d.latitude)])
           .setPopup(new mapboxgl.Popup().setHTML(`<b>${d.profiles?.name || "Livreur"}</b><br/>${d.status === "available" ? "Disponible" : "En livraison"}`))
@@ -189,8 +189,8 @@ const AdminDrivers = () => {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <Card>
           <CardContent className="p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center">
-              <Users className="h-5 w-5 text-green-500" />
+            <div className="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center">
+              <Users className="h-5 w-5 text-success" />
             </div>
             <div>
               <p className="text-2xl font-bold">{activeCount}</p>
@@ -200,8 +200,8 @@ const AdminDrivers = () => {
         </Card>
         <Card>
           <CardContent className="p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center">
-              <Bike className="h-5 w-5 text-amber-500" />
+            <div className="w-10 h-10 rounded-full bg-warning/10 flex items-center justify-center">
+              <Bike className="h-5 w-5 text-warning" />
             </div>
             <div>
               <p className="text-2xl font-bold">{busyCount}</p>
@@ -211,8 +211,8 @@ const AdminDrivers = () => {
         </Card>
         <Card>
           <CardContent className="p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center">
-              <TrendingUp className="h-5 w-5 text-purple-500" />
+            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+              <TrendingUp className="h-5 w-5 text-primary" />
             </div>
             <div>
               <p className="text-2xl font-bold">{totalDeliveries}</p>
@@ -268,7 +268,7 @@ const AdminDrivers = () => {
                   </TableCell>
                   <TableCell><div className="flex items-center gap-2">{vehicleIcon(d.vehicle_type)}<span className="capitalize">{d.vehicle_type}</span></div></TableCell>
                   <TableCell>{statusBadge(d.status)}</TableCell>
-                  <TableCell><div className="flex items-center gap-1"><Star className="h-3 w-3 fill-amber-400 text-amber-400" />{d.rating?.toFixed(1) || "4.5"}</div></TableCell>
+                  <TableCell><div className="flex items-center gap-1"><Star className="h-3 w-3 fill-warning text-warning" />{d.rating?.toFixed(1) || "4.5"}</div></TableCell>
                   <TableCell>{d.total_deliveries || 0}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-1">

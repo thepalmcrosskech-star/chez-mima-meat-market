@@ -13,7 +13,7 @@ const DriverBottomNav = () => {
   const navigate = useNavigate();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-t from-background via-background/95 to-background/90 backdrop-blur-xl border-t border-border/50 px-2 pt-3 pb-[calc(env(safe-area-inset-bottom)+4rem)]">
+    <nav className="bottom-navigation fixed bottom-0 left-0 right-0 z-50 border-t border-border px-2 pt-3 pb-[calc(env(safe-area-inset-bottom)+4rem)]">
       <div className="flex items-center justify-around max-w-md mx-auto">
         {navItems.map((item) => {
           const active = location.pathname === item.path;
@@ -23,7 +23,7 @@ const DriverBottomNav = () => {
               variant="ghost"
               onClick={() => navigate(item.path)}
               className={`flex flex-col items-center justify-center p-2 h-auto rounded-xl gap-1 transition-colors ${
-                active ? "text-purple-500 bg-purple-500/10" : "text-muted-foreground hover:text-foreground"
+                active ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground"
               }`}
               aria-label={item.label}
             >

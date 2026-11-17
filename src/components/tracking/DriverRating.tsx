@@ -66,7 +66,7 @@ const DriverRating = ({ orderId, driverId, onComplete }: DriverRatingProps) => {
               <Star
                 className={`h-10 w-10 ${
                   star <= (hoveredRating || rating)
-                    ? "fill-amber-400 text-amber-400"
+                    ? "fill-warning text-warning"
                     : "text-muted-foreground"
                 }`}
               />
@@ -84,7 +84,7 @@ const DriverRating = ({ orderId, driverId, onComplete }: DriverRatingProps) => {
 
         <div className="space-y-2">
           <Button
-            className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+            className="w-full bg-primary hover:bg-primary text-primary-foreground"
             onClick={handleSubmit}
             disabled={submitting || rating === 0}
           >

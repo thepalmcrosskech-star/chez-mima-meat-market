@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ShoppingCart, Trash2, Plus, Minus } from "lucide-react";
+import { ShoppingCart, Trash2, Plus, Minus, Beef } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import BottomNav from "@/components/BottomNav";
 import { isWeightUnit } from "@/lib/product-units";
@@ -17,8 +17,8 @@ const CartPage = () => {
   const getMin = (unitType: string) => isWeightUnit(unitType) ? 0.25 : 1;
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <div className="sticky top-0 z-40 bg-background/95 backdrop-blur-md px-4 py-4 border-b border-border/50">
+    <div className="client-page min-h-screen bg-background">
+      <div className="brand-header sticky top-0 z-40 px-4 py-4 border-b-4 border-primary">
         <h1 className="text-xl font-bold">Mon Panier</h1>
       </div>
 
@@ -37,15 +37,15 @@ const CartPage = () => {
               const min = getMin(item.unit_type);
               const displayQty = isWeightUnit(item.unit_type) ? `${item.quantity} kg` : `${item.quantity}`;
               return (
-                <Card key={item.id} className="p-4 flex items-center gap-4">
+                <Card key={item.id} className="p-3 sm:p-4 flex flex-wrap items-center gap-3">
                   <div className="w-16 h-16 rounded-lg bg-accent/30 flex items-center justify-center overflow-hidden shrink-0">
                     {item.image_url ? (
                       <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
                     ) : (
-                      <div className="w-8 h-8 rounded-full bg-primary/20" />
+                      <Beef className="h-8 w-8 text-muted-foreground/40" aria-hidden="true" />
                     )}
                   </div>
-                  <div className="flex-1 min-w-0">
+                  <div className="flex-1 min-w-[140px]">
                     <h4 className="font-bold text-sm truncate">{item.name}</h4>
                     <p className="text-primary font-semibold text-sm">{formatPrice(item.price * item.quantity)}</p>
                   </div>

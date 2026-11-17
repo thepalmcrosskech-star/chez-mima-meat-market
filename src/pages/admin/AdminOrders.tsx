@@ -194,7 +194,7 @@ const AdminOrders = () => {
                       <div className="flex flex-col gap-1">
                         <span>{o.created_at ? new Date(o.created_at).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }) : "—"}</span>
                         {o.scheduled_for && (
-                          <Badge variant="outline" className="w-fit text-[10px] gap-1 border-amber-500/50 text-amber-500">
+                          <Badge variant="outline" className="w-fit text-[10px] gap-1 border-warning/50 text-warning">
                             <Clock className="h-3 w-3" />
                             Programmée {new Date(o.scheduled_for).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Africa/Casablanca" })}
                           </Badge>
@@ -279,7 +279,7 @@ const AdminOrders = () => {
                 {selectedOrder.scheduled_for && (
                   <div className="flex justify-between items-center">
                     <span className="text-muted-foreground">Programmée pour</span>
-                    <Badge variant="outline" className="gap-1 border-amber-500/50 text-amber-500">
+                    <Badge variant="outline" className="gap-1 border-warning/50 text-warning">
                       <Clock className="h-3 w-3" />
                       {new Date(selectedOrder.scheduled_for).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Africa/Casablanca" })}
                     </Badge>
@@ -308,17 +308,17 @@ const AdminOrders = () => {
                           <span className="font-semibold">{formatPrice(selectedOrder.cash_bill_amount)}</span>
                         </div>
                         {selectedOrder.cash_bill_amount > selectedOrder.total_price && (
-                          <div className="flex justify-between text-sm font-bold text-amber-500">
+                          <div className="flex justify-between text-sm font-bold text-warning">
                             <span>💰 Monnaie à rendre</span>
                             <span>{formatPrice(selectedOrder.cash_bill_amount - selectedOrder.total_price)}</span>
                           </div>
                         )}
                         {selectedOrder.cash_bill_amount === selectedOrder.total_price && (
-                          <p className="text-xs text-green-500 font-medium">✅ Montant exact</p>
+                          <p className="text-xs text-success font-medium">✅ Montant exact</p>
                         )}
                       </>
                     ) : (
-                      <p className="text-xs text-green-500 font-medium">✅ Le client paiera l'appoint</p>
+                      <p className="text-xs text-success font-medium">✅ Le client paiera l'appoint</p>
                     )}
                   </>
                 )}

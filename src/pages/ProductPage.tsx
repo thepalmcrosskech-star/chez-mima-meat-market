@@ -19,6 +19,7 @@ import {
   Plus,
   Minus,
   ShoppingCart,
+  Beef,
   Loader2,
   Send,
 } from "lucide-react";
@@ -68,7 +69,7 @@ const StarRating = ({
         key={star}
         className={`${size} transition-colors ${
           star <= rating
-            ? "fill-yellow-400 text-yellow-400"
+            ? "fill-warning text-warning"
             : "text-muted-foreground/30"
         } ${interactive ? "cursor-pointer hover:scale-110 transition-transform" : ""}`}
         onClick={() => interactive && onRate?.(star)}
@@ -229,9 +230,9 @@ const ProductPage = () => {
   const displayedImage = gallery[selectedImage] ?? gallery[0];
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="detail-page client-page min-h-screen bg-background">
       {/* Header */}
-      <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-md px-4 py-3 flex items-center gap-3 border-b border-border/50">
+      <div className="brand-header sticky top-0 z-40 px-4 py-3 flex items-center gap-3 border-b-4 border-primary">
         <Button
           variant="ghost"
           size="icon"
@@ -252,7 +253,7 @@ const ProductPage = () => {
       {/* Image Zoom Overlay */}
       {imageZoomed && displayedImage && (
         <div
-          className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center cursor-zoom-out animate-in fade-in duration-200"
+          className="fixed inset-0 z-[100] bg-overlay/90 flex items-center justify-center cursor-zoom-out animate-in fade-in duration-200"
           onClick={() => setImageZoomed(false)}
         >
           <img
@@ -276,7 +277,7 @@ const ProductPage = () => {
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <div className="w-32 h-32 rounded-full bg-primary/20 animate-pulse" />
+            <Beef className="h-20 w-20 text-muted-foreground/40" aria-hidden="true" />
           </div>
         )}
       </div>
