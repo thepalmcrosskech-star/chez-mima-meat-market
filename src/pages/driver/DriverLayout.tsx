@@ -3,6 +3,7 @@ import { Outlet, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 import DriverBottomNav from "@/components/driver/DriverBottomNav";
+import { getAccountAccess } from "@/lib/account-access";
 
 const DriverLayout = () => {
   const navigate = useNavigate();
@@ -15,15 +16,16 @@ const DriverLayout = () => {
   }, []);
 
   const checkDriverAccess = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { navigate("/login"); return; }
+    const access = await getAccountAccess().catch(() => null);
+    if (!access) { navigate("/login"); return; }
+    const { user, roles } = access;
 
     const [profileRes, driverRes] = await Promise.all([
-      supabase.from("profiles").select("name, role").eq("id", user.id).single(),
+      supabase.from("profiles").select("name").eq("id", user.id).single(),
       supabase.from("driver_profiles").select("status").eq("user_id", user.id).single(),
     ]);
 
-    if (profileRes.error || !profileRes.data || (profileRes.data.role !== "driver" && profileRes.data.role !== "admin")) {
+    if (profileRes.error || !profileRes.data || (!roles.includes("driver") && !roles.includes("admin"))) {
       navigate("/");
       return;
     }

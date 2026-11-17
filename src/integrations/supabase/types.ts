@@ -14,6 +14,35 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_bootstrap: {
+        Row: {
+          claimed_at: string | null
+          claimed_by: string | null
+          email: string
+          id: boolean
+        }
+        Insert: {
+          claimed_at?: string | null
+          claimed_by?: string | null
+          email: string
+          id?: boolean
+        }
+        Update: {
+          claimed_at?: string | null
+          claimed_by?: string | null
+          email?: string
+          id?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_bootstrap_claimed_by_fkey"
+            columns: ["claimed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       app_settings: {
         Row: {
           id: string
@@ -896,6 +925,7 @@ export type Database = {
         Args: { _customer_id: string }
         Returns: boolean
       }
+      claim_first_admin: { Args: never; Returns: undefined }
       complete_driver_delivery: {
         Args: { _order_id: string }
         Returns: undefined

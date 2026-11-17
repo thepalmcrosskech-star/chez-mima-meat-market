@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import logo from "@/assets/logo.jpeg";
+import { destinationForRoles, getAccountAccess } from "@/lib/account-access";
 
 const LoginPage = () => {
   const [mode, setMode] = useState<"login" | "register" | "forgot">("login");
@@ -14,6 +15,8 @@ const LoginPage = () => {
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const adminSetup = params.get("admin") === "1";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,7 +25,7 @@ const LoginPage = () => {
     try {
       if (mode === "forgot") {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}/login`,
+          redirectTo: `${window.location.origin}/reset-password`,
         });
         if (error) throw error;
         toast({
@@ -34,21 +37,12 @@ const LoginPage = () => {
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("role")
-          .eq("id", data.user.id)
-          .single();
+        const access = await getAccountAccess();
+        if (!access) throw new Error("Impossible de vérifier votre connexion.");
 
         toast({ title: "Connexion réussie", description: "Bienvenue !" });
         
-        if (profile?.role === "admin") {
-          navigate("/admin");
-        } else if (profile?.role === "driver") {
-          navigate("/driver");
-        } else {
-          navigate("/");
-        }
+        navigate(adminSetup && !access.roles.includes("admin") ? "/admin/setup" : destinationForRoles(access.roles));
       } else {
         const { error } = await supabase.auth.signUp({
           email,
@@ -87,10 +81,11 @@ const LoginPage = () => {
             className="w-full max-w-xs h-auto object-contain mx-auto"
           />
         </div>
+        {adminSetup && <h1 className="text-xl font-bold text-center">Compte administrateur</h1>}
 
         {/* Switcher */}
         <div className="flex rounded-xl bg-muted p-1">
-          <button
+          <Button
             type="button"
             onClick={() => setMode("login")}
             className={`flex-1 rounded-lg py-3 text-sm font-bold tracking-widest uppercase transition-all ${
@@ -100,8 +95,8 @@ const LoginPage = () => {
             }`}
           >
             Connexion
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
             onClick={() => setMode("register")}
             className={`flex-1 rounded-lg py-3 text-sm font-bold tracking-widest uppercase transition-all ${
@@ -111,7 +106,7 @@ const LoginPage = () => {
             }`}
           >
             S'inscrire
-          </button>
+          </Button>
         </div>
 
         {/* Form */}
@@ -158,13 +153,13 @@ const LoginPage = () => {
           )}
 
           {mode === "login" && (
-            <button
+            <Button variant="link"
               type="button"
               onClick={() => setMode("forgot")}
               className="text-sm text-primary hover:underline"
             >
               Mot de passe oublié ?
-            </button>
+            </Button>
           )}
 
           <Button
@@ -182,15 +177,16 @@ const LoginPage = () => {
           </Button>
 
           {mode === "forgot" && (
-            <button
+            <Button variant="link"
               type="button"
               onClick={() => setMode("login")}
               className="w-full text-sm text-muted-foreground hover:text-foreground"
             >
               ← Retour à la connexion
-            </button>
+            </Button>
           )}
         </form>
+        {!adminSetup && <Button asChild variant="link" className="w-full"><Link to="/admin/setup">Premier accès administrateur</Link></Button>}
       </div>
     </div>
   );

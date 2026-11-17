@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import logo from "@/assets/logo.jpeg";
+import { getAccountAccess } from "@/lib/account-access";
 import {
   LayoutDashboard, Package, Tags, ShoppingBag, Truck, Users, MapPin, Settings, LogOut, Menu, X, ChevronRight, Image, Shield,
 } from "lucide-react";
@@ -25,28 +26,28 @@ const AdminLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [loading, setLoading] = useState(true);
+  const [authorized, setAuthorized] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     checkAdmin();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+      setAuthorized(false); setLoading(true);
+      setTimeout(checkAdmin, 0);
+    });
+    return () => subscription.unsubscribe();
   }, []);
 
   const checkAdmin = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { navigate("/login"); return; }
-
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", user.id)
-        .single();
-
-      if (profile?.role !== "admin") {
+      const access = await getAccountAccess();
+      if (!access) { navigate("/login"); return; }
+      if (!access.roles.includes("admin")) {
         toast({ title: "Accès refusé", description: "Vous n'êtes pas administrateur", variant: "destructive" });
         navigate("/");
         return;
       }
+      setAuthorized(true);
     } catch {
       navigate("/");
     } finally {
@@ -71,6 +72,7 @@ const AdminLayout = () => {
       </div>
     );
   }
+  if (!authorized) return null;
 
   return (
     <div className="min-h-screen bg-background flex">

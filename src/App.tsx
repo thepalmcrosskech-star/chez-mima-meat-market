@@ -13,6 +13,9 @@ import OrdersPage from "./pages/OrdersPage";
 import ProfilePage from "./pages/ProfilePage";
 import NotFound from "./pages/NotFound";
 import LoginPage from "./pages/auth/LoginPage";
+import AdminSetupPage from "./pages/auth/AdminSetupPage";
+import ResetPasswordPage from "./pages/auth/ResetPasswordPage";
+import { getAccountAccess, destinationForRoles } from "@/lib/account-access";
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminOverview from "./pages/admin/AdminOverview";
 import AdminOrders from "./pages/admin/AdminOrders";
@@ -62,20 +65,10 @@ const RoleRedirect = () => {
     if (!isClientRoute) return;
 
     const checkRole = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
-
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", session.user.id)
-        .single();
-
-      if (profile?.role === "driver" && !location.pathname.startsWith("/driver")) {
-        navigate("/driver", { replace: true });
-      } else if (profile?.role === "admin" && !location.pathname.startsWith("/admin")) {
-        navigate("/admin", { replace: true });
-      }
+      const access = await getAccountAccess().catch(() => null);
+      if (!access) return;
+      const destination = destinationForRoles(access.roles);
+      if (destination !== "/") navigate(destination, { replace: true });
     };
 
     checkRole();
@@ -120,6 +113,8 @@ const AppContent = () => {
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/admin/setup" element={<AdminSetupPage />} />
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminOverview />} />
             <Route path="orders" element={<AdminOrders />} />
