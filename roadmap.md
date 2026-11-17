@@ -7,6 +7,7 @@
 - [ ] Guard the app service worker in previews and ensure page navigation checks the network first.
 - [x] Re-enter the RESEND_API_KEY secret in this remixed project so order confirmation emails send again.
 - [x] Restore the signup profile trigger so new customers get a profile and client role automatically.
-- [ ] Restore catalog data (products, categories, delivery zones) in the remixed database; waiting on the user's choice of source.
+- [ ] Import all available butcher-shop products from its management software; blocked until the user identifies the software and an authorized connection or export is available.
+- [ ] Restore categories and delivery zones in the remixed database; source details still needed.
 - [ ] Get a verified sender domain so customer confirmation emails actually deliver; waiting on the user's choice of Resend verification or Lovable's built-in sending.
 - [ ] Publish the remixed app and attach the custom domain so customers can reach it.
