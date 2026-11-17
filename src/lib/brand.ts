@@ -1,3 +1,3 @@
-import logoAsset from "@/assets/chez-mima-gestion-logo.png.asset.json";
+import logoAsset from "@/assets/chez-mima-logo-readable.png.asset.json";
 
 export const brandLogo = logoAsset.url;
