@@ -5,3 +5,4 @@
 - [ ] Update vulnerable dependencies; verify startup, builds, tests, security scans, and order-flow behavior.
 - [ ] Align weight and piece labels with stored product unit values.
 - [ ] Guard the app service worker in previews and ensure page navigation checks the network first.
+- [ ] Re-enter the RESEND_API_KEY secret in this remixed project so order confirmation emails send again.
