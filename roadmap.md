@@ -1,4 +1,5 @@
 - [x] Investigate the black startup screen reported on iPhone: public root reaches the visible login on fresh mobile Chromium and WebKit without failed requests or runtime errors; phone-specific cause remains unconfirmed and requires a fresh-tab/network comparison on the affected phone. No speculative startup changes applied.
+- [x] Reproduce and fix startup with a stalled logo: bounded image wait and stable completion callback; regression test passed, build OK, mobile WebKit login visible with the logo request stalled. Publication and confirmation on the affected physical iPhone remain required.
 - [x] Close unauthenticated access paths in payment, email, push, driver assignment, and IP-management functions.
 - [x] Audit customer access and pickup checkout: public root redirects to login; signed-in catalogue, 250g basket at 30 MAD, pickup creation, tracking and cancellation verified. Seven unit tests passed; three credential-dependent integration tests skipped.
 - [ ] Finish delivery audit: blocked by zero active delivery zones and missing Mapbox configuration. Password sign-in and email receipt remain unverified.

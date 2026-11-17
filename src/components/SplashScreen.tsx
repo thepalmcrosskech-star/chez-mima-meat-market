@@ -10,14 +10,20 @@ const SplashScreen = ({ onComplete }: SplashScreenProps) => {
   const [stage, setStage] = useState(0);
   const [imageLoaded, setImageLoaded] = useState(false);
 
-  // Wait for image to load before starting animation
+  // A stalled image must never prevent the underlying application from opening.
   useEffect(() => {
     const img = new Image();
-    img.src = logo;
+    const fallback = window.setTimeout(() => setImageLoaded(true), 1200);
     img.onload = () => setImageLoaded(true);
     img.onerror = () => setImageLoaded(true); // proceed anyway on error
+    img.src = logo;
     // If image is already cached
     if (img.complete) setImageLoaded(true);
+    return () => {
+      window.clearTimeout(fallback);
+      img.onload = null;
+      img.onerror = null;
+    };
   }, []);
 
   useEffect(() => {

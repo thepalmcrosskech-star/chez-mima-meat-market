@@ -89,10 +89,14 @@ const AppContent = () => {
     }
   }, []);
 
-  const handleSplashComplete = () => {
-    sessionStorage.setItem("splashShown", "true");
+  const handleSplashComplete = useCallback(() => {
+    try {
+      sessionStorage.setItem("splashShown", "true");
+    } catch {
+      // Opening the application must not depend on browser storage permission.
+    }
     setShowSplash(false);
-  };
+  }, []);
 
   if (banned) return <BannedScreen />;
 
