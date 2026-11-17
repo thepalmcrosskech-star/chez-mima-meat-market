@@ -10,6 +10,8 @@
 - [x] Import the supplied management catalogue: 211 products, exact counter prices, 8 departments, and original kg/piece units; no fabricated photos or stock quantities.
 - [x] Add reserved, verified-email, single-use first-admin activation and protected role management; client denial and last-admin protection tested with signed-in accounts.
 - [ ] Activate the owner's first administrator account; awaits signup and email confirmation by the owner at /admin/setup.
+- [ ] Compact the desktop catalogue, product pages and navigation while preserving the mobile layout.
+- [ ] Integrate the user's illustrations before account creation; awaits uploaded images.
 - [ ] Restore delivery zones in the remixed database; source details still needed.
 - [ ] Check and buy boucherichemima.com under the user's own Lovable account; blocked on availability and the user's checkout. Leave chezmima.app unchanged.
 - [ ] Verify email sending on the newly selected domain; blocked on domain purchase and setup. Leave the old domain unchanged.
