@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import logo from "@/assets/logo.jpeg";
+import logo from "@/assets/logo-transparent.png";
 import { destinationForRoles, getAccountAccess } from "@/lib/account-access";
 
 const LoginPage = () => {
