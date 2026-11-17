@@ -23,6 +23,7 @@ import {
   Send,
 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
+import { catalogueGallery } from "@/lib/catalogue-gallery";
 
 const CHARCUTERIE_CATEGORY_ID = "f6741cb2-ac67-47bb-900d-8d54fb05d1e6";
 
@@ -86,6 +87,7 @@ const ProductPage = () => {
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(0.25);
   const [imageZoomed, setImageZoomed] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(0);
 
   // Review form
   const [userRating, setUserRating] = useState(0);
@@ -94,6 +96,7 @@ const ProductPage = () => {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   useEffect(() => {
+    setSelectedImage(0);
     if (id) {
       fetchProduct();
       fetchReviews();
@@ -222,6 +225,9 @@ const ProductPage = () => {
     );
   }
 
+  const gallery = catalogueGallery(product.id, product.image_url);
+  const displayedImage = gallery[selectedImage] ?? gallery[0];
+
   return (
     <div className="min-h-screen bg-background pb-24">
       {/* Header */}
@@ -244,14 +250,14 @@ const ProductPage = () => {
       </div>
 
       {/* Image Zoom Overlay */}
-      {imageZoomed && product.image_url && (
+      {imageZoomed && displayedImage && (
         <div
           className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center cursor-zoom-out animate-in fade-in duration-200"
           onClick={() => setImageZoomed(false)}
         >
           <img
-            src={product.image_url}
-            alt={product.name}
+            src={displayedImage.url}
+            alt={displayedImage.label}
             className="max-w-[95vw] max-h-[90vh] object-contain rounded-lg animate-in zoom-in-90 duration-300"
           />
         </div>
@@ -260,13 +266,13 @@ const ProductPage = () => {
       {/* Product Image */}
       <div
         className="w-full aspect-square bg-accent/20 relative overflow-hidden cursor-zoom-in"
-        onClick={() => product.image_url && setImageZoomed(true)}
+        onClick={() => displayedImage && setImageZoomed(true)}
       >
-        {product.image_url ? (
+        {displayedImage ? (
           <img
-            src={product.image_url}
-            alt={product.name}
-            className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+            src={displayedImage.url}
+            alt={displayedImage.label}
+            className="w-full h-full object-contain"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
@@ -274,6 +280,24 @@ const ProductPage = () => {
           </div>
         )}
       </div>
+
+      {gallery.length > 1 && (
+        <div className="flex gap-2 overflow-x-auto px-4 py-3">
+          {gallery.map((image, index) => (
+            <Button
+              key={image.url}
+              variant="outline"
+              className={`h-20 w-16 shrink-0 p-1 ${index === selectedImage ? "ring-2 ring-primary" : ""}`}
+              onClick={() => setSelectedImage(index)}
+              aria-label={image.label}
+              aria-pressed={index === selectedImage}
+              title={image.label}
+            >
+              <img src={image.url} alt="" className="h-full w-full object-contain" loading="lazy" />
+            </Button>
+          ))}
+        </div>
+      )}
 
       {/* Product Info */}
       <div className="px-4 py-5 space-y-4">

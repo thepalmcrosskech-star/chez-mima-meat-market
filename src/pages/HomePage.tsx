@@ -342,7 +342,8 @@ const HomePage = () => {
                       <img
                         src={product.image_url}
                         alt={product.name}
-                        className={`w-full h-full object-cover transition-all duration-300 ${unavailable ? "opacity-60 blur-[1px]" : ""}`}
+                        className={`w-full h-full object-contain transition-all duration-300 ${unavailable ? "opacity-60 blur-[1px]" : ""}`}
+                        loading="lazy"
                       />
                     ) : (
                       <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-primary/40 animate-pulse"></div>

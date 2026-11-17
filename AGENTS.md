@@ -4,3 +4,4 @@
 - Keep app-shell service-worker registration in one production-only wrapper that excludes Lovable previews and uses network-first page navigation, so offline caching cannot strand visitors on stale app screens.
 - Resolve access from protected user_roles; profile roles are compatibility mirrors changed only by validated RPCs, so editing a profile cannot grant privileges.
 - Bootstrap the first administrator only through a locked, single-use reservation and a confirmed matching auth email; never grant the first signup administrator access.
+- Keep catalogue media in CDN asset pointers and attach by existing product ID; supplementary gallery views do not create sellable variants or change order data.

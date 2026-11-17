@@ -11,7 +11,11 @@
 - [x] Add reserved, verified-email, single-use first-admin activation and protected role management; client denial and last-admin protection tested with signed-in accounts.
 - [ ] Activate the owner's first administrator account; awaits signup and email confirmation by the owner at /admin/setup.
 - [ ] Compact the desktop catalogue, product pages and navigation while preserving the mobile layout.
-- [ ] Integrate the user's illustrations before account creation; awaits uploaded images.
+- [x] Integrate the seven supplied charcuterie illustrations, including confirmed Jambon Dinde Maison correspondence.
+- [x] Integrate the eight supplied beverage photos without creating new products or altering prices; preserve all five Freez views.
+- [x] Use the supplied original Chez Mima pattern as the background reference for new product visuals.
+- [x] Generate and integrate eight individual meat visuals; 19 of 211 catalogue products now have photos, with 23 images including the Freez gallery.
+- [ ] Complete visuals for the remaining 192 catalogue products; branded packaging and ambiguous product names need exact references to avoid misrepresentation. Other clearly named cuts remain to generate in further batches.
 - [ ] Restore delivery zones in the remixed database; source details still needed.
 - [ ] Check and buy boucherichemima.com under the user's own Lovable account; blocked on availability and the user's checkout. Leave chezmima.app unchanged.
 - [ ] Verify email sending on the newly selected domain; blocked on domain purchase and setup. Leave the old domain unchanged.

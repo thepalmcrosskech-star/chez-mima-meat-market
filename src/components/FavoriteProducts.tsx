@@ -119,7 +119,8 @@ const FavoriteProducts = ({ onAddToCart }: FavoriteProductsProps) => {
                   <img
                     src={product.image_url}
                     alt={product.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain"
+                    loading="lazy"
                   />
                 ) : (
                   <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-primary/40 animate-pulse" />
