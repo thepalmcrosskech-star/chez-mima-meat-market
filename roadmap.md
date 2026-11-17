@@ -9,6 +9,7 @@
 - [x] Restore the signup profile trigger so new customers get a profile and client role automatically.
 - [ ] Import all available butcher-shop products from its management software; blocked until the user identifies the software and an authorized connection or export is available.
 - [ ] Restore categories and delivery zones in the remixed database; source details still needed.
-- [ ] Select and buy a new domain under the user's own Lovable account instead of recovering chezmima.app; available choices provided, blocked on the user's selection and checkout.
+- [ ] Check and buy boucherichemima.com under the user's own Lovable account; blocked on availability and the user's checkout. Leave chezmima.app unchanged.
 - [ ] Verify email sending on the newly selected domain; blocked on domain purchase and setup. Leave the old domain unchanged.
 - [ ] Publish the remixed app and attach the custom domain so customers can reach it.
+- [ ] Prepare mobile distribution for Google Play and Apple App Store; awaiting the user's native-versus-browser choice, then configure Capacitor if native is selected. Store submission requires developer accounts and local platform tools.
