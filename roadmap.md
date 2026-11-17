@@ -7,8 +7,8 @@
 - [ ] Guard the app service worker in previews and ensure page navigation checks the network first.
 - [x] Re-enter the RESEND_API_KEY secret in this remixed project so order confirmation emails send again.
 - [x] Restore the signup profile trigger so new customers get a profile and client role automatically.
-- [ ] Import all available butcher-shop products from its management software; blocked until the user identifies the software and an authorized connection or export is available.
-- [ ] Restore categories and delivery zones in the remixed database; source details still needed.
+- [x] Import the supplied management catalogue: 211 products, exact counter prices, 8 departments, and original kg/piece units; no fabricated photos or stock quantities.
+- [ ] Restore delivery zones in the remixed database; source details still needed.
 - [ ] Check and buy boucherichemima.com under the user's own Lovable account; blocked on availability and the user's checkout. Leave chezmima.app unchanged.
 - [ ] Verify email sending on the newly selected domain; blocked on domain purchase and setup. Leave the old domain unchanged.
 - [ ] Publish the remixed app and attach the custom domain so customers can reach it.
