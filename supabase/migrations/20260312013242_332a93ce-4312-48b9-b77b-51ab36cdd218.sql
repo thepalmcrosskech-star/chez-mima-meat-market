@@ -1,1 +1,0 @@
-DELETE FROM product_reviews WHERE id = '2cd8ad27-4b5c-46cf-afc6-8531e89ccd44'

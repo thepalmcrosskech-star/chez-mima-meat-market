@@ -1,55 +1,5 @@
 {
   "version": "7",
   "dialect": "postgresql",
-  "entries": [
-    {
-      "idx": 0,
-      "version": "7",
-      "when": 1794751872699,
-      "tag": "0000_tighten_storefront_access_rules",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1794752631766,
-      "tag": "0001_secure_order_creation_and_public_reviews",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1794752816702,
-      "tag": "0002_protect_order_updates_and_driver_delivery_flow",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1794757119542,
-      "tag": "0003_close_role_and_delivery_security_gaps",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1794757429252,
-      "tag": "0004_finalize_protected_access_and_order_workflows",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1794757594930,
-      "tag": "0005_restrict_direct_admin_and_delivery_writes",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1794758144704,
-      "tag": "0006_restrict_security_definer_access",
-      "breakpoints": true
-    }
-  ]
+  "entries": []
 }

@@ -1,1 +1,0 @@
-ALTER TABLE public.orders ADD COLUMN delivery_mode text NOT NULL DEFAULT 'delivery';

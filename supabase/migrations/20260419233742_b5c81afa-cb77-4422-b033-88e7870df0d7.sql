@@ -1,1 +1,0 @@
-UPDATE public.products SET unit_type='piece' WHERE category_id='1d75f9ec-3327-4ded-be8e-a771a6d3eeb1' AND unit_type='weight';
