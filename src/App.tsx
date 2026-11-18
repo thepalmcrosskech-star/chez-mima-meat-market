@@ -34,6 +34,7 @@ import DriverHistory from "./pages/driver/DriverHistory";
 import DriverProfilePage from "./pages/driver/DriverProfilePage";
 import ProductPage from "./pages/ProductPage";
 import CheckoutPage from "./pages/CheckoutPage";
+import RequireCheckoutSession from "./components/RequireCheckoutSession";
 import OrderTrackingPage from "./pages/OrderTrackingPage";
 import SplashScreen from "./components/SplashScreen";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -114,7 +115,7 @@ const AppContent = () => {
           <Route path="/cart" element={<CartPage />} />
           <Route path="/orders" element={<OrdersPage />} />
           <Route path="/order-tracking/:id" element={<OrderTrackingPage />} />
-          <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="/checkout" element={<RequireCheckoutSession><CheckoutPage /></RequireCheckoutSession>} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />

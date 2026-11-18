@@ -13,6 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, MapPin, Loader2, Plus, Check, Phone, Store, Truck, Clock, CalendarClock, Navigation } from "lucide-react";
 import AddressPicker from "@/components/AddressPicker";
 import PaymentMethodSelector from "@/components/checkout/PaymentMethodSelector";
+import { checkoutLoginPath } from "@/lib/checkout-access";
 
 interface SavedAddress {
   id: string;
@@ -71,7 +72,7 @@ const CheckoutPage = () => {
 
   const init = async () => {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { navigate("/login"); return; }
+    if (!user) { navigate(checkoutLoginPath, { replace: true }); return; }
     setUserId(user.id);
 
     const [addrRes, zonesRes, latRes, lngRes, profileRes, openRes, closeRes] = await Promise.all([

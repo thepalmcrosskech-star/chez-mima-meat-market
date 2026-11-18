@@ -7,7 +7,8 @@ import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { brandLogo as logo } from "@/lib/brand";
 import BrandHeader from "@/components/BrandHeader";
-import { destinationForRoles, getAccountAccess } from "@/lib/account-access";
+import { getAccountAccess } from "@/lib/account-access";
+import { loginDestination } from "@/lib/checkout-access";
 
 const LoginPage = () => {
   const [mode, setMode] = useState<"login" | "register" | "forgot">("login");
@@ -18,6 +19,7 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const adminSetup = params.get("admin") === "1";
+  const checkoutRequested = params.get("next") === "/checkout";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,14 +45,14 @@ const LoginPage = () => {
 
         toast({ title: "Connexion réussie", description: "Bienvenue !" });
         
-        navigate(adminSetup && !access.roles.includes("admin") ? "/admin/setup" : destinationForRoles(access.roles));
+        navigate(adminSetup && !access.roles.includes("admin") ? "/admin/setup" : loginDestination(access.roles, params.get("next")), { replace: true });
       } else {
         const { error } = await supabase.auth.signUp({
           email,
           password,
           options: {
             data: { name },
-            emailRedirectTo: window.location.origin,
+            emailRedirectTo: checkoutRequested ? `${window.location.origin}/checkout` : window.location.origin,
           },
         });
         if (error) throw error;
@@ -191,6 +193,7 @@ const LoginPage = () => {
             </Button>
           )}
         </form>
+        <Button asChild variant="link" className="w-full"><Link to="/">Retour au catalogue</Link></Button>
         {!adminSetup && <Button asChild variant="link" className="w-full"><Link to="/admin/setup">Premier accès administrateur</Link></Button>}
       </div>
       </main>

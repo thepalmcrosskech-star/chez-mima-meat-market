@@ -38,7 +38,6 @@ const HomePage = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(searchParams.get("cat") ?? "all");
   const [loading, setLoading] = useState(true);
-  const [authChecked, setAuthChecked] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [quantityDialogOpen, setQuantityDialogOpen] = useState(false);
   const [banners, setBanners] = useState<Banner[]>([]);
@@ -47,26 +46,8 @@ const HomePage = () => {
   const [themeIcon, setThemeIcon] = useState<string>(localStorage.getItem("theme") || "light");
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        navigate("/login");
-        return;
-      }
-      setAuthChecked(true);
-      fetchData();
-    };
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (!session) {
-        navigate("/login");
-      }
-    });
-
-    checkAuth();
-
-    return () => subscription.unsubscribe();
-  }, [navigate]);
+    fetchData();
+  }, []);
 
   const fetchData = async () => {
     setLoading(true);
@@ -147,14 +128,6 @@ const HomePage = () => {
       return (productRatings[b.id] || 0) - (productRatings[a.id] || 0);
     });
   })();
-
-  if (!authChecked) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
 
   return (
     <div className="client-page min-h-screen bg-background">
