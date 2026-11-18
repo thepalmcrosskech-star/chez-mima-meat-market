@@ -48,4 +48,4 @@
 - [x] Create and attach the next four original-style illustrations: Rillette Poulet Citr, Rosette au poivre, Rosette nature and Terrine Camp Poulet; all four images load on the correct product pages without runtime errors or commercial data changes.
 - [x] Illustrate Salami — FRO, Spianata — FRO, Brillat-Savarin · 200 g and Bûchette ail & fines herbes · 150 g in the accepted original scene; all four illustrations attached to existing products and loaded on their correct pages without runtime errors or commercial changes.
 - [x] Show "100% Marocain" and "100% Halal" to customers on home, product, login and checkout screens; six tests passed and all three checked screens verified.
-- [ ] Place the permanent origin/halal promise below each customer header, with a round Moroccan flag and an elegant non-white background.
+- [x] Integrate the promise into customer headers with matching Morocco/halal pennants, reassuring green accents and restored secondary captions; no separate band. Verified desktop and 320/390px customer screens and scrolling, nine regression tests passed.

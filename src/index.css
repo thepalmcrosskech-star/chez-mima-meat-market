@@ -28,6 +28,7 @@
     --overlay: 221 40% 8%;
     --morocco-red: 355 90% 40%;
     --morocco-green: 153 100% 19%;
+    --trust: 145 35% 76%;
     --border: 220.34 11.36% 82.63%;
     --input: 220.36 13.23% 77.93%;
     --ring: 2.65 68.09% 51.09%;
@@ -91,6 +92,7 @@
   .detail-page { width: 100%; max-width: 760px; margin-inline: auto; }
   .bottom-navigation { background: hsl(var(--card)); box-shadow: 0 -2px 14px hsl(var(--foreground) / .06); }
   .customer-header > .sticky { position: static; }
+  .customer-header > .brand-header { border-bottom-width: 0; }
 }
 @media (max-width: 767px) {
   .app-button { min-height: 44px; }

@@ -19,6 +19,7 @@ export default {
       },
       colors: {
         morocco: { red: "hsl(var(--morocco-red))", green: "hsl(var(--morocco-green))" },
+        trust: "hsl(var(--trust))",
         success: { DEFAULT: "hsl(var(--success))", foreground: "hsl(var(--success-foreground))" },
         warning: { DEFAULT: "hsl(var(--warning))", foreground: "hsl(var(--warning-foreground))" },
         overlay: "hsl(var(--overlay))",

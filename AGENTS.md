@@ -9,5 +9,5 @@
 - Derive administrator push content and recipients from a stored order; reserve custom delivery messages for authenticated internal calls, and prohibit anonymous IP probing to protect customer privacy.
 - Bound splash image loading and keep its completion callback stable so stalled media or parent renders cannot indefinitely hide the application.
 - Centralize visual identity in semantic HSL tokens, shared controls and a project-owned logo pointer; presentation changes must not alter data or business workflows.
-- Wrap customer page headers in CustomerHeader so the shared origin promise sits below the page banner and both remain sticky without duplicate badges; keep staff headers independent.
+- Wrap customer page headers in CustomerHeader so the shared origin promise is integrated into the same sticky banner without duplicate badges; keep staff headers independent.
 - Keep catalogue browsing public; require a session to add to cart and to check out, returning customers only to same-origin non-staff paths after login, so role destinations stay protected.- Group catalogue variants (e.g. drink flavours) through the nullable products.family field; each variant stays its own product so stock, price and availability are managed individually.
