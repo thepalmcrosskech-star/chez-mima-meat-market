@@ -12,7 +12,6 @@ import { toast } from "@/hooks/use-toast";
 import QuantityDialog from "@/components/QuantityDialog";
 import { brandLogo as logo } from "@/lib/brand";
 import BottomNav from "@/components/BottomNav";
-import FavoriteProducts from "@/components/FavoriteProducts";
 import { useWishlist, WishlistButton } from "@/components/WishlistButton";
 import NotificationBell from "@/components/NotificationBell";
 import { usePushSubscription } from "@/hooks/usePushSubscription";
@@ -232,20 +231,6 @@ const HomePage = () => {
       <section className="px-4 mt-5 mb-6">
         <div className="relative">
           <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-            <Button
-              variant={selectedCategory === "all" ? "default" : "secondary"}
-              className={`rounded-full px-6 py-2 text-sm font-bold whitespace-nowrap transition-all duration-300 ${
-                selectedCategory === "all"
-                  ? "bg-primary text-primary-foreground shadow-lg scale-105"
-                  : "bg-secondary text-secondary-foreground hover:bg-secondary/80 hover-scale"
-              }`}
-              onClick={() => {
-                setSelectedCategory("all");
-                setSearchParams({}, { replace: true });
-              }}
-            >
-              🏠 Tous
-            </Button>
             {categories.map((category) => (
               <Button
                 key={category.id}
@@ -270,9 +255,6 @@ const HomePage = () => {
           </div>
         </div>
       </section>
-
-      {/* Favorite Products */}
-      <FavoriteProducts onAddToCart={handleAddToCart} />
 
       {/* Products Section */}
       <section className="px-4">
