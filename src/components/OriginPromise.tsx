@@ -6,12 +6,12 @@ export function OriginBadges({ className = "" }: { className?: string }) {
           <circle cx="50" cy="50" r="49" className="fill-morocco-red" />
           <circle cx="50" cy="50" r="42" fill="none" className="stroke-trust" strokeWidth="1.6" opacity="0.5" />
           <path
-            d="M50 24 L56.47 41.1 L74.73 41.97 L60.46 53.4 L65.28 71.03 L50 61 L34.72 71.03 L39.54 53.4 L25.27 41.97 L43.53 41.1 Z"
-            className="fill-morocco-green"
-            stroke="hsl(var(--trust))"
-            strokeWidth="2"
+            d="M50 22 L66.46 72.65 L23.37 41.35 L76.63 41.35 L33.54 72.65 Z"
+            fill="none"
+            className="stroke-morocco-green"
+            strokeWidth="5"
             strokeLinejoin="round"
-            opacity="0.95"
+            strokeLinecap="round"
           />
         </svg>
         <span className="flex flex-col text-left leading-tight">

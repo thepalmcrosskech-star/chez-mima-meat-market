@@ -29,12 +29,14 @@ describe("customer origin banner", () => {
 
   it("keeps the moroccan seal red with the green star", () => {
     const { container } = render(<OriginBadges />);
-    const morocco = mark(container, "Drapeau du Maroc")!;
+    const morocco = mark(container, "Drapeau du Maroc");
+    if (!morocco) throw new Error("Moroccan seal missing");
     expect(rings(morocco)[0].getAttribute("class")).toContain("fill-morocco-red");
     const star = morocco.querySelector("path");
     expect(star).not.toBeNull();
-    expect(star!.getAttribute("class")).toContain("fill-morocco-green");
-    expect(star!.getAttribute("d")).toContain("Z");
+    if (!star) throw new Error("Moroccan star missing");
+    expect(star.getAttribute("class")).toContain("stroke-morocco-green");
+    expect(star.getAttribute("d")).toContain("Z");
   });
 
   it("writes the halal word in arabic inside the seal", () => {
