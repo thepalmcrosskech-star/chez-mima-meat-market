@@ -194,7 +194,6 @@ const LoginPage = () => {
           )}
         </form>
         <Button asChild variant="link" className="w-full"><Link to="/">Retour au catalogue</Link></Button>
-        {!adminSetup && <Button asChild variant="link" className="w-full"><Link to="/admin/setup">Premier accès administrateur</Link></Button>}
       </div>
       </main>
     </div>

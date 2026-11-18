@@ -1,3 +1,6 @@
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { cartLoginPath } from "@/lib/checkout-access";
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
 export interface CartItem {
@@ -37,7 +40,19 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem(CART_KEY, JSON.stringify(items));
   }, [items]);
 
+  const [signedIn, setSignedIn] = useState(false);
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setSignedIn(!!data.session));
+    const { data } = supabase.auth.onAuthStateChange((_e, session) => setSignedIn(!!session));
+    return () => data.subscription.unsubscribe();
+  }, []);
+
   const addItem = (product: Omit<CartItem, "quantity">, quantity: number) => {
+    if (!signedIn) {
+      toast("Créez votre espace client pour ajouter des articles au panier");
+      window.location.assign(cartLoginPath(window.location.pathname + window.location.search));
+      return;
+    }
     setItems((prev) => {
       const existing = prev.find((i) => i.id === product.id);
       if (existing) {

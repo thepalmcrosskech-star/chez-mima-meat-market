@@ -36,4 +36,11 @@ describe("visitor checkout access", () => {
     expect(loginDestination(["admin"], "/checkout")).toBe("/admin");
     expect(loginDestination(["driver"], "/checkout")).toBe("/driver");
   });
+});describe("cart login return", () => {
+  it("returns a customer to the product page after login", () => {
+    expect(loginDestination(["user"], "/product/abc")).toBe("/product/abc");
+  });
+  it("never returns a customer to staff pages", () => {
+    expect(loginDestination(["user"], "/admin")).toBe("/");
+  });
 });
