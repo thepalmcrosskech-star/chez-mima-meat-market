@@ -53,3 +53,5 @@
 - [x] Phrase Maroc plus inclusive
 - [x] Generate and attach Bûchette cendrée, Bûchette pétales de roses, Burratina and Mimolette demi-vieille in the accepted photo scene; all four product-page images loaded at 848 × 1264 with cover framing and no runtime errors, without commercial changes.
 - [x] Explain the official Cloudflare proxy solution received from Lovable; no DNS changes or domain removal performed. Activation awaits the owner's decision and Cloudflare setup.
+- [x] Merge the six Épices products into Épicerie and remove the separate Épices department, preserving products, prices, units and availability. Six ordered departments and all seven Épicerie products verified in the live preview.
+- [x] Import the supplied top-20 sales CSV from Chez Mima Gestion and rank the 17 entries still sold on the home page. Viande hachée 25% MG, Panuzzo Classique and Paleron are absent from the sales catalogue; four tests and the rendered ranking passed without commercial data changes.

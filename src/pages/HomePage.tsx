@@ -20,6 +20,7 @@ import { Product, Category } from "@/types/product";
 import { isWeightUnit } from "@/lib/product-units";
 import { formatPrice } from "@/lib/format";
 import { groupByFamily, familyMinPrice } from "@/lib/product-families";
+import { getTopSellingProducts } from "@/lib/top-selling-products";
 
 interface Banner {
   id: string;
@@ -121,14 +122,17 @@ const HomePage = () => {
   };
 
   const filteredProducts = (() => {
-    const list = selectedCategory && selectedCategory !== "all"
-      ? products.filter((p) => p.category_id === selectedCategory)
-      : products;
-    return [...list].sort((a, b) => {
-      // Active products first, then by rating
-      if (a.is_active !== b.is_active) return a.is_active ? -1 : 1;
-      return (productRatings[b.id] || 0) - (productRatings[a.id] || 0);
-    });
+    if (!selectedCategory || selectedCategory === "all") {
+      return getTopSellingProducts(products);
+    }
+
+    return products
+      .filter((product) => product.category_id === selectedCategory)
+      .sort((a, b) => {
+        // Active products first, then by rating
+        if (a.is_active !== b.is_active) return a.is_active ? -1 : 1;
+        return (productRatings[b.id] || 0) - (productRatings[a.id] || 0);
+      });
   })();
 
   return (
@@ -259,7 +263,9 @@ const HomePage = () => {
       {/* Products Section */}
       <section className="px-4">
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-2xl font-normal text-foreground">Nos Meilleurs Produits</h3>
+          <h3 className="text-2xl font-normal text-foreground">
+            {!selectedCategory || selectedCategory === "all" ? "Nos meilleures ventes" : "Nos produits"}
+          </h3>
           <Button variant="link" className="text-primary font-semibold" onClick={() => navigate("/search")}>
             Voir tout
           </Button>
