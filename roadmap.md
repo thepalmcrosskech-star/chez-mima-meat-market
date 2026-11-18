@@ -47,3 +47,5 @@
 - [x] Create and attach four original-style illustrations to the existing active Filet Poulet Premium, Jambon Poulet Truffe, Mousse Foie Volaille and Pastrami Dinde products; all four product-page images loaded at 848px with no runtime errors and no commercial data changes.
 - [x] Create and attach the next four original-style illustrations: Rillette Poulet Citr, Rosette au poivre, Rosette nature and Terrine Camp Poulet; all four images load on the correct product pages without runtime errors or commercial data changes.
 - [x] Illustrate Salami — FRO, Spianata — FRO, Brillat-Savarin · 200 g and Bûchette ail & fines herbes · 150 g in the accepted original scene; all four illustrations attached to existing products and loaded on their correct pages without runtime errors or commercial changes.
+- [x] Show "100% Marocain" and "100% Halal" to customers on home, product, login and checkout screens; six tests passed and all three checked screens verified.
+- [ ] Redo the halal/Morocco presentation on the home page in the style and places the owner picks; current dark strip rejected.

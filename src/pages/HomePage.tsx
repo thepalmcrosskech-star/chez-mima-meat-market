@@ -12,6 +12,7 @@ import QuantityDialog from "@/components/QuantityDialog";
 import { brandLogo as logo } from "@/lib/brand";
 import BottomNav from "@/components/BottomNav";
 import FavoriteProducts from "@/components/FavoriteProducts";
+import { OriginPromiseBar } from "@/components/OriginPromise";
 import { useWishlist, WishlistButton } from "@/components/WishlistButton";
 import NotificationBell from "@/components/NotificationBell";
 import { usePushSubscription } from "@/hooks/usePushSubscription";
@@ -169,6 +170,9 @@ const HomePage = () => {
           </Button>
         </div>
       </header>
+
+      {/* Origine & halal : rassure dès le premier écran */}
+      <OriginPromiseBar />
 
       {/* Hero Banners */}
       {banners.length > 0 && (

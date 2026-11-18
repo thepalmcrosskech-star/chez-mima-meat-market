@@ -24,6 +24,7 @@ import {
   Send,
 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
+import { OriginBadges } from "@/components/OriginPromise";
 import { catalogueGallery } from "@/lib/catalogue-gallery";
 
 const CHARCUTERIE_CATEGORY_ID = "f6741cb2-ac67-47bb-900d-8d54fb05d1e6";
@@ -333,6 +334,7 @@ const ProductPage = () => {
               /{isKg ? "kg" : "pièce"}
             </span>
           </p>
+          <OriginBadges className="mt-3" />
         </div>
 
         {variants.length > 1 && (

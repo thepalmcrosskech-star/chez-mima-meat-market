@@ -13,6 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, MapPin, Loader2, Plus, Check, Phone, Store, Truck, Clock, CalendarClock, Navigation } from "lucide-react";
 import AddressPicker from "@/components/AddressPicker";
 import PaymentMethodSelector from "@/components/checkout/PaymentMethodSelector";
+import { OriginBadges } from "@/components/OriginPromise";
 import { checkoutLoginPath } from "@/lib/checkout-access";
 
 interface SavedAddress {
@@ -528,6 +529,7 @@ const CheckoutPage = () => {
         </Card>
 
         {/* Submit */}
+        <OriginBadges className="justify-center" />
         <Button className="w-full py-6 text-base font-bold" disabled={!canOrder || submitting} onClick={handleSubmit}>
           {submitting ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
           {submitting ? "Envoi en cours..." : isScheduled ? "📅 Réserver pour demain" : isPickup ? "Confirmer le retrait" : "Confirmer la commande"}
