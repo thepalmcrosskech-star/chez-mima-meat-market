@@ -44,3 +44,4 @@
 - [ ] Publish the remixed app and attach the custom domain so customers can reach it.
 - [ ] Prepare mobile distribution for Google Play and Apple App Store; awaiting the user's native-versus-browser choice, then configure Capacitor if native is selected. Store submission requires developer accounts and local platform tools.
 - [x] Remove the browser URL preview bar on hover: every in-app and external click target now navigates without an href (product cards, auth/login/404 buttons, GPS itinerary, phone-call buttons); 140 home cards render no anchor, card click still opens the product page, 23 tests passed.
+- [x] Create and attach four original-style illustrations to the existing active Filet Poulet Premium, Jambon Poulet Truffe, Mousse Foie Volaille and Pastrami Dinde products; all four product-page images loaded at 848px with no runtime errors and no commercial data changes.
