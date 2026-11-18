@@ -11,3 +11,4 @@
 - Centralize visual identity in semantic HSL tokens, shared controls and a project-owned logo pointer; presentation changes must not alter data or business workflows.
 - Wrap customer page headers in CustomerHeader so the shared origin promise is integrated into the same sticky banner without duplicate badges; keep staff headers independent.
 - Keep catalogue browsing public; require a session to add to cart and to check out, returning customers only to same-origin non-staff paths after login, so role destinations stay protected.- Group catalogue variants (e.g. drink flavours) through the nullable products.family field; each variant stays its own product so stock, price and availability are managed individually.
+- Keep the custom domain connected through Cloudflare proxy mode (CNAME verification, proxied record) because the direct A-record IP is unreachable from Morocco; never re-point it to a direct A record or a different IP.
