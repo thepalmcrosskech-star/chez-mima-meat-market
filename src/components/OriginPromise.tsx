@@ -20,14 +20,14 @@ export function OriginBadges({ className = "" }: { className?: string }) {
           <defs>
             <mask id={crescentId}>
               <rect width="32" height="40" fill="black" />
-              <circle cx="14" cy="17" r="8" fill="white" />
-              <circle cx="17.2" cy="15.6" r="6.6" fill="black" />
+              <circle cx="16" cy="16" r="9" fill="white" />
+              <circle cx="19.5" cy="13.5" r="7.6" fill="black" />
             </mask>
           </defs>
           <path d="M2 1 H30 V30 L16 39 L2 30 Z" className="fill-morocco-green" />
-          <path d="M2 1 H30" className="stroke-trust" strokeWidth="1.2" opacity="0.6" />
+          <path d="M4.5 3.5 H27.5 V28.6 L16 36 L4.5 28.6 Z" fill="none" className="stroke-trust" strokeWidth="0.9" opacity="0.7" />
           <rect width="32" height="40" className="fill-trust" mask={`url(#${crescentId})`} />
-          <path d="M21 12 L22.18 15.38 L25.76 15.45 L22.9 17.62 L23.94 21.05 L21 19 L18.06 21.05 L19.1 17.62 L16.24 15.45 L19.82 15.38 Z" className="fill-trust" />
+          <path d="M21.6 10.2 L22.5 12.8 L25.2 12.8 L23 14.4 L23.8 17 L21.6 15.4 L19.4 17 L20.2 14.4 L18 12.8 L20.7 12.8 Z" className="fill-trust" />
         </svg>
         <span className="flex flex-col text-left leading-tight">
           <span className="text-xs sm:text-sm font-semibold text-trust">100% Halal</span>

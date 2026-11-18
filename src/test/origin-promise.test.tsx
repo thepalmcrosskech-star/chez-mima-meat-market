@@ -32,7 +32,7 @@ describe("customer origin banner", () => {
     // Five-pointed star sitting in the crescent's opening.
     const star = halal!.querySelector('path[class*="fill-trust"]');
     expect(star).not.toBeNull();
-    expect(star!.getAttribute("d")).toMatch(/^M21 12 /);
+    expect(star!.getAttribute("d")).toMatch(/^M21.6 10.2 /);
     expect(star!.getAttribute("d").split(" L").length).toBe(10);
   });
 
