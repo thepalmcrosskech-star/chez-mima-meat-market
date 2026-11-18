@@ -1,3 +1,4 @@
+import { CustomerHeader } from "@/components/OriginPromise";
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { AppLink } from "@/components/AppLink";
@@ -12,7 +13,6 @@ import QuantityDialog from "@/components/QuantityDialog";
 import { brandLogo as logo } from "@/lib/brand";
 import BottomNav from "@/components/BottomNav";
 import FavoriteProducts from "@/components/FavoriteProducts";
-import { OriginPromiseBar } from "@/components/OriginPromise";
 import { useWishlist, WishlistButton } from "@/components/WishlistButton";
 import NotificationBell from "@/components/NotificationBell";
 import { usePushSubscription } from "@/hooks/usePushSubscription";
@@ -135,6 +135,7 @@ const HomePage = () => {
   return (
     <div className="client-page min-h-screen bg-background">
       {/* Header */}
+      <CustomerHeader>
       <header className="brand-header sticky top-0 z-40 px-4 py-3 flex items-center justify-between border-b-4 border-primary">
         <div className="flex items-center gap-2.5">
           <img src={logo} alt="Chez Mima" className="h-12 w-16 object-contain" />
@@ -170,9 +171,7 @@ const HomePage = () => {
           </Button>
         </div>
       </header>
-
-      {/* Origine & halal : rassure dès le premier écran */}
-      <OriginPromiseBar />
+      </CustomerHeader>
 
       {/* Hero Banners */}
       {banners.length > 0 && (

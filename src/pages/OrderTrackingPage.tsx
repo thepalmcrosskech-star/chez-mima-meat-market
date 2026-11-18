@@ -1,3 +1,4 @@
+import { CustomerHeader } from "@/components/OriginPromise";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -336,6 +337,7 @@ const OrderTrackingPage = () => {
   return (
     <div className="detail-page min-h-screen bg-background pb-8">
       {/* Header */}
+      <CustomerHeader>
       <div className="brand-header sticky top-0 z-40 px-4 py-3 flex items-center gap-3 border-b-4 border-primary">
         <Button variant="ghost" size="icon" className="rounded-full" onClick={() => navigate("/orders")}>
           <ArrowLeft className="h-5 w-5" />
@@ -347,6 +349,7 @@ const OrderTrackingPage = () => {
           </p>
         </div>
       </div>
+      </CustomerHeader>
 
       <div className="px-4 py-4 space-y-4">
         {/* Map */}

@@ -1,38 +1,46 @@
-import { Flag, ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 
-/**
- * Rassiure le client dès le premier écran : nos produits sont préparés au
- * Maroc et 100 % halal. Le style de la boutique peut laisser un doute, ces
- * mentions doivent donc rester visibles.
- */
 export function OriginBadges({ className = "" }: { className?: string }) {
   return (
-    <div className={`flex flex-wrap items-center gap-2 ${className}`}>
-      <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-bold uppercase tracking-wide text-primary">
-        <Flag className="h-3.5 w-3.5" aria-hidden="true" />
-        100% Marocain
-      </span>
-      <span className="inline-flex items-center gap-1.5 rounded-full border border-success/30 bg-success/10 px-3 py-1 text-xs font-bold uppercase tracking-wide text-success">
-        <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
-        100% Halal
-      </span>
+    <div className={`flex items-center justify-center gap-x-3 sm:gap-x-5 ${className}`}>
+      <div className="flex items-center gap-2">
+        <svg viewBox="0 0 40 40" role="img" aria-label="Drapeau du Maroc" className="h-9 w-9 shrink-0 rounded-full ring-1 ring-sidebar-foreground/20">
+          <circle cx="20" cy="20" r="20" className="fill-morocco-red" />
+          <path d="M20 9 L26.47 28.9 L9.54 16.6 L30.46 16.6 L13.53 28.9 Z" fill="none" className="stroke-morocco-green" strokeWidth="1.7" strokeLinejoin="round" />
+        </svg>
+        <span className="flex flex-col text-left leading-tight">
+          <span className="text-xs sm:text-sm font-semibold">100% fait au Maroc</span>
+          <span className="mt-0.5 text-[11px] opacity-65">Notre origine, notre fierté</span>
+        </span>
+      </div>
+      <span className="h-7 w-px bg-current opacity-15" aria-hidden="true" />
+      <div className="flex items-center gap-2">
+        <ShieldCheck className="h-5 w-5 shrink-0 opacity-75" strokeWidth={1.5} aria-hidden="true" />
+        <span className="flex flex-col text-left leading-tight">
+          <span className="text-xs sm:text-sm font-semibold">100% Halal</span>
+          <span className="mt-0.5 text-[11px] opacity-65">Tous nos produits</span>
+        </span>
+      </div>
     </div>
   );
 }
 
-/** Bandeau complet : pastilles + phrase d'explication. */
 export function OriginPromiseBar({ className = "" }: { className?: string }) {
   return (
     <section
-      className={`brand-header border-b border-sidebar-border px-4 py-2.5 ${className}`}
-      aria-label="Origine et certification de nos produits"
+      className={`brand-header flex h-16 items-center justify-center border-b border-sidebar-foreground/10 px-3 ${className}`}
+      aria-label="Origine et engagement halal de nos produits"
     >
-      <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-center gap-x-4 gap-y-1.5">
-        <OriginBadges />
-        <p className="text-center text-xs leading-snug text-sidebar-foreground/80">
-          100% de nos produits sont préparés au Maroc et 100% halal.
-        </p>
-      </div>
+      <OriginBadges />
     </section>
+  );
+}
+
+export function CustomerHeader({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="customer-header sticky top-0 z-40">
+      {children}
+      <OriginPromiseBar />
+    </div>
   );
 }

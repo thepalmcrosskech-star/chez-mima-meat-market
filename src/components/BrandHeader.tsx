@@ -1,7 +1,9 @@
 import { brandLogo } from "@/lib/brand";
+import { CustomerHeader } from "@/components/OriginPromise";
 
 export default function BrandHeader() {
   return (
+    <CustomerHeader>
     <header className="brand-header border-b-4 border-primary px-5 py-4">
       <div className="mx-auto flex max-w-6xl items-center gap-4">
         <img src={brandLogo} alt="Chez Mima" className="h-14 w-20 object-contain" />
@@ -11,5 +13,6 @@ export default function BrandHeader() {
         </div>
       </div>
     </header>
+    </CustomerHeader>
   );
 }

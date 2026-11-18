@@ -1,3 +1,4 @@
+import { CustomerHeader } from "@/components/OriginPromise";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -53,9 +54,11 @@ const OrdersPage = () => {
 
   return (
     <div className="client-page min-h-screen bg-background">
+      <CustomerHeader>
       <div className="brand-header sticky top-0 z-40 px-4 py-4 border-b-4 border-primary">
         <h1 className="text-xl font-bold">Mes Commandes</h1>
       </div>
+      </CustomerHeader>
 
       <div className="px-4 py-4">
         {loading ? (

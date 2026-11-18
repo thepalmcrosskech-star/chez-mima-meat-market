@@ -7,7 +7,6 @@ import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { brandLogo as logo } from "@/lib/brand";
 import BrandHeader from "@/components/BrandHeader";
-import { OriginBadges } from "@/components/OriginPromise";
 import { getAccountAccess } from "@/lib/account-access";
 import { loginDestination } from "@/lib/checkout-access";
 
@@ -93,7 +92,6 @@ const LoginPage = () => {
             className="w-48 h-36 object-contain mx-auto"
           />
         </div>
-        <OriginBadges className="justify-center" />
         {adminSetup && <h1 className="text-xl font-bold text-center">Compte administrateur</h1>}
 
         {/* Switcher */}

@@ -1,3 +1,4 @@
+import { CustomerHeader } from "@/components/OriginPromise";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -69,6 +70,7 @@ const ProfilePage = () => {
   return (
     <div className="client-page min-h-screen bg-background">
       {/* Header */}
+      <CustomerHeader>
       <div className="brand-header border-b-4 border-primary px-4 pt-8 pb-12 text-center">
         <div className="w-36 h-24 mx-auto mb-3 flex items-center justify-center">
           <img src={logo} alt="Chez Mima" className="w-full h-full object-contain" />
@@ -76,8 +78,9 @@ const ProfilePage = () => {
         <h2 className="text-xl font-bold text-sidebar-foreground">{profile?.name}</h2>
         <p className="text-sidebar-foreground/80 text-sm break-all">{profile?.email}</p>
       </div>
+      </CustomerHeader>
 
-      <div className="px-4 -mt-6 space-y-4">
+      <div className="px-4 pt-4 space-y-4">
         {/* Profile Info */}
         <Card>
           <CardContent className="pt-6 space-y-4">

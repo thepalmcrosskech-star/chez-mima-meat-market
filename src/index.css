@@ -26,6 +26,8 @@
     --warning: 37 84% 35%;
     --warning-foreground: 0 0% 100%;
     --overlay: 221 40% 8%;
+    --morocco-red: 355 90% 40%;
+    --morocco-green: 153 100% 19%;
     --border: 220.34 11.36% 82.63%;
     --input: 220.36 13.23% 77.93%;
     --ring: 2.65 68.09% 51.09%;
@@ -88,6 +90,7 @@
   .client-page { width: 100%; max-width: 1200px; margin-inline: auto; padding-bottom: calc(6rem + env(safe-area-inset-bottom)); }
   .detail-page { width: 100%; max-width: 760px; margin-inline: auto; }
   .bottom-navigation { background: hsl(var(--card)); box-shadow: 0 -2px 14px hsl(var(--foreground) / .06); }
+  .customer-header > .sticky { position: static; }
 }
 @media (max-width: 767px) {
   .app-button { min-height: 44px; }

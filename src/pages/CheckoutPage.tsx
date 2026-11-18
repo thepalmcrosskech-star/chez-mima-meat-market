@@ -1,3 +1,4 @@
+import { CustomerHeader } from "@/components/OriginPromise";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,7 +14,6 @@ import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, MapPin, Loader2, Plus, Check, Phone, Store, Truck, Clock, CalendarClock, Navigation } from "lucide-react";
 import AddressPicker from "@/components/AddressPicker";
 import PaymentMethodSelector from "@/components/checkout/PaymentMethodSelector";
-import { OriginBadges } from "@/components/OriginPromise";
 import { checkoutLoginPath } from "@/lib/checkout-access";
 
 interface SavedAddress {
@@ -255,12 +255,14 @@ const CheckoutPage = () => {
   return (
     <div className="detail-page min-h-screen bg-background pb-8">
       {/* Header */}
+      <CustomerHeader>
       <div className="brand-header sticky top-0 z-40 px-4 py-3 flex items-center gap-3 border-b-4 border-primary">
         <Button variant="ghost" size="icon" className="rounded-full" onClick={() => navigate(-1)}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <h1 className="text-lg font-bold">Finaliser la commande</h1>
       </div>
+      </CustomerHeader>
 
       <div className="px-4 py-4 space-y-4">
         {/* Delivery Mode Selector */}
@@ -529,7 +531,6 @@ const CheckoutPage = () => {
         </Card>
 
         {/* Submit */}
-        <OriginBadges className="justify-center" />
         <Button className="w-full py-6 text-base font-bold" disabled={!canOrder || submitting} onClick={handleSubmit}>
           {submitting ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
           {submitting ? "Envoi en cours..." : isScheduled ? "📅 Réserver pour demain" : isPickup ? "Confirmer le retrait" : "Confirmer la commande"}

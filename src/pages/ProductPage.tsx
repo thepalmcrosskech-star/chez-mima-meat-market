@@ -1,3 +1,4 @@
+import { CustomerHeader } from "@/components/OriginPromise";
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,7 +25,6 @@ import {
   Send,
 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
-import { OriginBadges } from "@/components/OriginPromise";
 import { catalogueGallery } from "@/lib/catalogue-gallery";
 
 const CHARCUTERIE_CATEGORY_ID = "f6741cb2-ac67-47bb-900d-8d54fb05d1e6";
@@ -247,6 +247,7 @@ const ProductPage = () => {
   return (
     <div className="detail-page client-page min-h-screen bg-background">
       {/* Header */}
+      <CustomerHeader>
       <div className="brand-header sticky top-0 z-40 px-4 py-3 flex items-center gap-3 border-b-4 border-primary">
         <Button
           variant="ghost"
@@ -264,6 +265,7 @@ const ProductPage = () => {
         </Button>
         <h1 className="text-lg font-bold truncate">{product.name}</h1>
       </div>
+      </CustomerHeader>
 
       {/* Image Zoom Overlay */}
       {imageZoomed && displayedImage && (
@@ -334,7 +336,6 @@ const ProductPage = () => {
               /{isKg ? "kg" : "pièce"}
             </span>
           </p>
-          <OriginBadges className="mt-3" />
         </div>
 
         {variants.length > 1 && (
