@@ -55,6 +55,7 @@ const AdminProducts = () => {
   const [imagePreview, setImagePreview] = useState("");
   
   const [isActive, setIsActive] = useState(true);
+  const [family, setFamily] = useState("");
   const [productInfo, setProductInfo] = useState("");
   const [cookingTips, setCookingTips] = useState("");
   const [conservationTips, setConservationTips] = useState("");
@@ -75,7 +76,7 @@ const AdminProducts = () => {
 
   const resetForm = () => {
     setName(""); setDescription(""); setPrice(""); setUnitType("weight");
-    setCategoryId(""); setImageUrl(""); setImagePreview(""); setIsActive(true);
+    setCategoryId(""); setImageUrl(""); setImagePreview(""); setIsActive(true); setFamily("");
     setProductInfo(""); setCookingTips(""); setConservationTips("");
     setShowCookingTips(false); setShowConservationTips(false);
     setEditingProduct(null);
@@ -85,7 +86,7 @@ const AdminProducts = () => {
     setEditingProduct(p);
     setName(p.name); setDescription(p.description || ""); setPrice(String(p.price));
     setUnitType(p.unit_type); setCategoryId(p.category_id || ""); setImageUrl(p.image_url || "");
-    setImagePreview(p.image_url || ""); setIsActive(p.is_active ?? true);
+    setImagePreview(p.image_url || ""); setIsActive(p.is_active ?? true); setFamily((p as any).family || "");
     setProductInfo(p.product_info || ""); setCookingTips(p.cooking_tips || "");
     setConservationTips((p as any).conservation_tips || "");
     setShowCookingTips(!!p.cooking_tips);
@@ -139,6 +140,7 @@ const AdminProducts = () => {
       name, description: description || null, price: parsedPrice, unit_type: unitType,
       category_id: categoryId || null, image_url: imageUrl || null,
       is_active: isActive,
+      family: family.trim() || null,
       product_info: productInfo || null,
       cooking_tips: showCookingTips ? (cookingTips || null) : null,
       conservation_tips: showConservationTips ? (conservationTips || null) : null,
@@ -192,6 +194,11 @@ const AdminProducts = () => {
             <div className="space-y-4 mt-4">
               <div><Label>Nom</Label><Input value={name} onChange={(e) => setName(e.target.value)} /></div>
               <div><Label>Description</Label><Textarea value={description} onChange={(e) => setDescription(e.target.value)} /></div>
+              <div>
+                <Label>Famille (optionnel)</Label>
+                <Input value={family} onChange={(e) => setFamily(e.target.value)} placeholder="Ex. : Freez" />
+                <p className="text-xs text-muted-foreground mt-1">Les produits avec la même famille sont regroupés dans le catalogue ; le client choisit ensuite son goût.</p>
+              </div>
               <div className="grid grid-cols-2 gap-4">
                 <div><Label>Prix</Label><Input type="number" value={price} onChange={(e) => setPrice(e.target.value)} /></div>
                 <div>

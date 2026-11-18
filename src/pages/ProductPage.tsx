@@ -40,6 +40,7 @@ interface Product {
   conservation_tips: string | null;
   category_id: string | null;
   is_active: boolean | null;
+  family?: string | null;
 }
 
 interface Review {
@@ -84,6 +85,7 @@ const ProductPage = () => {
   const { addItem } = useCart();
 
   const [product, setProduct] = useState<Product | null>(null);
+  const [variants, setVariants] = useState<Product[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(0.25);
@@ -125,7 +127,19 @@ const ProductPage = () => {
       .select("*")
       .eq("id", id!)
       .single();
-    if (data) setProduct(data);
+    if (data) {
+      setProduct(data);
+      if (data.family) {
+        const { data: siblings } = await supabase
+          .from("products")
+          .select("*")
+          .eq("family", data.family)
+          .order("name");
+        setVariants(siblings ?? []);
+      } else {
+        setVariants([]);
+      }
+    }
     setLoading(false);
   };
 
@@ -320,6 +334,40 @@ const ProductPage = () => {
             </span>
           </p>
         </div>
+
+        {variants.length > 1 && (
+          <div className="space-y-3">
+            <span className="font-semibold text-foreground">Choisissez votre goût</span>
+            <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+              {variants.map((variant) => {
+                const selected = variant.id === product.id;
+                return (
+                  <Button
+                    key={variant.id}
+                    variant="outline"
+                    className={`h-auto flex-col gap-1 p-1.5 whitespace-normal ${selected ? "ring-2 ring-primary border-primary" : ""} ${variant.is_active === false ? "opacity-50" : ""}`}
+                    aria-pressed={selected}
+                    onClick={() => !selected && navigate(`/product/${variant.id}`, { replace: true })}
+                  >
+                    <span className="aspect-square w-full overflow-hidden rounded-md bg-muted relative">
+                      {variant.image_url ? (
+                        <img src={variant.image_url} alt="" className="absolute inset-0 h-full w-full object-cover" loading="lazy" />
+                      ) : (
+                        <Beef className="absolute inset-0 m-auto h-6 w-6 text-muted-foreground/40" aria-hidden="true" />
+                      )}
+                    </span>
+                    <span className="text-xs font-semibold leading-tight text-center">
+                      {product.family && variant.name.toLowerCase().startsWith(product.family.toLowerCase())
+                        ? variant.name.slice(product.family.length).trim() || variant.name
+                        : variant.name}
+                    </span>
+                    {variant.is_active === false && <span className="text-[10px] text-destructive">Épuisé</span>}
+                  </Button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {product.description && (
           <p className="text-muted-foreground text-sm leading-relaxed">

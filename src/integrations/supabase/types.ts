@@ -698,6 +698,7 @@ export type Database = {
           cooking_tips: string | null
           created_at: string | null
           description: string | null
+          family: string | null
           id: string
           image_url: string | null
           is_active: boolean | null
@@ -713,6 +714,7 @@ export type Database = {
           cooking_tips?: string | null
           created_at?: string | null
           description?: string | null
+          family?: string | null
           id?: string
           image_url?: string | null
           is_active?: boolean | null
@@ -728,6 +730,7 @@ export type Database = {
           cooking_tips?: string | null
           created_at?: string | null
           description?: string | null
+          family?: string | null
           id?: string
           image_url?: string | null
           is_active?: boolean | null

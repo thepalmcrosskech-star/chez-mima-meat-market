@@ -18,6 +18,7 @@ import { usePushSubscription } from "@/hooks/usePushSubscription";
 import { Product, Category } from "@/types/product";
 import { isWeightUnit } from "@/lib/product-units";
 import { formatPrice } from "@/lib/format";
+import { groupByFamily, familyMinPrice } from "@/lib/product-families";
 
 interface Banner {
   id: string;
@@ -288,11 +289,16 @@ const HomePage = () => {
               Aucun produit dans cette catégorie
             </div>
           ) : (
-            filteredProducts.map((product, index) => {
-              const unavailable = !product.is_active;
+            groupByFamily(filteredProducts).map((entry, index) => {
+              const product = entry.kind === "family" ? entry.lead : entry.product;
+              const isFamily = entry.kind === "family";
+              const unavailable = isFamily ? entry.products.every((p) => !p.is_active) : !product.is_active;
+              const title = isFamily ? entry.family : product.name;
+              const subtitle = isFamily ? `${entry.products.length} goûts au choix` : product.description;
+              const price = isFamily ? familyMinPrice(entry.products) : product.price;
               return (
               <Link
-                key={product.id}
+                key={isFamily ? `family-${entry.family}` : product.id}
                 to={`/product/${product.id}`}
                 className="block h-full"
               >
@@ -300,7 +306,7 @@ const HomePage = () => {
                   className={`relative overflow-hidden rounded-lg border shadow-sm transition-colors group bg-card h-full flex flex-col ${unavailable ? "" : "hover:border-primary/50"}`}
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
-                  {!unavailable && (
+                  {!unavailable && !isFamily && (
                     <div className="absolute top-3 right-3 z-10">
                       <WishlistButton
                         productId={product.id}
@@ -314,7 +320,7 @@ const HomePage = () => {
                     {product.image_url ? (
                       <img
                         src={product.image_url}
-                        alt={product.name}
+                        alt={title}
                         className={`absolute inset-0 w-full h-full object-cover transition-all duration-300 ${unavailable ? "opacity-60 blur-[1px]" : ""}`}
                         loading="lazy"
                       />
@@ -339,22 +345,24 @@ const HomePage = () => {
 
                   <div className="p-3 flex flex-col flex-1 min-h-[130px]">
                     <h4 className="font-semibold text-sm text-card-foreground mb-1 group-hover:text-primary transition-colors line-clamp-2 min-h-10">
-                      {product.name}
+                      {title}
                     </h4>
                     <p className="text-sm text-muted-foreground mb-3 line-clamp-1">
-                      {product.description || "\u00A0"}
+                      {subtitle || "\u00A0"}
                     </p>
                     
                     <div className="flex flex-wrap gap-1 items-center justify-between mt-auto">
                       <div>
-                        <span className="text-lg font-bold text-primary">{formatPrice(product.price)}</span>
+                        {isFamily && <span className="text-xs text-muted-foreground">dès </span>}
+                        <span className="text-lg font-bold text-primary">{formatPrice(price)}</span>
                         <span className="text-sm text-muted-foreground">/{product.unit_type === "weight" ? "Kg" : "Pièce"}</span>
                       </div>
                       {!unavailable && (
                         <Button 
                           size="icon" 
                           className="bg-primary hover:bg-primary/90 rounded-full w-8 h-8 hover-scale"
-                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleAddToCart(product); }}
+                          aria-label={isFamily ? `Choisir un goût ${title}` : `Ajouter ${title}`}
+                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (isFamily) navigate(`/product/${product.id}`); else handleAddToCart(product); }}
                         >
                           <Plus className="h-4 w-4" />
                         </Button>
