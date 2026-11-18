@@ -51,3 +51,5 @@
 - [x] Integrate the promise into customer headers with matching Morocco/halal pennants, reassuring green accents and restored secondary captions; no separate band. Verified desktop and 320/390px customer screens and scrolling, nine regression tests passed.
 - [x] Harmonize the customer origin banner as two matching round seals: the Moroccan seal is a red disc with the green star, the halal seal is a green certification stamp carrying حلال and HALAL; both are smaller than the brand logo and verified at their real on-screen size on phone and desktop. Six tests passed.
 - [x] Phrase Maroc plus inclusive
+- [x] Generate and attach Bûchette cendrée, Bûchette pétales de roses, Burratina and Mimolette demi-vieille in the accepted photo scene; all four product-page images loaded at 848 × 1264 with cover framing and no runtime errors, without commercial changes.
+- [x] Explain the official Cloudflare proxy solution received from Lovable; no DNS changes or domain removal performed. Activation awaits the owner's decision and Cloudflare setup.
