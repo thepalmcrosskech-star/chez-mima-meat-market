@@ -47,7 +47,7 @@ const LoginPage = () => {
         
         navigate(adminSetup && !access.roles.includes("admin") ? "/admin/setup" : loginDestination(access.roles, params.get("next")), { replace: true });
       } else {
-        const { error } = await supabase.auth.signUp({
+        const { data: signUpData, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -56,10 +56,16 @@ const LoginPage = () => {
           },
         });
         if (error) throw error;
-        toast({
-          title: "Inscription réussie",
-          description: "Vérifiez votre email pour confirmer votre compte.",
-        });
+        if (signUpData.session) {
+          const access = await getAccountAccess();
+          toast({ title: "Bienvenue chez Mima !", description: "Votre compte est créé." });
+          navigate(loginDestination(access?.roles ?? [], params.get("next")), { replace: true });
+        } else {
+          toast({
+            title: "Inscription réussie",
+            description: "Vérifiez votre email pour confirmer votre compte.",
+          });
+        }
       }
     } catch (error: any) {
       toast({
@@ -137,6 +143,8 @@ const LoginPage = () => {
             <Input
               id="email"
               type="email"
+              name="email"
+              autoComplete="username"
               placeholder="votre@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -150,6 +158,8 @@ const LoginPage = () => {
               <Input
                 id="password"
                 type="password"
+                name="password"
+                autoComplete={mode === "register" ? "new-password" : "current-password"}
                 placeholder="6 caractères minimum"
                 className="focus:placeholder:text-transparent"
                 value={password}
