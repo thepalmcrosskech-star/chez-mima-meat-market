@@ -85,7 +85,7 @@
   .app-card { border-radius: var(--radius); border-width: 1px; box-shadow: var(--shadow-card); }
   .app-button { letter-spacing: 0; border-radius: calc(var(--radius) - 4px); }
   .app-button:active:not(:disabled) { transform: scale(.98); }
-  .client-page { width: 100%; max-width: 1200px; margin-inline: auto; padding-bottom: calc(9rem + env(safe-area-inset-bottom)); }
+  .client-page { width: 100%; max-width: 1200px; margin-inline: auto; padding-bottom: calc(6rem + env(safe-area-inset-bottom)); }
   .detail-page { width: 100%; max-width: 760px; margin-inline: auto; }
   .bottom-navigation { background: hsl(var(--card)); box-shadow: 0 -2px 14px hsl(var(--foreground) / .06); }
 }

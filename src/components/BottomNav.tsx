@@ -18,7 +18,7 @@ const BottomNav = forwardRef<HTMLElement>((_, ref) => {
   const { totalItems } = useCart();
 
   return (
-    <nav ref={ref} className="bottom-navigation fixed bottom-0 left-0 right-0 z-50 border-t border-border px-2 pt-3 pb-[calc(env(safe-area-inset-bottom)+4rem)]">
+    <nav ref={ref} className="bottom-navigation fixed bottom-0 left-0 right-0 z-50 border-t border-border px-2 pt-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)]">
       <div className="flex items-center justify-around max-w-md mx-auto">
         {navItems.map((item) => {
           const active = location.pathname === item.path;
