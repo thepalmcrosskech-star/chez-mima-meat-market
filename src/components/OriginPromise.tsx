@@ -12,7 +12,7 @@ export function OriginBadges({ className = "" }: { className?: string }) {
         </svg>
         <span className="flex flex-col text-left leading-tight">
           <span className="text-xs sm:text-sm font-semibold text-sidebar-foreground/95">100% fait au Maroc</span>
-          <span className="mt-1 text-[10px] sm:text-[11px] text-sidebar-foreground/65">Notre origine, notre fierté</span>
+          <span className="mt-1 text-[10px] sm:text-[11px] text-sidebar-foreground/65">Savoir-faire local</span>
         </span>
       </div>
       <div className="flex items-center gap-2">
@@ -20,13 +20,14 @@ export function OriginBadges({ className = "" }: { className?: string }) {
           <defs>
             <mask id={crescentId}>
               <rect width="32" height="40" fill="black" />
-              <circle cx="15.5" cy="17" r="8.5" fill="white" />
-              <circle cx="20.5" cy="17" r="8.5" fill="black" />
+              <circle cx="14" cy="17" r="8" fill="white" />
+              <circle cx="17.2" cy="15.6" r="6.6" fill="black" />
             </mask>
           </defs>
           <path d="M2 1 H30 V30 L16 39 L2 30 Z" className="fill-morocco-green" />
+          <path d="M2 1 H30" className="stroke-trust" strokeWidth="1.2" opacity="0.6" />
           <rect width="32" height="40" className="fill-trust" mask={`url(#${crescentId})`} />
-          <path d="M23 14.4 L22.42 16.2 L20.53 16.2 L22.06 17.31 L21.47 19.1 L23 17.99 L24.53 19.1 L23.94 17.31 L25.47 16.2 L23.58 16.2 Z" className="fill-trust" />
+          <path d="M21 12 L22.18 15.38 L25.76 15.45 L22.9 17.62 L23.94 21.05 L21 19 L18.06 21.05 L19.1 17.62 L16.24 15.45 L19.82 15.38 Z" className="fill-trust" />
         </svg>
         <span className="flex flex-col text-left leading-tight">
           <span className="text-xs sm:text-sm font-semibold text-trust">100% Halal</span>
