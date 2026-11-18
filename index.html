@@ -37,7 +37,53 @@
 </head>
 
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div id="boot-screen" style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:#000;color:#fff;font-family:system-ui,-apple-system,sans-serif;text-align:center;padding:24px">
+        <div style="font-size:32px;letter-spacing:4px;font-weight:700">CHEZ MIMA</div>
+        <div id="boot-status" style="font-size:15px;opacity:.75">Chargement…</div>
+        <button id="boot-repair" type="button" style="display:none;margin-top:8px;padding:12px 20px;border-radius:10px;border:0;background:#c8102e;color:#fff;font-size:16px;font-weight:600">Réparer et recharger</button>
+      </div>
+    </div>
+    <script>
+      (function () {
+        var showRepair = function (message) {
+          if (window.__chezMimaStarted) return;
+          var status = document.getElementById("boot-status");
+          var button = document.getElementById("boot-repair");
+          if (status) status.textContent = message;
+          if (button) button.style.display = "inline-block";
+        };
+        var repair = function () {
+          var tasks = [];
+          try {
+            if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) {
+              tasks.push(navigator.serviceWorker.getRegistrations().then(function (regs) {
+                return Promise.all(regs.map(function (r) { return r.unregister(); }));
+              }));
+            }
+            if (window.caches && caches.keys) {
+              tasks.push(caches.keys().then(function (keys) {
+                return Promise.all(keys.map(function (k) { return caches.delete(k); }));
+              }));
+            }
+          } catch (e) {}
+          Promise.all(tasks).catch(function () {}).then(function () {
+            window.location.replace("/?r=" + Date.now());
+          });
+        };
+        document.addEventListener("click", function (e) {
+          if (e.target && e.target.id === "boot-repair") repair();
+        });
+        window.addEventListener("error", function (e) {
+          if (e && e.target && e.target.tagName === "SCRIPT") {
+            showRepair("L’application n’a pas pu se charger.");
+          }
+        }, true);
+        setTimeout(function () {
+          showRepair("Le chargement prend trop de temps.");
+        }, 8000);
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

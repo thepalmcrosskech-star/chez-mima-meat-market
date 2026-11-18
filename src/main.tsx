@@ -12,6 +12,7 @@ if (savedTheme === "dark") {
 }
 
 const appRoot = document.getElementById("root");
+(window as Window & { __chezMimaStarted?: boolean }).__chezMimaStarted = true;
 if (appRoot) createRoot(appRoot).render(<App />);
 registerAppServiceWorker();
 
