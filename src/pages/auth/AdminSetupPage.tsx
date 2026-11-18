@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -39,10 +39,10 @@ export default function AdminSetupPage() {
         <Button variant="outline" className="w-full" onClick={async () => { await supabase.auth.signOut(); navigate("/login?admin=1"); }}>Changer de compte</Button>
       </> : <>
         <p className="text-muted-foreground">Créez votre compte avec l’adresse réservée, confirmez l’e-mail reçu, puis connectez-vous.</p>
-        <Button asChild className="w-full"><Link to="/login?admin=1">Créer mon compte ou me connecter</Link></Button>
+        <Button className="w-full" onClick={() => navigate("/login?admin=1")}>Créer mon compte ou me connecter</Button>
       </>}
       {error && <p role="alert" className="text-destructive">{error}</p>}
-      <Button asChild variant="link"><Link to="/login">Connexion client</Link></Button>
+      <Button variant="link" onClick={() => navigate("/login")}>Connexion client</Button>
     </div>
   </main></div>;
 }

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, useSearchParams, Link } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -204,7 +204,7 @@ const LoginPage = () => {
             </Button>
           )}
         </form>
-        <Button asChild variant="link" className="w-full"><Link to="/">Retour au catalogue</Link></Button>
+        <Button variant="link" className="w-full" onClick={() => navigate("/")}>Retour au catalogue</Button>
       </div>
       </main>
     </div>

@@ -408,8 +408,14 @@ const OrderTrackingPage = () => {
                 </div>
               </div>
               {driverInfo.profiles?.phone && (
-                <Button variant="outline" size="icon" className="rounded-full" asChild>
-                  <a href={`tel:${driverInfo.profiles.phone}`}><Phone className="h-4 w-4" /></a>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="rounded-full"
+                  aria-label="Appeler le livreur"
+                  onClick={() => { window.location.href = `tel:${driverInfo.profiles.phone}`; }}
+                >
+                  <Phone className="h-4 w-4" />
                 </Button>
               )}
             </div>

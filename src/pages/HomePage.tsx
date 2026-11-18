@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { useNavigate, Link, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { AppLink } from "@/components/AppLink";
 import { Plus, Loader2, Sun, Moon, ChevronRight, Beef } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -297,10 +298,11 @@ const HomePage = () => {
               const subtitle = isFamily ? `${entry.products.length} goûts au choix` : product.description;
               const price = isFamily ? familyMinPrice(entry.products) : product.price;
               return (
-              <Link
+              <AppLink
                 key={isFamily ? `family-${entry.family}` : product.id}
                 to={`/product/${product.id}`}
                 className="block h-full"
+                ariaLabel={title}
               >
                  <Card
                   className={`relative overflow-hidden rounded-lg border shadow-sm transition-colors group bg-card h-full flex flex-col ${unavailable ? "" : "hover:border-primary/50"}`}
@@ -370,7 +372,7 @@ const HomePage = () => {
                     </div>
                   </div>
                 </Card>
-              </Link>
+              </AppLink>
               );
             })
           )}

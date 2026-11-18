@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { AppLink } from "@/components/AppLink";
 import { Heart, Plus, Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -100,10 +100,11 @@ const FavoriteProducts = ({ onAddToCart }: FavoriteProductsProps) => {
 
       <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
         {favorites.map((product) => (
-          <Link
+          <AppLink
             key={product.id}
             to={`/product/${product.id}`}
             className="block flex-shrink-0 w-40"
+            ariaLabel={product.name}
           >
             <Card className="relative overflow-hidden rounded-2xl border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover-scale group bg-card h-full flex flex-col">
               {/* Order count badge */}
@@ -147,7 +148,7 @@ const FavoriteProducts = ({ onAddToCart }: FavoriteProductsProps) => {
                 </div>
               </div>
             </Card>
-          </Link>
+          </AppLink>
         ))}
       </div>
     </section>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { AppLink } from "@/components/AppLink";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -107,7 +108,7 @@ const SearchPage = () => {
             {filtered.map((product) => {
               const unavailable = !product.is_active;
               return (
-              <Link key={product.id} to={`/product/${product.id}`} className="block">
+              <AppLink key={product.id} to={`/product/${product.id}`} className="block" ariaLabel={product.name}>
                 <Card className={`overflow-hidden border-0 shadow-lg group bg-card relative`}>
                   <div className="aspect-square bg-accent/30 flex items-center justify-center relative overflow-hidden">
                     {product.image_url ? (
@@ -162,7 +163,7 @@ const SearchPage = () => {
                     </div>
                   </div>
                 </Card>
-              </Link>
+              </AppLink>
               );
             })}
           </div>

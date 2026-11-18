@@ -342,15 +342,20 @@ const CheckoutPage = () => {
                   </div>
                 )}
                 {storeLocation && (
-                  <a
-                    href={`https://www.google.com/maps/dir/?api=1&destination=${storeLocation.lat},${storeLocation.lng}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    type="button"
+                    onClick={() =>
+                      window.open(
+                        `https://www.google.com/maps/dir/?api=1&destination=${storeLocation.lat},${storeLocation.lng}`,
+                        "_blank",
+                        "noopener,noreferrer",
+                      )
+                    }
                     className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
                   >
                     <Navigation className="h-4 w-4" />
                     Itinéraire GPS vers la boucherie
-                  </a>
+                  </button>
                 )}
               </div>
             )}

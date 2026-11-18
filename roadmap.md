@@ -43,3 +43,4 @@
 - [ ] Verify email sending on the newly selected domain; blocked on domain purchase and setup. Leave the old domain unchanged.
 - [ ] Publish the remixed app and attach the custom domain so customers can reach it.
 - [ ] Prepare mobile distribution for Google Play and Apple App Store; awaiting the user's native-versus-browser choice, then configure Capacitor if native is selected. Store submission requires developer accounts and local platform tools.
+- [x] Remove the browser URL preview bar on hover: every in-app and external click target now navigates without an href (product cards, auth/login/404 buttons, GPS itinerary, phone-call buttons); 140 home cards render no anchor, card click still opens the product page, 23 tests passed.

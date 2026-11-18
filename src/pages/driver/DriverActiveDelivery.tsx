@@ -223,8 +223,14 @@ const DriverActiveDelivery = () => {
             </div>
             <div className="flex gap-2">
               {order.profiles?.phone && (
-                <Button variant="outline" size="icon" className="rounded-full" asChild>
-                  <a href={`tel:${order.profiles.phone}`}><Phone className="h-4 w-4" /></a>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="rounded-full"
+                  aria-label="Appeler le client"
+                  onClick={() => { window.location.href = `tel:${order.profiles.phone}`; }}
+                >
+                  <Phone className="h-4 w-4" />
                 </Button>
               )}
               <Button variant="outline" size="icon" className="rounded-full" onClick={openNavigation}>
