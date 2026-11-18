@@ -3,55 +3,72 @@ import { readFileSync } from "node:fs";
 import { render } from "@testing-library/react";
 import { OriginBadges } from "@/components/OriginPromise";
 
-const halalPennant = (container: HTMLElement) =>
-  container.querySelector('svg[aria-label="Croissant et étoile"]');
+const mark = (container: HTMLElement, label: string) =>
+  container.querySelector(`svg[aria-label="${label}"]`);
+
+const rings = (svg: Element) => Array.from(svg.querySelectorAll("circle"));
 
 describe("customer origin banner", () => {
-  it("keeps the moroccan pennant and gives the halal pennant a crescent plus a star", () => {
+  it("draws both marks as matching round seals", () => {
     const { container } = render(<OriginBadges />);
-    expect(container.querySelector('svg[aria-label="Drapeau du Maroc"]')).not.toBeNull();
-
-    const halal = halalPennant(container);
+    const morocco = mark(container, "Drapeau du Maroc");
+    const halal = mark(container, "Halal");
+    expect(morocco).not.toBeNull();
     expect(halal).not.toBeNull();
 
-    // The crescent is a light disc with a disc cut out of it, so it can never
-    // degrade into a check mark or a full moon.
-    const mask = halal!.querySelector("mask");
-    expect(mask).not.toBeNull();
-    const circles = mask!.querySelectorAll("circle");
-    expect(circles.length).toBe(2);
-    expect(circles[0].getAttribute("fill")).toBe("white");
-    expect(circles[1].getAttribute("fill")).toBe("black");
-
-    const crescent = halal!.querySelector("rect[mask]");
-    expect(crescent).not.toBeNull();
-    expect(crescent!.getAttribute("mask")).toBe(
-      `url(#${mask!.getAttribute("id")})`,
-    );
-
-    // Five-pointed star sitting in the crescent's opening.
-    const star = halal!.querySelector('path[class*="fill-trust"]');
-    expect(star).not.toBeNull();
-    expect(star!.getAttribute("d")).toMatch(/^M21.6 10.2 /);
-    expect(star!.getAttribute("d").split(" L").length).toBe(10);
+    for (const svg of [morocco, halal]) {
+      const circles = rings(svg!);
+      expect(circles.length).toBe(2);
+      // Solid disc + thin inner ring, flat with no gradient.
+      expect(circles[0].getAttribute("class")).toContain("fill-");
+      expect(circles[1].getAttribute("fill")).toBe("none");
+      expect(circles[1].getAttribute("class")).toContain("stroke-trust");
+      expect(svg!.querySelector("linearGradient")).toBeNull();
+    }
   });
 
-  it("never falls back to a check mark on the halal pennant", () => {
+  it("keeps the moroccan seal red with the green star", () => {
     const { container } = render(<OriginBadges />);
-    const paths = Array.from(halalPennant(container)!.querySelectorAll("path"));
-    expect(paths.some((p) => /L14 22 L23 12/.test(p.getAttribute("d") || ""))).toBe(false);
+    const morocco = mark(container, "Drapeau du Maroc")!;
+    expect(rings(morocco)[0].getAttribute("class")).toContain("fill-morocco-red");
+    const star = morocco.querySelector("path");
+    expect(star).not.toBeNull();
+    expect(star!.getAttribute("class")).toContain("fill-morocco-green");
+    expect(star!.getAttribute("d")).toContain("Z");
   });
 
-  it("renders a distinct mask id for every pennant on the page", () => {
-    const a = render(<OriginBadges />);
-    const b = render(<OriginBadges />);
-    const idA = a.container.querySelector("mask")!.getAttribute("id");
-    const idB = b.container.querySelector("mask")!.getAttribute("id");
-    expect(idA).toBeTruthy();
-    expect(idA).not.toBe(idB);
+  it("writes the halal word in arabic inside the seal", () => {
+    const { container } = render(<OriginBadges />);
+    const halal = mark(container, "Halal")!;
+    expect(rings(halal)[0].getAttribute("class")).toContain("fill-morocco-green");
+
+    const word = halal.querySelector('text[lang="ar"]');
+    expect(word).not.toBeNull();
+    expect(word!.textContent).toBe("حلال");
+    expect(word!.getAttribute("text-anchor")).toBe("middle");
+    expect((word as SVGTextElement).style.fontFamily).toContain("Amiri");
+
+    const latin = halal.querySelector('text[lang="ar"] ~ text');
+    expect(latin!.textContent).toBe("HALAL");
   });
 
-  it("keeps both pennants smaller than the brand logo", () => {
+  it("drops the crescent, the star cut-out and the check mark", () => {
+    const { container } = render(<OriginBadges />);
+    const halal = mark(container, "Halal")!;
+    expect(halal.querySelector("mask")).toBeNull();
+    expect(halal.querySelectorAll("path").length).toBe(0);
+  });
+
+  it("gives both seals the same size so they look like a pair", () => {
+    const { container } = render(<OriginBadges />);
+    const sizes = Array.from(container.querySelectorAll("svg")).map((svg) =>
+      (svg.getAttribute("class") || "").replace(/shrink-0/g, "").trim(),
+    );
+    expect(sizes.length).toBe(2);
+    expect(sizes[0]).toBe(sizes[1]);
+  });
+
+  it("keeps both seals smaller than the brand logo", () => {
     const { container } = render(<OriginBadges />);
     const logoSource = readFileSync("src/components/BrandHeader.tsx", "utf8");
     const logoHeight = Number(logoSource.match(/h-(\d+)/)?.[1]);
@@ -59,9 +76,9 @@ describe("customer origin banner", () => {
 
     for (const svg of container.querySelectorAll("svg")) {
       const cls = svg.getAttribute("class") || "";
-      const pennantHeight = Number(cls.match(/(?:^|\s)h-(\d+)/)?.[1]);
-      expect(pennantHeight).toBeGreaterThan(0);
-      expect(pennantHeight).toBeLessThan(logoHeight);
+      const markHeight = Number(cls.match(/(?:^|\s)h-(\d+)/)?.[1]);
+      expect(markHeight).toBeGreaterThan(0);
+      expect(markHeight).toBeLessThan(logoHeight);
     }
   });
 });

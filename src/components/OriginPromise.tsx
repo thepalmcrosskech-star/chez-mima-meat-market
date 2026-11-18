@@ -1,14 +1,18 @@
-import { useId } from "react";
-
 export function OriginBadges({ className = "" }: { className?: string }) {
-  const crescentId = `halal-crescent-${useId().replace(/:/g, "")}`;
-
   return (
     <div className={`flex items-center justify-center gap-x-3 sm:gap-x-6 ${className}`}>
       <div className="flex items-center gap-2">
-        <svg viewBox="0 0 32 40" role="img" aria-label="Drapeau du Maroc" className="h-6 w-5 shrink-0 sm:h-7 sm:w-6">
-          <path d="M2 1 H30 V30 L16 39 L2 30 Z" className="fill-morocco-red" />
-          <path d="M16 7 L21.29 23.28 L7.44 13.22 L24.56 13.22 L10.71 23.28 Z" fill="none" className="stroke-morocco-green" strokeWidth="1.6" strokeLinejoin="round" />
+        <svg viewBox="0 0 100 100" role="img" aria-label="Drapeau du Maroc" className="h-9 w-9 shrink-0 sm:h-10 sm:w-10">
+          <circle cx="50" cy="50" r="49" className="fill-morocco-red" />
+          <circle cx="50" cy="50" r="42" fill="none" className="stroke-trust" strokeWidth="1.6" opacity="0.5" />
+          <path
+            d="M50 24 L56.47 41.1 L74.73 41.97 L60.46 53.4 L65.28 71.03 L50 61 L34.72 71.03 L39.54 53.4 L25.27 41.97 L43.53 41.1 Z"
+            className="fill-morocco-green"
+            stroke="hsl(var(--trust))"
+            strokeWidth="2"
+            strokeLinejoin="round"
+            opacity="0.95"
+          />
         </svg>
         <span className="flex flex-col text-left leading-tight">
           <span className="text-xs sm:text-sm font-semibold text-sidebar-foreground/95">100% fait au Maroc</span>
@@ -16,18 +20,29 @@ export function OriginBadges({ className = "" }: { className?: string }) {
         </span>
       </div>
       <div className="flex items-center gap-2">
-        <svg viewBox="0 0 32 40" role="img" aria-label="Croissant et étoile" className="h-6 w-5 shrink-0 sm:h-7 sm:w-6">
-          <defs>
-            <mask id={crescentId}>
-              <rect width="32" height="40" fill="black" />
-              <circle cx="16" cy="16" r="9" fill="white" />
-              <circle cx="19.5" cy="13.5" r="7.6" fill="black" />
-            </mask>
-          </defs>
-          <path d="M2 1 H30 V30 L16 39 L2 30 Z" className="fill-morocco-green" />
-          <path d="M4.5 3.5 H27.5 V28.6 L16 36 L4.5 28.6 Z" fill="none" className="stroke-trust" strokeWidth="0.9" opacity="0.7" />
-          <rect width="32" height="40" className="fill-trust" mask={`url(#${crescentId})`} />
-          <path d="M21.6 10.2 L22.5 12.8 L25.2 12.8 L23 14.4 L23.8 17 L21.6 15.4 L19.4 17 L20.2 14.4 L18 12.8 L20.7 12.8 Z" className="fill-trust" />
+        <svg viewBox="0 0 100 100" role="img" aria-label="Halal" className="h-9 w-9 shrink-0 sm:h-10 sm:w-10">
+          <circle cx="50" cy="50" r="49" className="fill-morocco-green" />
+          <circle cx="50" cy="50" r="42" fill="none" className="stroke-trust" strokeWidth="1.6" opacity="0.5" />
+          <text
+            x="50"
+            y="55"
+            lang="ar"
+            textAnchor="middle"
+            className="fill-trust"
+            style={{ fontFamily: "'Amiri', 'Geeza Pro', 'Noto Naskh Arabic', serif", fontSize: 36, fontWeight: 700 }}
+          >
+            حلال
+          </text>
+          <text
+            x="50"
+            y="78"
+            textAnchor="middle"
+            className="fill-trust"
+            opacity="0.8"
+            style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 13, letterSpacing: 2, fontWeight: 700 }}
+          >
+            HALAL
+          </text>
         </svg>
         <span className="flex flex-col text-left leading-tight">
           <span className="text-xs sm:text-sm font-semibold text-trust">100% Halal</span>
