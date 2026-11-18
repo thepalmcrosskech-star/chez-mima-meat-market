@@ -924,6 +924,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      assert_order_ip_allowed: { Args: never; Returns: undefined }
       can_driver_view_customer_profile: {
         Args: { _customer_id: string }
         Returns: boolean
@@ -972,6 +973,7 @@ export type Database = {
         Args: { _order_id: string }
         Returns: undefined
       }
+      order_request_ips: { Args: never; Returns: unknown[] }
       respond_to_driver_assignment: {
         Args: { _order_id: string; _response: string }
         Returns: string
