@@ -150,7 +150,8 @@ const LoginPage = () => {
               <Input
                 id="password"
                 type="password"
-                placeholder="••••••••"
+                placeholder="6 caractères minimum"
+                className="focus:placeholder:text-transparent"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
