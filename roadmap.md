@@ -49,3 +49,4 @@
 - [x] Illustrate Salami — FRO, Spianata — FRO, Brillat-Savarin · 200 g and Bûchette ail & fines herbes · 150 g in the accepted original scene; all four illustrations attached to existing products and loaded on their correct pages without runtime errors or commercial changes.
 - [x] Show "100% Marocain" and "100% Halal" to customers on home, product, login and checkout screens; six tests passed and all three checked screens verified.
 - [x] Integrate the promise into customer headers with matching Morocco/halal pennants, reassuring green accents and restored secondary captions; no separate band. Verified desktop and 320/390px customer screens and scrolling, nine regression tests passed.
+- [ ] Slim the customer origin banner: both pennants smaller than the brand logo, and the halal pennant carries a clearly religious emblem (crescent with star) instead of the rejected heavy crescent or check; verified by rendering the pennant at its real on-screen size.
