@@ -1,5 +1,5 @@
 import { CustomerHeader } from "@/components/OriginPromise";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { AppLink } from "@/components/AppLink";
 import { Plus, Loader2, Sun, Moon, ChevronRight, Beef } from "lucide-react";
@@ -47,10 +47,48 @@ const HomePage = () => {
   const [currentBanner, setCurrentBanner] = useState(0);
   const [productRatings, setProductRatings] = useState<Record<string, number>>({});
   const [themeIcon, setThemeIcon] = useState<string>(localStorage.getItem("theme") || "light");
+  const pageRef = useRef<HTMLDivElement>(null);
+  const categoryBarRef = useRef<HTMLElement>(null);
+  const [headerHeight, setHeaderHeight] = useState(0);
+  const [categoryBarStuck, setCategoryBarStuck] = useState(false);
 
   useEffect(() => {
     fetchData();
   }, []);
+
+  // The category bar sticks right under the sticky banner: measure that banner.
+  useEffect(() => {
+    const banner = pageRef.current?.querySelector(".customer-header") as HTMLElement | null;
+    if (!banner) return;
+    const measure = () => setHeaderHeight(banner.getBoundingClientRect().height);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(banner);
+    window.addEventListener("resize", measure);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, []);
+
+  useEffect(() => {
+    const bar = categoryBarRef.current;
+    if (!bar) return;
+    let frame = 0;
+    const check = () => {
+      frame = 0;
+      setCategoryBarStuck(bar.getBoundingClientRect().top <= headerHeight + 1);
+    };
+    const onScroll = () => {
+      if (!frame) frame = window.requestAnimationFrame(check);
+    };
+    check();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (frame) window.cancelAnimationFrame(frame);
+    };
+  }, [headerHeight]);
 
   const fetchData = async () => {
     setLoading(true);
@@ -136,7 +174,7 @@ const HomePage = () => {
   })();
 
   return (
-    <div className="client-page min-h-screen bg-background">
+    <div ref={pageRef} className="client-page min-h-screen bg-background">
       {/* Header */}
       <CustomerHeader>
       <header className="brand-header sticky top-0 z-40 px-4 py-3 flex items-center justify-between border-b-4 border-primary">
@@ -232,7 +270,13 @@ const HomePage = () => {
       )}
 
       {/* Categories */}
-      <section className="px-4 mt-5 mb-6">
+      <section
+        ref={categoryBarRef}
+        className={`px-4 mt-5 mb-6 sticky z-30 bg-background transition-shadow duration-200 ${
+          categoryBarStuck ? "shadow-[0_6px_14px_-8px_hsl(var(--foreground)/.35)]" : ""
+        }`}
+        style={{ top: headerHeight }}
+      >
         <div className="relative">
           <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
             {categories.map((category) => (
