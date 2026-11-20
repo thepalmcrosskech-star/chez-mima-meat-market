@@ -36,6 +36,13 @@
       "when": 1795011464850,
       "tag": "0004_check_ip_before_order_validation",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1795137267785,
+      "tag": "0005_categories_is_active",
+      "breakpoints": true
     }
   ]
 }

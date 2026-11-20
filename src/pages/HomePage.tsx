@@ -94,7 +94,7 @@ const HomePage = () => {
     setLoading(true);
     try {
       const [categoriesRes, productsRes, bannersRes, reviewsRes] = await Promise.all([
-        supabase.from("categories").select("*").order("sort_order"),
+        supabase.from("categories").select("*").eq("is_active", true).order("sort_order"),
         supabase.from("products").select("*"),
         supabase.from("banners").select("*").eq("is_active", true).order("sort_order"),
         supabase.rpc("get_public_product_ratings"),
@@ -102,7 +102,8 @@ const HomePage = () => {
 
       const hadErrors = [categoriesRes, productsRes, bannersRes, reviewsRes].some(({ error }) => error);
       setCategories(categoriesRes.data ?? []);
-      setProducts(productsRes.data ?? []);
+      const visibleCats = new Set((categoriesRes.data ?? []).map((c) => c.id));
+      setProducts((productsRes.data ?? []).filter((p) => !p.category_id || visibleCats.has(p.category_id)));
       setBanners((bannersRes.data ?? []) as Banner[]);
 
       const ratingsMap: Record<string, { sum: number; count: number }> = {};

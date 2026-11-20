@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, GripVertical } from "lucide-react";
+import { Plus, Pencil, Trash2, GripVertical, Eye, EyeOff } from "lucide-react";
 
 interface Category {
   id: string;
@@ -15,6 +15,7 @@ interface Category {
   emoji: string | null;
   image_url: string | null;
   sort_order: number | null;
+  is_active: boolean;
 }
 
 const AdminCategories = () => {
@@ -62,6 +63,12 @@ const AdminCategories = () => {
     }
   };
 
+  const toggleVisible = async (c: Category) => {
+    const { error } = await supabase.from("categories").update({ is_active: !c.is_active }).eq("id", c.id);
+    if (error) toast({ title: "Erreur", description: error.message, variant: "destructive" });
+    else { toast({ title: c.is_active ? "Catégorie masquée" : "Catégorie visible" }); fetchCategories(); }
+  };
+
   const handleDelete = async (id: string) => {
     if (!confirm("Supprimer cette catégorie ?")) return;
     const { error } = await supabase.from("categories").delete().eq("id", id);
@@ -105,12 +112,13 @@ const AdminCategories = () => {
             </TableHeader>
             <TableBody>
               {categories.map((c) => (
-                <TableRow key={c.id}>
+                <TableRow key={c.id} className={c.is_active ? "" : "opacity-50"}>
                   <TableCell><GripVertical className="h-4 w-4 text-muted-foreground" /></TableCell>
                   <TableCell className="text-2xl">{c.emoji}</TableCell>
-                  <TableCell className="font-medium">{c.name}</TableCell>
+                  <TableCell className="font-medium">{c.name}{!c.is_active && <span className="ml-2 text-xs text-muted-foreground">(masquée)</span>}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-1">
+                      <Button variant="ghost" size="icon" aria-label={c.is_active ? "Masquer" : "Afficher"} onClick={() => toggleVisible(c)}>{c.is_active ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}</Button>
                       <Button variant="ghost" size="icon" onClick={() => openEdit(c)}><Pencil className="h-4 w-4" /></Button>
                       <Button variant="ghost" size="icon" className="text-destructive" onClick={() => handleDelete(c.id)}><Trash2 className="h-4 w-4" /></Button>
                     </div>
