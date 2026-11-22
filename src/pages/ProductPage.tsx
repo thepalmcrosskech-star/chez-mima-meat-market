@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import { catalogueGallery } from "@/lib/catalogue-gallery";
+import { ProductPhoto } from "@/components/ProductPhoto";
 
 const CHARCUTERIE_CATEGORY_ID = "f6741cb2-ac67-47bb-900d-8d54fb05d1e6";
 
@@ -273,31 +274,29 @@ const ProductPage = () => {
           className="fixed inset-0 z-[100] bg-overlay/90 flex items-center justify-center cursor-zoom-out animate-in fade-in duration-200"
           onClick={() => setImageZoomed(false)}
         >
-          <img
+          <ProductPhoto
             src={displayedImage.url}
             alt={displayedImage.label}
-            className="max-w-[95vw] max-h-[90vh] object-contain rounded-lg animate-in zoom-in-90 duration-300"
+            className="h-[90dvh] w-[95vw] bg-transparent"
+            imageClassName="object-contain"
           />
         </div>
       )}
 
       {/* Product Image */}
-      <div
-        className="w-full aspect-square bg-accent/20 relative overflow-hidden cursor-zoom-in"
-        onClick={() => displayedImage && setImageZoomed(true)}
-      >
-        {displayedImage ? (
-          <img
+      {displayedImage ? (
+          <ProductPhoto
+            key={displayedImage.url}
             src={displayedImage.url}
             alt={displayedImage.label}
-            className="absolute inset-0 w-full h-full object-cover"
+            className="w-full aspect-[848/1264]"
+            onOpen={() => setImageZoomed(true)}
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center">
+          <div className="w-full aspect-square bg-accent/20 flex items-center justify-center">
             <Beef className="h-20 w-20 text-muted-foreground/40" aria-hidden="true" />
           </div>
         )}
-      </div>
 
       {gallery.length > 1 && (
         <div className="flex gap-2 overflow-x-auto px-4 py-3">

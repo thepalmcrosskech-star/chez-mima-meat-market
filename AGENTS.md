@@ -6,6 +6,7 @@
 - Resolve access from protected user_roles; profile roles are compatibility mirrors changed only by validated RPCs, so editing a profile cannot grant privileges.
 - Bootstrap the first administrator only through a locked, single-use reservation and a confirmed matching auth email; never grant the first signup administrator access.
 - Keep catalogue media in CDN asset pointers and attach by existing product ID; supplementary gallery views do not create sellable variants or change order data.
+- Use ProductPhoto for product detail and enlarged media; decode the displayed image before revealing it and preserve portrait framing so partial downloads and square cropping cannot hide the product.
 - Derive administrator push content and recipients from a stored order; reserve custom delivery messages for authenticated internal calls, and prohibit anonymous IP probing to protect customer privacy.
 - Decode the displayed splash logo before revealing it, skip the splash on failed or stalled media, and keep its completion callback stable so startup never presents a partial logo or blocks the application.
 - Centralize visual identity in semantic HSL tokens, shared controls and a project-owned logo pointer; presentation changes must not alter data or business workflows.
