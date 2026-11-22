@@ -7,7 +7,7 @@
 - Bootstrap the first administrator only through a locked, single-use reservation and a confirmed matching auth email; never grant the first signup administrator access.
 - Keep catalogue media in CDN asset pointers and attach by existing product ID; supplementary gallery views do not create sellable variants or change order data.
 - Derive administrator push content and recipients from a stored order; reserve custom delivery messages for authenticated internal calls, and prohibit anonymous IP probing to protect customer privacy.
-- Bound splash image loading and keep its completion callback stable so stalled media or parent renders cannot indefinitely hide the application.
+- Decode the displayed splash logo before revealing it, skip the splash on failed or stalled media, and keep its completion callback stable so startup never presents a partial logo or blocks the application.
 - Centralize visual identity in semantic HSL tokens, shared controls and a project-owned logo pointer; presentation changes must not alter data or business workflows.
 - Wrap customer page headers in CustomerHeader so the shared origin promise is integrated into the same sticky banner without duplicate badges; keep staff headers independent.
 - Keep catalogue browsing public; require a session to add to cart and to check out, returning customers only to same-origin non-staff paths after login, so role destinations stay protected.- Group catalogue variants (e.g. drink flavours) through the nullable products.family field; each variant stays its own product so stock, price and availability are managed individually.

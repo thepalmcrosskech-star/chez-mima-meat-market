@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { brandLogo as logo } from "@/lib/brand";
 
 interface SplashScreenProps {
@@ -9,22 +9,46 @@ const SplashScreen = ({ onComplete }: SplashScreenProps) => {
   const [fadeOut, setFadeOut] = useState(false);
   const [stage, setStage] = useState(0);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const logoRef = useRef<HTMLImageElement>(null);
 
-  // A stalled image must never prevent the underlying application from opening.
+  // Wait for the displayed image itself, including decoding, not a second preload.
+  // Failed or stalled media skips the splash instead of showing a logo-less title.
   useEffect(() => {
-    const img = new Image();
-    const fallback = window.setTimeout(() => setImageLoaded(true), 1200);
-    img.onload = () => setImageLoaded(true);
-    img.onerror = () => setImageLoaded(true); // proceed anyway on error
-    img.src = logo;
-    // If image is already cached
-    if (img.complete) setImageLoaded(true);
-    return () => {
-      window.clearTimeout(fallback);
-      img.onload = null;
-      img.onerror = null;
+    const img = logoRef.current;
+    if (!img) return;
+    let active = true;
+    let ready = false;
+    const skip = () => {
+      if (!active || ready) return;
+      active = false;
+      onComplete();
     };
-  }, []);
+    const fallback = window.setTimeout(skip, 1200);
+    const reveal = async () => {
+      if (!img.naturalWidth) {
+        skip();
+        return;
+      }
+      try {
+        if (img.decode) await img.decode();
+        if (!active) return;
+        ready = true;
+        window.clearTimeout(fallback);
+        setImageLoaded(true);
+      } catch {
+        skip();
+      }
+    };
+    img.addEventListener("load", reveal);
+    img.addEventListener("error", skip);
+    if (img.complete) void reveal();
+    return () => {
+      active = false;
+      window.clearTimeout(fallback);
+      img.removeEventListener("load", reveal);
+      img.removeEventListener("error", skip);
+    };
+  }, [onComplete]);
 
   useEffect(() => {
     if (!imageLoaded) return;
@@ -53,17 +77,21 @@ const SplashScreen = ({ onComplete }: SplashScreenProps) => {
       {/* Logo */}
       <div className="relative z-10 flex flex-col items-center gap-5">
         <div
-          className="relative transition-all duration-700 ease-out"
+          className="relative transition-opacity duration-300 motion-reduce:transition-none"
           style={{
-            transform: stage >= 1 ? "scale(1) translateY(0)" : "scale(0.3) translateY(40px)",
-            opacity: stage >= 1 ? 1 : 0,
+            opacity: imageLoaded ? 1 : 0,
           }}
         >
           <div className="relative px-3 py-2">
             <img
+              ref={logoRef}
               src={logo}
               alt="Chez Mima"
-              className="w-64 max-w-[78vw] h-auto object-contain"
+              width={768}
+              height={570}
+              loading="eager"
+              {...{ fetchpriority: "high" }}
+              className="w-64 max-w-[78vw] aspect-[1200/890] object-contain"
             />
           </div>
         </div>
