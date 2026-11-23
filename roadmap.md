@@ -1,4 +1,5 @@
 - [ ] Create the dedicated employee portal: counter sales with receipts, application order management, product management, employee invitations and server-enforced limited access.
+- [ ] Add an Application section to Chez Mima Gestion; confirm whether it should host the employee portal, then implement it in that separate project.
 - [x] Enforce IP bans on all server-side order creation at RPC entry and insert; signed-in direct pickup/delivery and forged-header calls blocked, customer unban denied, admin unban verified through the real button and order validation restored. Six tests passed; no test orders or bans retained.
 - [x] Open the catalogue and cart to visitors; require an account at checkout and preserve the basket and checkout return after login. Guest catalogue/product/cart and authenticated checkout with the same basket verified on desktop, mobile catalogue visible; nine tests passed. No purchase created; publication remains required.
 - [x] Make the logo subtitle readable on white by recoloring only its existing pixels in brand red; preserve the exact alpha channel, bull, main name and stars, and retain the original asset for earlier versions.
