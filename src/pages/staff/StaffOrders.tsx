@@ -24,7 +24,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { formatPrice, getStatusInfo } from "@/lib/format";
-import { canAdjustItems, canCancelAtCounter, nextStaffOrderAction, staffOrderSteps, unavailablePolicyLabel, WEIGHT_TOLERANCE, isWeightWithinTolerance } from "@/lib/staff-order-workflow";
+import { canAdjustItems, canCancelAtCounter, nextStaffOrderAction, staffOrderSteps, unavailablePolicyLabel } from "@/lib/staff-order-workflow";
 import { getWeightOptions, isWeightUnit } from "@/lib/product-units";
 import { formatCartQuantity } from "@/lib/cart-display";
 import { toast } from "@/hooks/use-toast";
@@ -216,28 +216,6 @@ export default function StaffOrders() {
       return;
     }
     toast({ title: "Article retiré", description: "Le total a été recalculé et le client prévenu." });
-    await Promise.all([fetchOrders(), loadItems(selectedOrder.id)]);
-  };
-
-  const weighItem = async (item: StaffOrderItem) => {
-    if (!selectedOrder) return;
-    const ordered = Number(item.ordered_quantity_value ?? item.quantity_value);
-    const answer = window.prompt(`Poids réel pesé pour « ${item.product_name} » en grammes (commandé : ${Math.round(ordered * 1000)} g, marge ±${WEIGHT_TOLERANCE * 100} %) :`);
-    if (!answer) return;
-    const grams = Number(answer.replace(",", "."));
-    const kg = grams / 1000;
-    if (!Number.isFinite(grams) || !isWeightWithinTolerance(ordered, kg)) {
-      toast({ title: "Écart trop important", description: `Accepté entre ${Math.round(ordered * 900)} et ${Math.round(ordered * 1100)} g. Ajustez la pièce.`, variant: "destructive" });
-      return;
-    }
-    setSaving(true);
-    const { error } = await supabase.rpc("staff_set_item_weight", { _item_id: item.id, _weight_kg: kg });
-    setSaving(false);
-    if (error) {
-      toast({ title: "Poids refusé", description: error.message, variant: "destructive" });
-      return;
-    }
-    toast({ title: "Poids enregistré", description: "Le prix a été recalculé." });
     await Promise.all([fetchOrders(), loadItems(selectedOrder.id)]);
   };
 
@@ -541,8 +519,7 @@ export default function StaffOrders() {
                       <span className={`shrink-0 font-bold ${removed ? "line-through text-muted-foreground" : ""}`}>{formatPrice(item.line_total)}</span>
                     </div>
                     {adjustable && !removed && (
-                      <div className={`grid gap-2 ${item.quantity.endsWith("kg") ? "grid-cols-3" : "grid-cols-2"}`}>
-                        {item.quantity.endsWith("kg") && <Button variant="outline" size="sm" disabled={saving} onClick={() => weighItem(item)}>Poids réel</Button>}
+                      <div className="grid grid-cols-2 gap-2">
                         <Button variant="outline" size="sm" disabled={saving} onClick={() => openReplace(item)}>Remplacer</Button>
                         <Button variant="outline" size="sm" className="text-destructive" disabled={saving} onClick={() => removeItem(item)}>Retirer</Button>
                       </div>
