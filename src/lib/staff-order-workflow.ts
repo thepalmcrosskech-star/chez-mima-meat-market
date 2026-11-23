@@ -23,12 +23,6 @@ export const unavailablePolicies = [
 export const unavailablePolicyLabel = (value: string) =>
   unavailablePolicies.find((policy) => policy.value === value)?.short ?? "Appeler le client";
 
-/** Weighed items are accepted automatically within this share of the ordered weight (server enforces it too). */
-export const WEIGHT_TOLERANCE = 0.1;
-
-export function isWeightWithinTolerance(orderedKg: number, actualKg: number): boolean {
-  return actualKg > 0 && Math.abs(actualKg - orderedKg) <= orderedKg * WEIGHT_TOLERANCE + 0.0001;
-}
 
 const needsPaymentConfirmation = (order: StaffWorkflowOrder) => order.payment_method !== "card";
 

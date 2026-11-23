@@ -113,6 +113,13 @@
       "when": 1795456942396,
       "tag": "0015_counter_weight_tolerance_and_two_policies",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1795457131023,
+      "tag": "0016_disable_staff_item_weight",
+      "breakpoints": true
     }
   ]
 }

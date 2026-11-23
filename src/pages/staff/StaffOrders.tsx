@@ -512,7 +512,6 @@ export default function StaffOrders() {
                       <div className="min-w-0">
                         <p className={`font-semibold ${removed ? "line-through text-muted-foreground" : ""}`}>{item.product_name}</p>
                         <p className="text-muted-foreground">{formatCartQuantity(Number(item.quantity_value), item.quantity.endsWith("kg") ? "weight" : "piece")} × {formatPrice(item.unit_price)}</p>
-                        {item.ordered_quantity_value != null && Number(item.ordered_quantity_value) !== Number(item.quantity_value) && <p className="text-xs text-muted-foreground">Commandé : {Math.round(Number(item.ordered_quantity_value) * 1000)} g</p>}
                         {item.item_status === "replaced" && <p className="text-xs font-semibold text-warning">Remplace : {item.original_product_name}</p>}
                         {removed && <p className="text-xs font-semibold text-destructive">Retiré (indisponible)</p>}
                       </div>

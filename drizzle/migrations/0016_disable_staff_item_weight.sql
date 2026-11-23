@@ -1,0 +1,2 @@
+REVOKE EXECUTE ON FUNCTION public.staff_set_item_weight(uuid, numeric) FROM authenticated, PUBLIC, anon;
+COMMENT ON FUNCTION public.staff_set_item_weight(uuid, numeric) IS 'DEPRECATED: real weight is recorded on the Gestion till receipt, not in the app';
