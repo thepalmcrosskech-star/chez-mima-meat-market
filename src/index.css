@@ -185,3 +185,14 @@
 /* Empêche le mode sombre forcé d'Android/Samsung de repeindre l'app */
 :root { color-scheme: light; }
 :root.dark { color-scheme: dark; }
+
+.delivery-location-pin {
+  display: block;
+  width: 28px;
+  height: 28px;
+  border: 3px solid hsl(var(--card));
+  border-radius: 50% 50% 50% 0;
+  background: hsl(var(--primary));
+  box-shadow: var(--shadow-card);
+  transform: rotate(-45deg);
+}

@@ -65,3 +65,4 @@
 - [x] Lighten 125 active catalogue and brochette-gallery photos with dimension-preserving WebP conversion; retain ten originals whose conversion was larger. All 125 new CDN files verified, four regression tests passed, and Filet Poulet plus the lightened brochette gallery rendered without errors on mobile WebKit and desktop Chromium.
 - [x] Weekly per-day order hours (open/close/pause/closed) in admin settings; richer store info card.
 - [ ] Show the shop location/directions on order tracking for pickup orders.
+- [x] Simplify customer delivery location with keyless OpenStreetMap, GPS, adjustable pin and Moroccan address complements; three regression tests and authenticated customer GPS/map/residence flow verified at mobile and desktop sizes without creating an order. Existing delivery-zone coverage remains unchanged.

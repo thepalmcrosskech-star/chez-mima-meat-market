@@ -1,10 +1,9 @@
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { MapPin, Search, Loader2, Crosshair } from "lucide-react";
-import MapboxMap, { getMapboxToken } from "@/components/MapboxMap";
-import mapboxgl from "mapbox-gl";
+import { MapPin, Map, Loader2, Crosshair, Check } from "lucide-react";
+import DeliveryLocationMap from "@/components/DeliveryLocationMap";
 
 interface AddressPickerProps {
   onSelect: (address: { full_address: string; latitude: number; longitude: number }) => void;
@@ -12,160 +11,83 @@ interface AddressPickerProps {
 }
 
 const AddressPicker = ({ onSelect, defaultValue }: AddressPickerProps) => {
-  const [query, setQuery] = useState(defaultValue?.full_address || "");
-  const [suggestions, setSuggestions] = useState<any[]>([]);
-  const [searching, setSearching] = useState(false);
-  const [selectedCoords, setSelectedCoords] = useState<[number, number] | null>(
+  const [addressText, setAddressText] = useState(defaultValue?.full_address || "");
+  const [coordinates, setCoordinates] = useState<[number, number] | null>(
     defaultValue ? [defaultValue.longitude, defaultValue.latitude] : null
   );
+  const [showMap, setShowMap] = useState(false);
   const [locating, setLocating] = useState(false);
-  const [token, setToken] = useState("");
-  const markerRef = useRef<mapboxgl.Marker | null>(null);
-  const mapRef = useRef<mapboxgl.Map | null>(null);
-  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+  const [error, setError] = useState("");
+  const [accuracy, setAccuracy] = useState<number | null>(null);
 
-  useEffect(() => {
-    getMapboxToken().then(setToken);
-  }, []);
-
-  const searchAddress = async (text: string) => {
-    if (text.length < 3 || !token) return;
-    setSearching(true);
-    try {
-      const res = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(text)}.json?access_token=${token}&country=ma&language=fr&limit=5`
-      );
-      const data = await res.json();
-      setSuggestions(data.features || []);
-    } catch {
-      setSuggestions([]);
-    } finally {
-      setSearching(false);
-    }
+  const notify = (point: [number, number], text: string) => {
+    onSelect({
+      full_address: text.trim() || `Position GPS : ${point[1].toFixed(5)}, ${point[0].toFixed(5)}`,
+      latitude: point[1], longitude: point[0],
+    });
   };
 
-  const handleInputChange = (value: string) => {
-    setQuery(value);
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => searchAddress(value), 400);
-  };
-
-  const selectSuggestion = (feature: any) => {
-    const [lng, lat] = feature.center;
-    setQuery(feature.place_name);
-    setSelectedCoords([lng, lat]);
-    setSuggestions([]);
-    onSelect({ full_address: feature.place_name, latitude: lat, longitude: lng });
-    updateMarker([lng, lat]);
-  };
-
-  const handleMapClick = (lngLat: { lng: number; lat: number }) => {
-    setSelectedCoords([lngLat.lng, lngLat.lat]);
-    updateMarker([lngLat.lng, lngLat.lat]);
-    // Always notify parent with coordinates immediately
-    const fallbackAddress = `${lngLat.lat.toFixed(5)}, ${lngLat.lng.toFixed(5)}`;
-    onSelect({ full_address: fallbackAddress, latitude: lngLat.lat, longitude: lngLat.lng });
-    // Then try to get a proper address name
-    reverseGeocode(lngLat.lng, lngLat.lat);
-  };
-
-  const reverseGeocode = async (lng: number, lat: number) => {
-    if (!token) return;
-    try {
-      const res = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${token}&language=fr&limit=1`
-      );
-      const data = await res.json();
-      const placeName = data.features?.[0]?.place_name || `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
-      setQuery(placeName);
-      onSelect({ full_address: placeName, latitude: lat, longitude: lng });
-    } catch {
-      onSelect({ full_address: `${lat.toFixed(5)}, ${lng.toFixed(5)}`, latitude: lat, longitude: lng });
-    }
-  };
-
-  const updateMarker = (coords: [number, number]) => {
-    if (markerRef.current) markerRef.current.remove();
-    if (mapRef.current) {
-      markerRef.current = new mapboxgl.Marker({ color: "#D3111A" }).setLngLat(coords).addTo(mapRef.current);
-      mapRef.current.flyTo({ center: coords, zoom: 15 });
-    }
-  };
-
-  const handleMapReady = (map: mapboxgl.Map) => {
-    mapRef.current = map;
-    if (selectedCoords) {
-      updateMarker(selectedCoords);
-      map.flyTo({ center: selectedCoords, zoom: 15 });
-    }
+  const selectPoint = (point: [number, number]) => {
+    setCoordinates(point);
+    setError("");
+    setAccuracy(null);
+    notify(point, addressText);
   };
 
   const geolocate = () => {
-    if (!navigator.geolocation) return;
+    setError("");
+    if (!navigator.geolocation) {
+      setError("La localisation n’est pas disponible sur cet appareil. Vous pouvez choisir votre position sur le plan.");
+      setShowMap(true);
+      return;
+    }
     setLocating(true);
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const coords: [number, number] = [pos.coords.longitude, pos.coords.latitude];
-        setSelectedCoords(coords);
-        updateMarker(coords);
-        // Always notify parent immediately
-        const fallbackAddress = `${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`;
-        onSelect({ full_address: fallbackAddress, latitude: pos.coords.latitude, longitude: pos.coords.longitude });
-        reverseGeocode(coords[0], coords[1]);
+      (position) => {
+        const point: [number, number] = [position.coords.longitude, position.coords.latitude];
+        selectPoint(point);
+        setAccuracy(position.coords.accuracy);
+        setShowMap(true);
         setLocating(false);
       },
-      () => setLocating(false),
-      { enableHighAccuracy: true }
+      (failure) => {
+        setError(failure.code === 1
+          ? "La localisation est refusée. Autorisez-la dans votre navigateur ou choisissez votre position sur le plan."
+          : "Votre position n’a pas pu être trouvée. Réessayez ou choisissez votre position sur le plan.");
+        setShowMap(true);
+        setLocating(false);
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
   };
 
-  return (
-    <div className="space-y-3">
-      <div>
-        <Label className="flex items-center gap-2 mb-1"><MapPin className="h-4 w-4" /> Adresse</Label>
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            value={query}
-            onChange={(e) => handleInputChange(e.target.value)}
-            placeholder="Rechercher une adresse..."
-            className="pl-10 pr-10"
-          />
-          {searching && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />}
-        </div>
-
-        {suggestions.length > 0 && (
-          <div className="mt-1 border border-border rounded-lg bg-popover overflow-hidden shadow-lg z-50 relative">
-            {suggestions.map((s: any) => (
-              <button
-                key={s.id}
-                onClick={() => selectSuggestion(s)}
-                className="w-full text-left px-3 py-2 text-sm hover:bg-accent transition-colors flex items-start gap-2"
-              >
-                <MapPin className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
-                <span>{s.place_name}</span>
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-
-      <div className="flex gap-2">
-        <Button type="button" variant="secondary" size="sm" onClick={geolocate} disabled={locating} className="gap-2">
-          <Crosshair className="h-4 w-4" />
-          {locating ? "Localisation..." : "Ma position"}
-        </Button>
-      </div>
-
-      <MapboxMap className="w-full h-48" onClick={handleMapClick} onMapReady={handleMapReady} />
-
-      {selectedCoords && (
-        <p className="text-xs text-muted-foreground">
-          📍 {selectedCoords[1].toFixed(5)}, {selectedCoords[0].toFixed(5)}
-        </p>
-      )}
+  return <div className="space-y-3">
+    <div className="grid gap-2 sm:grid-cols-2">
+      <Button type="button" onClick={geolocate} disabled={locating} className="gap-2 h-auto min-h-12 py-3 whitespace-normal">
+        {locating ? <Loader2 className="h-5 w-5 shrink-0 animate-spin" /> : <Crosshair className="h-5 w-5 shrink-0" />}
+        {locating ? "Localisation en cours…" : "Autoriser et me localiser"}
+      </Button>
+      <Button type="button" variant="outline" aria-expanded={showMap} onClick={() => setShowMap(!showMap)} className="gap-2 h-auto min-h-12 py-3 whitespace-normal">
+        <Map className="h-5 w-5 shrink-0" />
+        {showMap ? "Masquer le plan" : "Choisir sur le plan"}
+      </Button>
     </div>
-  );
+    {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
+    {showMap && <DeliveryLocationMap coordinates={coordinates} onSelect={selectPoint} />}
+    {coordinates && <p role="status" className="flex items-start gap-2 text-sm text-success">
+      <Check className="h-4 w-4 mt-0.5 shrink-0" />
+      <span>Position sélectionnée{accuracy !== null ? ` · précision estimée : ${Math.round(accuracy)} m` : ""}</span>
+    </p>}
+    <div>
+      <Label htmlFor="delivery-residence" className="flex items-center gap-2 mb-1 text-xs">
+        <MapPin className="h-4 w-4" /> Quartier / Résidence / Rue
+      </Label>
+      <Input id="delivery-residence" value={addressText} onChange={event => {
+        setAddressText(event.target.value);
+        if (coordinates) notify(coordinates, event.target.value);
+      }} placeholder="Ex. Guéliz, résidence Les Palmiers" />
+    </div>
+  </div>;
 };
 
 export default AddressPicker;

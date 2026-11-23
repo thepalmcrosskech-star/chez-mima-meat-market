@@ -411,12 +411,12 @@ const CheckoutPage = () => {
                 </div>
                 <AddressPicker onSelect={(a) => setNewAddress(a)} />
                 <div>
-                  <Label className="text-xs">Appartement / Étage (optionnel)</Label>
-                  <Input value={apartment} onChange={(e) => setApartment(e.target.value)} placeholder="Appt 3, 2ème étage" className="mt-1" />
+                  <Label htmlFor="delivery-apartment" className="text-xs">Étage / Numéro d’appartement (optionnel)</Label>
+                  <Input id="delivery-apartment" value={apartment} onChange={(e) => setApartment(e.target.value)} placeholder="Appt 3, 2ème étage" className="mt-1" />
                 </div>
                 <div>
-                  <Label className="text-xs">Instructions pour le livreur (optionnel)</Label>
-                  <Textarea value={instructions} onChange={(e) => setInstructions(e.target.value)} placeholder="Code porte, sonnette..." rows={2} className="mt-1" />
+                  <Label htmlFor="delivery-instructions" className="text-xs">Repère / Consignes pour le coursier (optionnel)</Label>
+                  <Textarea id="delivery-instructions" value={instructions} onChange={(e) => setInstructions(e.target.value)} placeholder="En face de la pharmacie…, code porte, sonnette…" rows={2} className="mt-1" />
                 </div>
               </Card>
             )}
