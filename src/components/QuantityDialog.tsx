@@ -1,3 +1,4 @@
+import { productThumbnail } from "@/lib/productThumbnail";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } from "@/components/ui/drawer";
@@ -62,7 +63,7 @@ const QuantityContent = ({
       <div className="flex items-center gap-3 w-full">
         <div className="w-16 h-16 rounded-xl overflow-hidden bg-accent/30 shrink-0">
           {product.image_url ? (
-            <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
+            <img src={productThumbnail(product.image_url)} alt={product.name} className="w-full h-full object-cover" />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
               <div className="w-8 h-8 rounded-full bg-primary/20" />

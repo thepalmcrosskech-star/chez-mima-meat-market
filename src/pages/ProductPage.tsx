@@ -1,3 +1,4 @@
+import { productThumbnail } from "@/lib/productThumbnail";
 import { CustomerHeader } from "@/components/OriginPromise";
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -354,7 +355,7 @@ const ProductPage = () => {
                   >
                     <span className="aspect-square w-full overflow-hidden rounded-md bg-muted relative">
                       {variant.image_url ? (
-                        <img src={variant.image_url} alt="" className="absolute inset-0 h-full w-full object-cover" loading="lazy" />
+                        <img src={productThumbnail(variant.image_url)} alt="" className="absolute inset-0 h-full w-full object-cover" loading="lazy" />
                       ) : (
                         <Beef className="absolute inset-0 m-auto h-6 w-6 text-muted-foreground/40" aria-hidden="true" />
                       )}

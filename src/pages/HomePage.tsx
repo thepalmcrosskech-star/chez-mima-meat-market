@@ -1,3 +1,4 @@
+import { productThumbnail } from "@/lib/productThumbnail";
 import { CustomerHeader } from "@/components/OriginPromise";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -369,10 +370,11 @@ const HomePage = () => {
                   <div className="aspect-square bg-gradient-to-br from-muted/20 to-muted/40 flex items-center justify-center relative overflow-hidden">
                     {product.image_url ? (
                       <img
-                        src={product.image_url}
+                        src={productThumbnail(product.image_url)}
                         alt={title}
                         className={`absolute inset-0 w-full h-full object-cover transition-all duration-300 ${unavailable ? "opacity-60 blur-[1px]" : ""}`}
-                        loading="lazy"
+                        loading={index < 4 ? "eager" : "lazy"}
+                        decoding="async"
                       />
                     ) : (
                       <Beef className="h-14 w-14 text-muted-foreground/40" aria-hidden="true" />

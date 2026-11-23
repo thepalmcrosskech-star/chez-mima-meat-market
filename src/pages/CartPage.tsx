@@ -1,3 +1,4 @@
+import { productThumbnail } from "@/lib/productThumbnail";
 import { CustomerHeader } from "@/components/OriginPromise";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -44,7 +45,7 @@ const CartPage = () => {
                 <Card key={item.id} className="p-3 sm:p-4 flex items-center gap-3">
                   <div className="w-20 h-20 rounded-lg bg-accent/30 flex items-center justify-center overflow-hidden shrink-0">
                     {item.image_url ? (
-                      <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+                      <img src={productThumbnail(item.image_url)} alt={item.name} className="w-full h-full object-cover" />
                     ) : (
                       <Beef className="h-8 w-8 text-muted-foreground/40" aria-hidden="true" />
                     )}

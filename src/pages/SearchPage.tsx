@@ -1,3 +1,4 @@
+import { productThumbnail } from "@/lib/productThumbnail";
 import { CustomerHeader } from "@/components/OriginPromise";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -116,7 +117,7 @@ const SearchPage = () => {
                   <div className="aspect-square bg-accent/30 flex items-center justify-center relative overflow-hidden">
                     {product.image_url ? (
                       <img
-                        src={product.image_url}
+                        src={productThumbnail(product.image_url)}
                         alt={product.name}
                         className={`absolute inset-0 w-full h-full object-cover transition-all duration-300 ${unavailable ? "opacity-60 blur-[1px]" : ""}`}
                         loading="lazy"
