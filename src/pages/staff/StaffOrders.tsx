@@ -24,7 +24,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { formatPrice, getStatusInfo } from "@/lib/format";
-import { canAdjustItems, canCancelAtCounter, nextStaffOrderAction, staffOrderSteps, unavailablePolicyLabel } from "@/lib/staff-order-workflow";
+import { canAdjustItems, canCancelAtCounter, nextStaffOrderAction, staffOrderSteps, unavailablePolicyLabel, WEIGHT_TOLERANCE, isWeightWithinTolerance } from "@/lib/staff-order-workflow";
 import { getWeightOptions, isWeightUnit } from "@/lib/product-units";
 import { formatCartQuantity } from "@/lib/cart-display";
 import { toast } from "@/hooks/use-toast";
@@ -62,6 +62,7 @@ type StaffOrderItem = {
   line_total: number;
   item_status: string;
   original_product_name: string | null;
+  ordered_quantity_value: number | null;
 };
 
 type CatalogueProduct = { id: string; name: string; price: number; unit_type: string; category_id: string | null };
@@ -190,7 +191,7 @@ export default function StaffOrders() {
   const loadItems = async (orderId: string) => {
     const { data } = await supabase
       .from("order_items")
-      .select("id, product_id, product_name, quantity, quantity_value, unit_price, line_total, item_status, original_product_name")
+      .select("id, product_id, product_name, quantity, quantity_value, unit_price, line_total, item_status, original_product_name, ordered_quantity_value")
       .eq("order_id", orderId)
       .order("created_at");
     setItems((data ?? []) as StaffOrderItem[]);
@@ -215,6 +216,28 @@ export default function StaffOrders() {
       return;
     }
     toast({ title: "Article retiré", description: "Le total a été recalculé et le client prévenu." });
+    await Promise.all([fetchOrders(), loadItems(selectedOrder.id)]);
+  };
+
+  const weighItem = async (item: StaffOrderItem) => {
+    if (!selectedOrder) return;
+    const ordered = Number(item.ordered_quantity_value ?? item.quantity_value);
+    const answer = window.prompt(`Poids réel pesé pour « ${item.product_name} » en grammes (commandé : ${Math.round(ordered * 1000)} g, marge ±${WEIGHT_TOLERANCE * 100} %) :`);
+    if (!answer) return;
+    const grams = Number(answer.replace(",", "."));
+    const kg = grams / 1000;
+    if (!Number.isFinite(grams) || !isWeightWithinTolerance(ordered, kg)) {
+      toast({ title: "Écart trop important", description: `Accepté entre ${Math.round(ordered * 900)} et ${Math.round(ordered * 1100)} g. Ajustez la pièce.`, variant: "destructive" });
+      return;
+    }
+    setSaving(true);
+    const { error } = await supabase.rpc("staff_set_item_weight", { _item_id: item.id, _weight_kg: kg });
+    setSaving(false);
+    if (error) {
+      toast({ title: "Poids refusé", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({ title: "Poids enregistré", description: "Le prix a été recalculé." });
     await Promise.all([fetchOrders(), loadItems(selectedOrder.id)]);
   };
 
@@ -511,13 +534,15 @@ export default function StaffOrders() {
                       <div className="min-w-0">
                         <p className={`font-semibold ${removed ? "line-through text-muted-foreground" : ""}`}>{item.product_name}</p>
                         <p className="text-muted-foreground">{formatCartQuantity(Number(item.quantity_value), item.quantity.endsWith("kg") ? "weight" : "piece")} × {formatPrice(item.unit_price)}</p>
+                        {item.ordered_quantity_value != null && Number(item.ordered_quantity_value) !== Number(item.quantity_value) && <p className="text-xs text-muted-foreground">Commandé : {Math.round(Number(item.ordered_quantity_value) * 1000)} g</p>}
                         {item.item_status === "replaced" && <p className="text-xs font-semibold text-warning">Remplace : {item.original_product_name}</p>}
                         {removed && <p className="text-xs font-semibold text-destructive">Retiré (indisponible)</p>}
                       </div>
                       <span className={`shrink-0 font-bold ${removed ? "line-through text-muted-foreground" : ""}`}>{formatPrice(item.line_total)}</span>
                     </div>
                     {adjustable && !removed && (
-                      <div className="grid grid-cols-2 gap-2">
+                      <div className={`grid gap-2 ${item.quantity.endsWith("kg") ? "grid-cols-3" : "grid-cols-2"}`}>
+                        {item.quantity.endsWith("kg") && <Button variant="outline" size="sm" disabled={saving} onClick={() => weighItem(item)}>Poids réel</Button>}
                         <Button variant="outline" size="sm" disabled={saving} onClick={() => openReplace(item)}>Remplacer</Button>
                         <Button variant="outline" size="sm" className="text-destructive" disabled={saving} onClick={() => removeItem(item)}>Retirer</Button>
                       </div>

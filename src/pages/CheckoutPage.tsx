@@ -56,7 +56,7 @@ const CheckoutPage = () => {
   const [apartment, setApartment] = useState("");
   const [instructions, setInstructions] = useState("");
   const [notes, setNotes] = useState("");
-  const [unavailablePolicy, setUnavailablePolicy] = useState<string>("call");
+  const [unavailablePolicy, setUnavailablePolicy] = useState<string>("replace");
   const [whatsappPhone, setWhatsappPhone] = useState("");
   const [deliveryMode, setDeliveryMode] = useState<"delivery" | "pickup">("delivery");
   const [paymentMethod, setPaymentMethod] = useState<"cash" | "card">("cash");
@@ -227,7 +227,7 @@ const CheckoutPage = () => {
 
       if (orderErr) throw orderErr;
       if (!orderId) throw new Error("La commande n’a pas pu être créée");
-      if (unavailablePolicy !== "call") {
+      if (unavailablePolicy !== "replace") {
         await supabase.rpc("set_order_unavailable_policy", { _order_id: orderId, _policy: unavailablePolicy });
       }
 

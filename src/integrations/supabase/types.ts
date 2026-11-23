@@ -504,6 +504,7 @@ export type Database = {
           item_status: string
           line_total: number
           order_id: string
+          ordered_quantity_value: number | null
           original_product_name: string | null
           product_id: string | null
           product_name: string
@@ -517,6 +518,7 @@ export type Database = {
           item_status?: string
           line_total: number
           order_id: string
+          ordered_quantity_value?: number | null
           original_product_name?: string | null
           product_id?: string | null
           product_name: string
@@ -530,6 +532,7 @@ export type Database = {
           item_status?: string
           line_total?: number
           order_id?: string
+          ordered_quantity_value?: number | null
           original_product_name?: string | null
           product_id?: string | null
           product_name?: string
@@ -1111,6 +1114,10 @@ export type Database = {
           _product_id: string
           _quantity_value: number
         }
+        Returns: undefined
+      }
+      staff_set_item_weight: {
+        Args: { _item_id: string; _weight_kg: number }
         Returns: undefined
       }
       submit_driver_rating: {

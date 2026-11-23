@@ -51,3 +51,17 @@ describe("parcours du comptoir", () => {
     expect(canCancelAtCounter("ready")).toBe(false);
   });
 });
+
+import { isWeightWithinTolerance, unavailablePolicies } from "@/lib/staff-order-workflow";
+
+describe("weight tolerance and customer choices", () => {
+  it("accepts 270 g for 250 g ordered and refuses 280 g", () => {
+    expect(isWeightWithinTolerance(0.25, 0.27)).toBe(true);
+    expect(isWeightWithinTolerance(0.25, 0.225)).toBe(true);
+    expect(isWeightWithinTolerance(0.25, 0.28)).toBe(false);
+    expect(isWeightWithinTolerance(0.25, 0.22)).toBe(false);
+  });
+  it("offers only replace or cancel the item", () => {
+    expect(unavailablePolicies.map((p) => p.value)).toEqual(["replace", "remove_item"]);
+  });
+});

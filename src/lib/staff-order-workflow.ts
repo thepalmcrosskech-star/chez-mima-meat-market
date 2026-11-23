@@ -16,13 +16,19 @@ export type StaffOrderAction =
   | { kind: "blocked"; label: string; disabled: true };
 
 export const unavailablePolicies = [
-  { value: "call", label: "M’appeler pour choisir", short: "Appeler le client" },
   { value: "replace", label: "Remplacer par un article similaire", short: "Remplacer par un similaire" },
   { value: "remove_item", label: "Annuler l’article indisponible", short: "Retirer l’article" },
 ] as const;
 
 export const unavailablePolicyLabel = (value: string) =>
   unavailablePolicies.find((policy) => policy.value === value)?.short ?? "Appeler le client";
+
+/** Weighed items are accepted automatically within this share of the ordered weight (server enforces it too). */
+export const WEIGHT_TOLERANCE = 0.1;
+
+export function isWeightWithinTolerance(orderedKg: number, actualKg: number): boolean {
+  return actualKg > 0 && Math.abs(actualKg - orderedKg) <= orderedKg * WEIGHT_TOLERANCE + 0.0001;
+}
 
 const needsPaymentConfirmation = (order: StaffWorkflowOrder) => order.payment_method !== "card";
 
