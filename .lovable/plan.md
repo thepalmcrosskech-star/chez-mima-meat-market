@@ -1,42 +1,53 @@
-# Comptoir salarié Chez Mima
+# Nouveau circuit de l’agent de comptoir
 
-## Fonctionnement sur la tablette
+## Objectif
 
-- Un nouvel espace `/staff`, distinct du site client et de l’administration, avec uniquement **Commandes** et **Produits**.
-- Le salarié se connecte avec son propre accès et arrive directement sur les commandes de l’application.
-- Une nouvelle commande apparaît sans recharger la page ; le salarié peut activer une alerte sonore sur la tablette.
+Une tablette guide le salarié avec une seule action principale à chaque étape. La caisse reste dans Chez Mima Gestion : la tablette sert à recevoir, préparer, contrôler et suivre les commandes de l’application.
 
-## Parcours d’une commande
+## Circuit commun
 
-1. **À confirmer** : le salarié consulte le client, les articles, les quantités, le total et le mode de retrait ou de livraison.
-2. **En préparation** : il confirme puis prépare la commande comme une commande de plateforme.
-3. **Ticket de caisse** : il saisit la vente dans Chez Mima Gestion, imprime le ticket, puis prend sa photo depuis la tablette.
-4. **Prête** : la photo du ticket est obligatoire avant cette étape. Elle reste visible uniquement par le salarié et l’administrateur.
-5. **Livreur** : pour une livraison, le salarié appelle le coursier, enregistre « Livreur appelé », puis remet la commande et le ticket papier au coursier avant d’indiquer le départ en livraison. Aucun livreur interne n’est attribué automatiquement depuis ce comptoir.
-6. **Livrée** : la clôture reste disponible pour le suivi interne. Les notifications client existantes sont conservées.
+1. **Nouvelle commande** : elle apparaît en direct avec une alerte. Le salarié vérifie les articles, les quantités, le client, le total et le mode de livraison ou de retrait.
+2. **Accepter la commande** : le salarié l’accepte avant de commencer. Il peut encore l’annuler si la commande est impossible à préparer.
+3. **Commencer la préparation** : les articles et les notes du client restent visibles pendant la préparation.
+4. **Saisir la vente en caisse** : le salarié utilise le volet Application de Chez Mima Gestion, imprime le ticket, puis le photographie avec la tablette.
+5. **Commande prête** : cette étape reste bloquée tant que la photo du ticket n’est pas enregistrée. La photo reste privée.
 
-## Produits
+## Si la commande est livrée
 
-- Reprise de la gestion existante : ajout, modification, photo, prix, rayon et disponibilité.
-- Les produits masqués restent visibles dans cet espace pour pouvoir être réactivés.
-- Aucun accès aux catégories, bannières, réglages, zones, bannissements ou comptes utilisateurs.
+6. **Appeler le coursier** : le salarié appelle le coursier habituel puis enregistre l’appel.
+7. **Espèces reçues** : à l’arrivée du coursier, le salarié confirme avoir reçu le montant en espèces. Cette confirmation est obligatoire avant la remise pour une commande en espèces.
+8. **Remettre au coursier** : le salarié donne la commande et le ticket papier, puis enregistre le départ en livraison.
+9. **Confirmer la livraison** : la commande n’est clôturée que lorsque le coursier a confirmé que le client l’a reçue.
 
-## Création des accès
+Pour une future carte bancaire, aucune confirmation d’espèces ne sera demandée : l’écran indiquera que le règlement sera reçu ultérieurement.
 
-- Dans **Admin → Utilisateurs**, un bouton **Inviter un salarié** envoie une invitation par e-mail.
-- Le salarié choisit son mot de passe puis arrive dans `/staff`.
-- Le rôle **Salarié** est également disponible pour un compte déjà inscrit.
+## Si le client retire en boutique
 
-## Protections et vérifications
+6. **Préparer la remise** : la commande et le ticket papier sont prêts au comptoir.
+7. **Règlement reçu sur place** : le salarié confirme l’encaissement avant la clôture.
+8. **Commande récupérée** : le salarié remet la commande et le ticket au client, puis clôture.
 
-- Le rôle `employee` est contrôlé côté serveur ; modifier les données depuis le navigateur ne permet pas d’obtenir d’autres droits.
-- Les changements de statut du salarié passent par une fonction limitée au parcours prévu. Prix, paiement, coordonnées et articles restent intouchables.
-- La photo du ticket est enregistrée dans un espace privé, avec accès réservé au personnel et à l’administrateur.
-- Vérifications : client exclu, salarié limité, administrateur conservé, photo obligatoire avant « Prête », parcours de livraison et gestion des produits.
+## Présentation sur la tablette
+
+- Un bandeau montre clairement l’étape actuelle et la prochaine action.
+- Des repères montrent ce qui est terminé : acceptation, préparation, ticket, règlement, coursier et clôture.
+- Les boutons restent grands et une étape ne peut pas être validée par accident.
+- Les rubriques Nouvelles, À préparer, Prêtes, En livraison et Terminées permettent de retrouver rapidement les commandes.
+- La gestion des produits et les droits actuels du salarié restent inchangés.
+
+## Ce qu’il faut en pratique
+
+- **Une tablette**, branchée sur son chargeur, avec une connexion Wi-Fi stable et la page Comptoir ouverte. L’alerte sonore doit être activée après la connexion.
+- **Un accès salarié**, créé par vous depuis Administration → Utilisateurs.
+- **Chez Mima Gestion et l’imprimante de tickets** au comptoir. Le volet Application reste à créer dans le projet Chez Mima Gestion depuis son propre chat.
+- **Le téléphone du coursier** et une consigne simple : il règle en espèces au départ, puis confirme la livraison au salarié.
+- **La monnaie nécessaire en boutique** pour les règlements sur place.
+- **Aucun CMI pour le lancement** : le paiement carte et le règlement différé seront traités plus tard.
 
 ## Détails techniques
 
-- Nouvelle fonction de contrôle du rôle salarié et règles de ligne limitées aux commandes, articles, clients concernés et produits.
-- Colonnes de suivi interne pour la photo du ticket et l’appel au coursier.
-- Fonction sécurisée pour les changements de statut et les notifications, stockage privé des tickets, invitation par fonction serveur.
-- Abonnement temps réel aux commandes, correctement fermé lorsque l’écran est quitté.
+- Ajouter un suivi interne horodaté du règlement confirmé, de la remise au coursier et de la clôture par le salarié.
+- Ajouter une action sécurisée « Espèces reçues » ou « Règlement reçu sur place » et faire respecter cette condition par le serveur.
+- Conserver les transitions actuelles et les notifications clients, sans modifier les anciennes commandes.
+- Vérifier les deux parcours complets avec des commandes fictives : livraison en espèces et retrait sur place, ainsi que les refus d’étapes dans le mauvais ordre.
+- Vérifier qu’un client ne peut pas utiliser les actions du salarié et que la photo du ticket reste privée.
