@@ -120,7 +120,7 @@ const HomePage = () => {
     try {
       const [categoriesRes, productsRes, bannersRes, reviewsRes] = await Promise.all([
         supabase.from("categories").select("*").eq("is_active", true).order("sort_order"),
-        supabase.from("products").select("*"),
+        supabase.from("products").select("*").order("created_at"),
         supabase.from("banners").select("*").eq("is_active", true).order("sort_order"),
         supabase.rpc("get_public_product_ratings"),
       ]);

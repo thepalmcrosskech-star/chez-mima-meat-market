@@ -197,7 +197,7 @@ const AdminProducts = () => {
               <div>
                 <Label>Famille (optionnel)</Label>
                 <Input value={family} onChange={(e) => setFamily(e.target.value)} placeholder="Ex. : Freez" />
-                <p className="text-xs text-muted-foreground mt-1">Les produits avec la même famille sont regroupés dans le catalogue ; le client choisit ensuite son goût.</p>
+                <p className="text-xs text-muted-foreground mt-1">Les produits avec la même famille sont regroupés dans le catalogue ; le client choisit ensuite son goût. La photo affichée est celle de la première saveur créée et disponible.</p>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div><Label>Prix</Label><Input type="number" value={price} onChange={(e) => setPrice(e.target.value)} /></div>
