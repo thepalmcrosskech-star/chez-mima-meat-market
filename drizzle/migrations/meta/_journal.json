@@ -78,6 +78,20 @@
       "when": 1795452651203,
       "tag": "0010_enforce_charcuterie_weight_range",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1795452813546,
+      "tag": "0011_enforce_charcuterie_range_on_order_items",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1795452866418,
+      "tag": "0012_enforce_charcuterie_range_on_order_item_updates",
+      "breakpoints": true
     }
   ]
 }

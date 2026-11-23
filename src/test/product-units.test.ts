@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  adjustQuantity,
   CHARCUTERIE_CATEGORY_ID,
   getDefaultQuantity,
   getQuantityRules,
@@ -18,8 +19,10 @@ describe("product quantity rules", () => {
     ]);
   });
 
-  it("adjusts charcuterie by 100 g between 100 g and 500 g", () => {
+  it("adjusts charcuterie between 100 g and 500 g without offering 400 g", () => {
     expect(getQuantityRules("weight", CHARCUTERIE_CATEGORY_ID)).toEqual({ minimum: 0.1, maximum: 0.5, step: 0.1 });
+    expect(adjustQuantity("weight", CHARCUTERIE_CATEGORY_ID, 0.3, 1)).toBe(0.5);
+    expect(adjustQuantity("weight", CHARCUTERIE_CATEGORY_ID, 0.5, -1)).toBe(0.3);
   });
 
   it("keeps the existing 250 g rules outside charcuterie", () => {

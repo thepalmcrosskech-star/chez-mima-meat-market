@@ -27,3 +27,20 @@ export const getQuantityRules = (unitType: string, categoryId?: string | null) =
 
 export const getDefaultQuantity = (unitType: string, categoryId?: string | null) =>
   getQuantityRules(unitType, categoryId).minimum;
+
+export const adjustQuantity = (
+  unitType: string,
+  categoryId: string | null | undefined,
+  currentQuantity: number,
+  direction: 1 | -1,
+) => {
+  const { minimum, maximum, step } = getQuantityRules(unitType, categoryId);
+  if (categoryId === CHARCUTERIE_CATEGORY_ID && isWeightUnit(unitType)) {
+    const values = getWeightOptions(categoryId).map((option) => option.value);
+    const next = direction === 1
+      ? values.find((value) => value > currentQuantity)
+      : [...values].reverse().find((value) => value < currentQuantity);
+    return next ?? currentQuantity;
+  }
+  return +Math.min(maximum ?? Number.MAX_SAFE_INTEGER, Math.max(minimum, currentQuantity + direction * step)).toFixed(2);
+};
