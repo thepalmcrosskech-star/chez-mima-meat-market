@@ -2,6 +2,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { cartBadgeCount } from "@/lib/cart-display";
 import { toast } from "sonner";
 import { cartLoginPath } from "@/lib/checkout-access";
+import { getQuantityRules } from "@/lib/product-units";
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
 export interface CartItem {
@@ -10,6 +11,7 @@ export interface CartItem {
   price: number;
   unit_type: string;
   image_url: string | null;
+  category_id?: string | null;
   quantity: number;
 }
 
@@ -55,13 +57,18 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
     setItems((prev) => {
+      const { minimum, maximum } = getQuantityRules(product.unit_type, product.category_id);
+      const withinLimits = (value: number) =>
+        +(maximum === null ? value : Math.min(maximum, Math.max(minimum, value))).toFixed(2);
       const existing = prev.find((i) => i.id === product.id);
       if (existing) {
         return prev.map((i) =>
-          i.id === product.id ? { ...i, quantity: i.quantity + quantity } : i
+          i.id === product.id
+            ? { ...i, category_id: i.category_id ?? product.category_id, quantity: withinLimits(i.quantity + quantity) }
+            : i
         );
       }
-      return [...prev, { ...product, quantity }];
+      return [...prev, { ...product, quantity: withinLimits(quantity) }];
     });
   };
 

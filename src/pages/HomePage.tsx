@@ -180,7 +180,7 @@ const HomePage = () => {
 
   const handleConfirmAdd = (product: Product, quantity: number) => {
     addItem(
-      { id: product.id, name: product.name, price: product.price, unit_type: product.unit_type, image_url: product.image_url },
+      { id: product.id, name: product.name, price: product.price, unit_type: product.unit_type, image_url: product.image_url, category_id: product.category_id },
       quantity
     );
     toast({ title: "Ajouté au panier", description: `${quantity} ${isWeightUnit(product.unit_type) ? "kg" : "×"} ${product.name}` });

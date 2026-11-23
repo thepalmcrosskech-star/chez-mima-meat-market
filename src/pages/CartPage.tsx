@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 import { ShoppingCart, Trash2, Plus, Minus, Beef } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import BottomNav from "@/components/BottomNav";
-import { isWeightUnit } from "@/lib/product-units";
+import { getQuantityRules } from "@/lib/product-units";
 import { formatCartQuantity } from "@/lib/cart-display";
 
 const formatPrice = (n: number) =>
@@ -15,9 +15,6 @@ const formatPrice = (n: number) =>
 const CartPage = () => {
   const navigate = useNavigate();
   const { items, updateQuantity, removeItem, subtotal } = useCart();
-
-  const getStep = (unitType: string) => isWeightUnit(unitType) ? 0.25 : 1;
-  const getMin = (unitType: string) => isWeightUnit(unitType) ? 0.25 : 1;
 
   return (
     <div className="client-page min-h-screen bg-background">
@@ -38,8 +35,7 @@ const CartPage = () => {
         ) : (
           <div className="space-y-4">
             {items.map((item) => {
-              const step = getStep(item.unit_type);
-              const min = getMin(item.unit_type);
+              const { minimum, maximum, step } = getQuantityRules(item.unit_type, item.category_id);
               const displayQty = formatCartQuantity(item.quantity, item.unit_type);
               return (
                 <Card key={item.id} className="p-3 sm:p-4 flex items-center gap-3">
@@ -59,8 +55,8 @@ const CartPage = () => {
                         size="icon"
                         className="w-9 h-9 rounded-full"
                         aria-label="Diminuer la quantité"
-                        onClick={() => updateQuantity(item.id, +(item.quantity - step).toFixed(2))}
-                        disabled={item.quantity <= min}
+                        onClick={() => updateQuantity(item.id, +Math.min(maximum ?? Number.MAX_SAFE_INTEGER, Math.max(minimum, item.quantity - step)).toFixed(2))}
+                        disabled={item.quantity <= minimum && (maximum === null || item.quantity <= maximum)}
                       >
                         <Minus className="h-4 w-4" />
                       </Button>
@@ -70,7 +66,8 @@ const CartPage = () => {
                         size="icon"
                         className="w-9 h-9 rounded-full"
                         aria-label="Augmenter la quantité"
-                        onClick={() => updateQuantity(item.id, +(item.quantity + step).toFixed(2))}
+                        onClick={() => updateQuantity(item.id, +(maximum === null ? item.quantity + step : Math.min(maximum, item.quantity + step)).toFixed(2))}
+                        disabled={maximum !== null && item.quantity >= maximum}
                       >
                         <Plus className="h-4 w-4" />
                       </Button>

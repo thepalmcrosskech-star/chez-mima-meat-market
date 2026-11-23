@@ -28,8 +28,7 @@ import {
 import BottomNav from "@/components/BottomNav";
 import { catalogueGallery } from "@/lib/catalogue-gallery";
 import { ProductPhoto } from "@/components/ProductPhoto";
-
-const CHARCUTERIE_CATEGORY_ID = "f6741cb2-ac67-47bb-900d-8d54fb05d1e6";
+import { getDefaultQuantity, getWeightOptions, isWeightUnit } from "@/lib/product-units";
 
 interface Product {
   id: string;
@@ -112,8 +111,7 @@ const ProductPage = () => {
 
   useEffect(() => {
     if (product) {
-      const isCharc = product.category_id === CHARCUTERIE_CATEGORY_ID;
-      setQuantity(product.unit_type === "weight" ? (isCharc ? 0.1 : 0.25) : 1);
+      setQuantity(getDefaultQuantity(product.unit_type, product.category_id));
     }
   }, [product]);
 
@@ -161,6 +159,7 @@ const ProductPage = () => {
         price: product.price,
         unit_type: product.unit_type,
         image_url: product.image_url,
+        category_id: product.category_id,
       },
       quantity
     );
@@ -204,21 +203,8 @@ const ProductPage = () => {
     }
   };
 
-  const isKg = product?.unit_type === "weight";
-  const isCharcuterie = product?.category_id === CHARCUTERIE_CATEGORY_ID;
-  const WEIGHT_OPTIONS = isCharcuterie
-    ? [
-        { label: "100g", value: 0.1 },
-        { label: "200g", value: 0.2 },
-        { label: "300g", value: 0.3 },
-        { label: "500g", value: 0.5 },
-      ]
-    : [
-        { label: "250g", value: 0.25 },
-        { label: "500g", value: 0.5 },
-        { label: "750g", value: 0.75 },
-        { label: "1kg", value: 1 },
-      ];
+  const isKg = product ? isWeightUnit(product.unit_type) : false;
+  const WEIGHT_OPTIONS = getWeightOptions(product?.category_id);
   const displayQty = isKg ? `${quantity >= 1 ? quantity + " kg" : quantity * 1000 + "g"}` : `${quantity}`;
 
   const avgRating =

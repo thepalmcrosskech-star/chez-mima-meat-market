@@ -1,4 +1,5 @@
 import { productThumbnail } from "@/lib/productThumbnail";
+import { getDefaultQuantity, getWeightOptions, isWeightUnit } from "@/lib/product-units";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } from "@/components/ui/drawer";
@@ -25,22 +26,6 @@ interface QuantityDialogProps {
 const formatPrice = (price: number) =>
   new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(price) + " MAD";
 
-const CHARCUTERIE_CATEGORY_ID = "f6741cb2-ac67-47bb-900d-8d54fb05d1e6";
-
-const WEIGHT_OPTIONS_DEFAULT = [
-  { label: "250g", value: 0.25 },
-  { label: "500g", value: 0.5 },
-  { label: "750g", value: 0.75 },
-  { label: "1kg", value: 1 },
-];
-
-const WEIGHT_OPTIONS_CHARCUTERIE = [
-  { label: "100g", value: 0.1 },
-  { label: "200g", value: 0.2 },
-  { label: "300g", value: 0.3 },
-  { label: "500g", value: 0.5 },
-];
-
 const QuantityContent = ({
   product,
   onConfirm,
@@ -50,10 +35,9 @@ const QuantityContent = ({
   onConfirm: (product: Product, quantity: number) => void;
   onClose: () => void;
 }) => {
-  const isWeight = product.unit_type === "weight" || product.unit_type === "kg";
-  const isCharcuterie = product.category_id === CHARCUTERIE_CATEGORY_ID;
-  const WEIGHT_OPTIONS = isCharcuterie ? WEIGHT_OPTIONS_CHARCUTERIE : WEIGHT_OPTIONS_DEFAULT;
-  const [quantity, setQuantity] = useState(isCharcuterie ? 0.1 : 0.25);
+  const isWeight = isWeightUnit(product.unit_type);
+  const WEIGHT_OPTIONS = getWeightOptions(product.category_id);
+  const [quantity, setQuantity] = useState(getDefaultQuantity(product.unit_type, product.category_id));
   const [pieceQty, setPieceQty] = useState(1);
   const currentQty = isWeight ? quantity : pieceQty;
 
