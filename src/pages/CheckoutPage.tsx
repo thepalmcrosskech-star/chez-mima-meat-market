@@ -1,6 +1,7 @@
 import { CustomerHeader } from "@/components/OriginPromise";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { defaultWeeklyHours, isOpenAt, nextOpening, parseWeeklyHours, type WeeklyHours } from "@/lib/store-hours";
 import { supabase } from "@/integrations/supabase/client";
 import { isWeightUnit } from "@/lib/product-units";
 import { unavailablePolicies } from "@/lib/staff-order-workflow";
@@ -64,8 +65,7 @@ const CheckoutPage = () => {
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [storeAddress, setStoreAddress] = useState("");
-  const [openingHour, setOpeningHour] = useState("08:00");
-  const [closingHour, setClosingHour] = useState("20:00");
+  const [weeklyHours, setWeeklyHours] = useState<WeeklyHours>(() => defaultWeeklyHours());
   const [hoursLoaded, setHoursLoaded] = useState(false);
   const [isScheduled, setIsScheduled] = useState(false);
 
@@ -88,6 +88,7 @@ const CheckoutPage = () => {
       supabase.from("app_settings").select("value").eq("key", "store_opening_hour").single(),
       supabase.from("app_settings").select("value").eq("key", "store_closing_hour").single(),
     ]);
+    const weeklyRes = await supabase.from("app_settings").select("value").eq("key", "weekly_hours").maybeSingle();
 
     if (addrRes.data) {
       setSavedAddresses(addrRes.data);
@@ -103,8 +104,7 @@ const CheckoutPage = () => {
 
     if (profileRes.data?.phone) setWhatsappPhone(profileRes.data.phone);
 
-    if (openRes.data?.value) setOpeningHour(String(openRes.data.value).replace(/"/g, ""));
-    if (closeRes.data?.value) setClosingHour(String(closeRes.data.value).replace(/"/g, ""));
+    setWeeklyHours(parseWeeklyHours(weeklyRes.data?.value, openRes.data?.value ? String(openRes.data.value).replace(/"/g, "") : undefined, closeRes.data?.value ? String(closeRes.data.value).replace(/"/g, "") : undefined));
     setHoursLoaded(true);
 
     const { data: storeAddrData } = await supabase.from("app_settings").select("value").eq("key", "store_address").single();
@@ -148,36 +148,12 @@ const CheckoutPage = () => {
   };
 
   // Store open/close logic
-  const isStoreOpen = (() => {
-    const [oh, om] = openingHour.split(":").map(Number);
-    const [ch, cm] = closingHour.split(":").map(Number);
-    // Heure du Maroc, quel que soit le réglage du téléphone
-    const parts = new Intl.DateTimeFormat("en-GB", { timeZone: "Africa/Casablanca", hour: "2-digit", minute: "2-digit", hour12: false }).formatToParts(new Date());
-    const h = Number(parts.find(p => p.type === "hour")?.value ?? 0) % 24;
-    const m = Number(parts.find(p => p.type === "minute")?.value ?? 0);
-    const mins = h * 60 + m;
-    const weekday = new Intl.DateTimeFormat("en-GB", { timeZone: "Africa/Casablanca", weekday: "short" }).format(new Date());
-    // Pause du vendredi 13 h 00 – 14 h 30
-    if (weekday === "Fri" && mins >= 13 * 60 && mins < 14 * 60 + 30) return false;
-    return mins >= (oh * 60 + om) && mins < (ch * 60 + cm);
-  })();
-
-  const getNextOpeningDate = () => {
-    // Prochaine ouverture à l'heure du Maroc (aujourd'hui si avant l'ouverture, sinon demain)
-    let [oh, om] = openingHour.split(":").map(Number);
-    const now = new Date();
-    const get = (d: Date) => Object.fromEntries(new Intl.DateTimeFormat("en-GB", { timeZone: "Africa/Casablanca", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false }).formatToParts(d).map(p => [p.type, Number(p.value)]));
-    const c = get(now);
-    const localMins = (c.hour % 24) * 60 + c.minute;
-    const isFri = new Intl.DateTimeFormat("en-GB", { timeZone: "Africa/Casablanca", weekday: "short" }).format(now) === "Fri";
-    let dayOffset = localMins < oh * 60 + om ? 0 : 1;
-    // Pendant la pause du vendredi : reprise à 14 h 30 le jour même
-    if (isFri && localMins >= 13 * 60 && localMins < 14 * 60 + 30) { oh = 14; om = 30; dayOffset = 0; }
-    const guess = new Date(Date.UTC(c.year, c.month - 1, c.day + dayOffset, oh, om));
-    const g = get(guess);
-    const offsetMs = Date.UTC(g.year, g.month - 1, g.day, g.hour % 24, g.minute) - guess.getTime();
-    return new Date(guess.getTime() - offsetMs);
-  };
+  const isStoreOpen = isOpenAt(weeklyHours);
+  const nextOpen = nextOpening(weeklyHours);
+  const getNextOpeningDate = () => nextOpen ?? new Date();
+  const openingHour = nextOpen
+    ? new Intl.DateTimeFormat("fr-FR", { timeZone: "Africa/Casablanca", weekday: "long", hour: "2-digit", minute: "2-digit" }).format(nextOpen)
+    : "prochaine ouverture";
 
   // Auto-enable scheduling when store is closed
   useEffect(() => {

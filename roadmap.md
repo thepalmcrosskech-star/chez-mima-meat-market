@@ -63,3 +63,5 @@
 - [x] Import the supplied top-20 sales CSV from Chez Mima Gestion and rank the 17 entries still sold on the home page. Viande hachée 25% MG, Panuzzo Classique and Paleron are absent from the sales catalogue; four tests and the rendered ranking passed without commercial data changes.
 - [x] Illustrate the remaining eight active cheeses in one batch (Bûchette aux fleurs, Bûche Mélusine, Manchego, P'tit Basque, Petit Camembert, Pont-l'Évêque, Roquefort, Tomme d'Auvergne) in the accepted scene; attached without commercial changes. Remaining: 9 Volaille, 7 Épicerie, 14 Boissons.
 - [x] Lighten 125 active catalogue and brochette-gallery photos with dimension-preserving WebP conversion; retain ten originals whose conversion was larger. All 125 new CDN files verified, four regression tests passed, and Filet Poulet plus the lightened brochette gallery rendered without errors on mobile WebKit and desktop Chromium.
+- [x] Weekly per-day order hours (open/close/pause/closed) in admin settings; richer store info card.
+- [ ] Show the shop location/directions on order tracking for pickup orders.

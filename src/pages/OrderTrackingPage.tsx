@@ -292,6 +292,14 @@ const OrderTrackingPage = () => {
   };
 
   const isPickupOrder = order?.delivery_mode === "pickup";
+  const [shop, setShop] = useState<{ lat: number; lng: number; address: string } | null>(null);
+  useEffect(() => {
+    if (!isPickupOrder) return;
+    supabase.from("app_settings").select("key,value").in("key", ["store_latitude", "store_longitude", "store_address"]).then(({ data }) => {
+      const m = Object.fromEntries((data || []).map((r: any) => [r.key, String(r.value).replace(/"/g, "")]));
+      setShop({ lat: parseFloat(m.store_latitude) || 31.58902, lng: parseFloat(m.store_longitude) || -8.019172, address: m.store_address || "Boucherie Chez Mima" });
+    });
+  }, [isPickupOrder]);
   const steps = statusSteps
     .filter((s) => !(isPickupOrder && s.key === "delivering"))
     .map((s) => {
@@ -478,6 +486,25 @@ const OrderTrackingPage = () => {
         </Card>
 
         {/* Delivery Address */}
+        {isPickupOrder && shop && order.status !== "cancelled" && (
+          <Card className="p-4">
+            <div className="flex items-start gap-3">
+              <MapPin className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+              <div className="flex-1 space-y-2">
+                <div>
+                  <p className="text-sm font-semibold">Retrait à la boucherie</p>
+                  <p className="text-sm text-muted-foreground">{shop.address}</p>
+                </div>
+                <Button asChild size="sm" className="gap-2">
+                  <a href={`https://www.google.com/maps/dir/?api=1&destination=${shop.lat},${shop.lng}`} target="_blank" rel="noopener noreferrer">
+                    <MapPin className="h-4 w-4" /> Itinéraire vers la boucherie
+                  </a>
+                </Button>
+              </div>
+            </div>
+          </Card>
+        )}
+
         {!isPickupOrder && order.delivery_address_snapshot && (
           <Card className="p-4">
             <div className="flex items-start gap-3">
