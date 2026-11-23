@@ -181,3 +181,7 @@
 }
 
 
+
+/* Empêche le mode sombre forcé d'Android/Samsung de repeindre l'app */
+:root { color-scheme: light; }
+:root.dark { color-scheme: dark; }
