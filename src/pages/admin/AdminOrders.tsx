@@ -46,6 +46,8 @@ interface OrderItem {
   quantity: string;
   unit_price: number;
   line_total: number;
+  item_status?: string;
+  original_product_name?: string | null;
 }
 
 
@@ -274,7 +276,7 @@ const AdminOrders = () => {
                   <TableBody>
                     {orderItems.map((item) => (
                       <TableRow key={item.id}>
-                        <TableCell>{item.product_name}</TableCell>
+                        <TableCell className={item.item_status === "removed" ? "line-through text-muted-foreground" : ""}>{item.product_name}{item.item_status === "replaced" && <span className="block text-xs text-warning">Remplace : {item.original_product_name}</span>}{item.item_status === "removed" && <span className="block text-xs text-destructive no-underline">Retiré (indisponible)</span>}</TableCell>
                         <TableCell>{item.quantity}</TableCell>
                         <TableCell className="text-right">{formatPrice(item.line_total)}</TableCell>
                       </TableRow>

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  Banknote,
   Bike,
   Camera,
   Check,
@@ -23,7 +24,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { formatPrice, getStatusInfo } from "@/lib/format";
-import { canCancelAtCounter, nextStaffOrderAction } from "@/lib/staff-order-workflow";
+import { canAdjustItems, canCancelAtCounter, nextStaffOrderAction, staffOrderSteps, unavailablePolicyLabel } from "@/lib/staff-order-workflow";
+import { getWeightOptions, isWeightUnit } from "@/lib/product-units";
+import { formatCartQuantity } from "@/lib/cart-display";
 import { toast } from "@/hooks/use-toast";
 
 type StaffOrder = {
@@ -43,21 +46,32 @@ type StaffOrder = {
   receipt_photo_path: string | null;
   receipt_uploaded_at: string | null;
   courier_called_at: string | null;
+  unavailable_policy: string;
+  availability_checked_at: string | null;
+  payment_confirmed_at: string | null;
   profiles?: { name: string; email: string; phone: string | null } | null;
 };
 
 type StaffOrderItem = {
   id: string;
+  product_id: string | null;
   product_name: string;
   quantity: string;
+  quantity_value: number;
   unit_price: number;
   line_total: number;
+  item_status: string;
+  original_product_name: string | null;
 };
+
+type CatalogueProduct = { id: string; name: string; price: number; unit_type: string; category_id: string | null };
 
 const filters = [
   { value: "active", label: "En cours" },
   { value: "pending", label: "Nouvelles" },
+  { value: "preparation", label: "À préparer" },
   { value: "ready", label: "Prêtes" },
+  { value: "delivering", label: "En livraison" },
   { value: "finished", label: "Terminées" },
   { value: "all", label: "Toutes" },
 ];
@@ -86,6 +100,12 @@ export default function StaffOrders() {
   const [saving, setSaving] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(false);
   const [live, setLive] = useState(false);
+  const [catalogue, setCatalogue] = useState<CatalogueProduct[]>([]);
+  const [replacing, setReplacing] = useState<StaffOrderItem | null>(null);
+  const [replaceSearch, setReplaceSearch] = useState("");
+  const [replaceProduct, setReplaceProduct] = useState<CatalogueProduct | null>(null);
+  const [replaceQuantity, setReplaceQuantity] = useState(1);
+  const [clientAgreed, setClientAgreed] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const soundEnabledRef = useRef(false);
@@ -128,7 +148,7 @@ export default function StaffOrders() {
       .channel(`staff-orders-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "orders" }, payload => {
         if (payload.eventType === "INSERT" && (payload.new as { status?: string }).status === "pending") {
-          toast({ title: "Nouvelle commande !", description: "Ouvrez les nouvelles commandes pour la confirmer." });
+          toast({ title: "Nouvelle commande !", description: "Ouvrez les nouvelles commandes pour l’accepter." });
           playAlert();
         }
         fetchOrders();
@@ -167,17 +187,78 @@ export default function StaffOrders() {
     if (!error) setReceiptUrl(data.signedUrl);
   };
 
+  const loadItems = async (orderId: string) => {
+    const { data } = await supabase
+      .from("order_items")
+      .select("id, product_id, product_name, quantity, quantity_value, unit_price, line_total, item_status, original_product_name")
+      .eq("order_id", orderId)
+      .order("created_at");
+    setItems((data ?? []) as StaffOrderItem[]);
+  };
+
   const openDetail = async (order: StaffOrder) => {
     setSelectedOrder(order);
     setItems([]);
     setDetailOpen(true);
     setDetailLoading(true);
-    const [{ data },] = await Promise.all([
-      supabase.from("order_items").select("id, product_name, quantity, unit_price, line_total").eq("order_id", order.id),
-      loadReceipt(order.receipt_photo_path),
-    ]);
-    setItems((data ?? []) as StaffOrderItem[]);
+    await Promise.all([loadItems(order.id), loadReceipt(order.receipt_photo_path)]);
     setDetailLoading(false);
+  };
+
+  const removeItem = async (item: StaffOrderItem) => {
+    if (!selectedOrder || !window.confirm(`Retirer « ${item.product_name} » de la commande ? Le client sera prévenu.`)) return;
+    setSaving(true);
+    const { error } = await supabase.rpc("staff_remove_order_item", { _item_id: item.id });
+    setSaving(false);
+    if (error) {
+      toast({ title: "Article non retiré", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({ title: "Article retiré", description: "Le total a été recalculé et le client prévenu." });
+    await Promise.all([fetchOrders(), loadItems(selectedOrder.id)]);
+  };
+
+  const openReplace = async (item: StaffOrderItem) => {
+    setReplacing(item);
+    setReplaceSearch("");
+    setReplaceProduct(null);
+    setClientAgreed(false);
+    if (catalogue.length === 0) {
+      const { data } = await supabase.from("products").select("id, name, price, unit_type, category_id").eq("is_active", true).order("name");
+      setCatalogue((data ?? []) as CatalogueProduct[]);
+    }
+  };
+
+  const chooseReplacement = (product: CatalogueProduct) => {
+    setReplaceProduct(product);
+    setClientAgreed(false);
+    if (!replacing) return;
+    if (isWeightUnit(product.unit_type)) {
+      const options = getWeightOptions(product.category_id).map(option => option.value);
+      const same = options.find(value => value === Number(replacing.quantity_value));
+      setReplaceQuantity(same ?? options[0]);
+    } else {
+      setReplaceQuantity(Math.max(1, Math.round(Number(replacing.quantity_value))));
+    }
+  };
+
+  const confirmReplace = async () => {
+    if (!replacing || !replaceProduct || !selectedOrder) return;
+    setSaving(true);
+    const { error } = await supabase.rpc("staff_replace_order_item", {
+      _item_id: replacing.id,
+      _product_id: replaceProduct.id,
+      _quantity_value: replaceQuantity,
+      _client_agreed: clientAgreed,
+    });
+    setSaving(false);
+    if (error) {
+      toast({ title: "Remplacement refusé", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({ title: "Article remplacé", description: "Le client a été prévenu." });
+    setReplacing(null);
+    await Promise.all([fetchOrders(), loadItems(selectedOrder.id)]);
   };
 
   const uploadReceipt = async (file: File | undefined) => {
@@ -216,9 +297,18 @@ export default function StaffOrders() {
     if (!selectedOrder) return;
     const action = nextStaffOrderAction(selectedOrder);
     if (!action || action.kind === "blocked") return;
+    if (!window.confirm(`Confirmer : ${action.label} ?`)) return;
     setSaving(true);
     try {
-      if (action.kind === "courier") {
+      if (action.kind === "availability") {
+        const { error } = await supabase.rpc("staff_confirm_availability", { _order_id: selectedOrder.id });
+        if (error) throw error;
+        toast({ title: "Articles validés", description: "Saisissez la vente dans Chez Mima Gestion puis photographiez le ticket." });
+      } else if (action.kind === "payment") {
+        const { error } = await supabase.rpc("staff_confirm_payment", { _order_id: selectedOrder.id });
+        if (error) throw error;
+        toast({ title: "Règlement enregistré" });
+      } else if (action.kind === "courier") {
         const { error } = await supabase.rpc("mark_order_courier_called", { _order_id: selectedOrder.id });
         if (error) throw error;
         toast({ title: "Appel enregistré", description: "À son arrivée, remettez la commande et le ticket papier au livreur." });
@@ -240,7 +330,7 @@ export default function StaffOrders() {
         }
         toast({ title: action.status === "delivering" ? "Commande remise au livreur" : "Statut mis à jour" });
       }
-      await fetchOrders();
+      await Promise.all([fetchOrders(), loadItems(selectedOrder.id)]);
     } catch (error) {
       toast({ title: "Action refusée", description: error instanceof Error ? error.message : "Réessayez", variant: "destructive" });
     } finally {
@@ -268,6 +358,7 @@ export default function StaffOrders() {
     const matchesFilter = filter === "all"
       || (filter === "active" && !["delivered", "cancelled"].includes(order.status))
       || (filter === "finished" && ["delivered", "cancelled"].includes(order.status))
+      || (filter === "preparation" && ["confirmed", "preparing"].includes(order.status))
       || order.status === filter;
     const term = search.trim().toLowerCase();
     const matchesSearch = !term
@@ -278,6 +369,13 @@ export default function StaffOrders() {
   });
 
   const nextAction = selectedOrder ? nextStaffOrderAction(selectedOrder) : null;
+  const adjustable = selectedOrder ? canAdjustItems(selectedOrder) : false;
+  const replacementPrice = replaceProduct ? Math.round(replaceProduct.price * replaceQuantity * 100) / 100 : null;
+  const priceChanges = replacing && replacementPrice !== null && replacementPrice !== Math.round(Number(replacing.line_total) * 100) / 100;
+  const replaceMatches = catalogue
+    .filter(product => product.id !== replacing?.product_id && !items.some(item => item.product_id === product.id && item.item_status !== "removed"))
+    .filter(product => !replaceSearch.trim() || product.name.toLowerCase().includes(replaceSearch.trim().toLowerCase()))
+    .slice(0, 30);
   const pendingCount = orders.filter(order => order.status === "pending").length;
   const activeCount = orders.filter(order => !["delivered", "cancelled"].includes(order.status)).length;
 
@@ -342,6 +440,7 @@ export default function StaffOrders() {
                   </div>
                   <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
                     <Badge variant="outline">{order.delivery_mode === "pickup" ? <Store className="mr-1 h-3 w-3" /> : <Bike className="mr-1 h-3 w-3" />}{order.delivery_mode === "pickup" ? "Retrait" : "Livraison"}</Badge>
+                    {order.unavailable_policy !== "call" && <Badge variant="outline">Rupture : {unavailablePolicyLabel(order.unavailable_policy)}</Badge>}
                     {order.receipt_photo_path && <Badge variant="outline" className="border-success/40 text-success"><ReceiptText className="mr-1 h-3 w-3" />Ticket photographié</Badge>}
                     {order.courier_called_at && <Badge variant="outline"><Phone className="mr-1 h-3 w-3" />Livreur appelé</Badge>}
                   </div>
@@ -366,6 +465,21 @@ export default function StaffOrders() {
               <DialogDescription>{formatDate(selectedOrder.created_at)} · {selectedOrder.delivery_mode === "pickup" ? "Retrait en boutique" : "Livraison par coursier"}</DialogDescription>
             </DialogHeader>
 
+            {selectedOrder.status !== "cancelled" && (
+              <ol className="flex flex-wrap gap-2" aria-label="Étapes de la commande">
+                {staffOrderSteps(selectedOrder).map(step => (
+                  <li key={step.label} className={`flex items-center gap-1 rounded-full border px-3 py-1 text-xs font-semibold ${step.done ? "border-success/40 bg-success/10 text-success" : "text-muted-foreground"}`}>
+                    {step.done ? <CheckCircle2 className="h-3.5 w-3.5" /> : <Clock className="h-3.5 w-3.5" />}{step.label}
+                  </li>
+                ))}
+              </ol>
+            )}
+
+            <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 text-sm">
+              <p><strong>Si un produit est indisponible :</strong> {unavailablePolicyLabel(selectedOrder.unavailable_policy)}</p>
+              <p className="mt-1 text-muted-foreground">Si le remplacement n’a pas le même prix, appelez toujours le client avant de modifier.</p>
+            </div>
+
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="rounded-lg border bg-card p-3">
                 <p className="text-xs font-semibold uppercase text-muted-foreground">Client</p>
@@ -389,15 +503,38 @@ export default function StaffOrders() {
             {selectedOrder.notes && <div className="rounded-lg border border-warning/40 bg-warning/10 p-3 text-sm"><strong>Note du client :</strong> {selectedOrder.notes}</div>}
 
             <div className="overflow-hidden rounded-lg border">
-              {detailLoading ? <div className="grid h-24 place-items-center"><Loader2 className="animate-spin" /></div> : items.map(item => (
-                <div key={item.id} className="flex items-center justify-between gap-3 border-b p-3 text-sm last:border-0">
-                  <div className="min-w-0"><p className="font-semibold">{item.product_name}</p><p className="text-muted-foreground">{item.quantity} × {formatPrice(item.unit_price)}</p></div>
-                  <span className="shrink-0 font-bold">{formatPrice(item.line_total)}</span>
-                </div>
-              ))}
+              {detailLoading ? <div className="grid h-24 place-items-center"><Loader2 className="animate-spin" /></div> : items.map(item => {
+                const removed = item.item_status === "removed";
+                return (
+                  <div key={item.id} className={`space-y-2 border-b p-3 text-sm last:border-0 ${removed ? "bg-muted/60" : ""}`}>
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className={`font-semibold ${removed ? "line-through text-muted-foreground" : ""}`}>{item.product_name}</p>
+                        <p className="text-muted-foreground">{formatCartQuantity(Number(item.quantity_value), item.quantity.endsWith("kg") ? "weight" : "piece")} × {formatPrice(item.unit_price)}</p>
+                        {item.item_status === "replaced" && <p className="text-xs font-semibold text-warning">Remplace : {item.original_product_name}</p>}
+                        {removed && <p className="text-xs font-semibold text-destructive">Retiré (indisponible)</p>}
+                      </div>
+                      <span className={`shrink-0 font-bold ${removed ? "line-through text-muted-foreground" : ""}`}>{formatPrice(item.line_total)}</span>
+                    </div>
+                    {adjustable && !removed && (
+                      <div className="grid grid-cols-2 gap-2">
+                        <Button variant="outline" size="sm" disabled={saving} onClick={() => openReplace(item)}>Remplacer</Button>
+                        <Button variant="outline" size="sm" className="text-destructive" disabled={saving} onClick={() => removeItem(item)}>Retirer</Button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+              <div className="flex justify-between bg-muted/40 p-3 font-bold"><span>Total à encaisser</span><span className="text-primary">{formatPrice(selectedOrder.total_price)}</span></div>
             </div>
 
-            {selectedOrder.status !== "pending" && selectedOrder.status !== "cancelled" && (
+            {adjustable && (
+              <div className="rounded-lg border border-warning/40 bg-warning/10 p-3 text-sm font-semibold text-warning">
+                Préparez les articles. En cas de rupture, suivez la consigne du client, puis validez les articles avant de passer en caisse.
+              </div>
+            )}
+
+            {selectedOrder.availability_checked_at && selectedOrder.status !== "cancelled" && (
               <section className="space-y-3 rounded-xl border-2 border-primary/30 bg-card p-4">
                 <div className="flex items-start gap-3">
                   <ReceiptText className="mt-0.5 h-6 w-6 shrink-0 text-primary" />
@@ -413,7 +550,7 @@ export default function StaffOrders() {
                 ) : (
                   <div className="rounded-lg bg-warning/10 p-3 text-sm font-semibold text-warning">La photo est obligatoire avant « Commande prête ».</div>
                 )}
-                {["confirmed", "preparing", "ready"].includes(selectedOrder.status) && (
+                {["preparing", "ready"].includes(selectedOrder.status) && (
                   <>
                     <input ref={fileInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={event => uploadReceipt(event.target.files?.[0])} />
                     <Button type="button" variant="outline" className="w-full" disabled={uploading} onClick={() => fileInputRef.current?.click()}>
@@ -429,14 +566,16 @@ export default function StaffOrders() {
                 <p className="flex items-center gap-2 font-bold"><Bike className="h-5 w-5 text-primary" />Livraison par votre coursier</p>
                 {!selectedOrder.courier_called_at
                   ? <p className="mt-1 text-muted-foreground">Appelez votre coursier habituel, puis confirmez l’appel ci-dessous.</p>
-                  : <p className="mt-1 font-semibold text-success">Livreur appelé. Remettez-lui la commande et le ticket papier, puis confirmez le départ.</p>}
+                  : selectedOrder.payment_method === "cash" && !selectedOrder.payment_confirmed_at
+                    ? <p className="mt-1 font-semibold text-warning">À son arrivée, encaissez {formatPrice(selectedOrder.total_price)} en espèces avant de lui remettre la commande.</p>
+                    : <p className="mt-1 font-semibold text-success">Remettez-lui la commande et le ticket papier, puis confirmez le départ.</p>}
               </div>
             )}
 
             <div className="space-y-2 border-t pt-4">
               {nextAction && (
                 <Button size="lg" className="h-14 w-full text-base" disabled={saving || nextAction.kind === "blocked"} onClick={performAction}>
-                  {saving ? <Loader2 className="animate-spin" /> : nextAction.kind === "courier" ? <Phone /> : nextAction.kind === "blocked" ? <Camera /> : <Check />}
+                  {saving ? <Loader2 className="animate-spin" /> : nextAction.kind === "courier" ? <Phone /> : nextAction.kind === "blocked" ? <Camera /> : nextAction.kind === "payment" ? <Banknote /> : <Check />}
                   {nextAction.label}
                 </Button>
               )}
@@ -444,6 +583,55 @@ export default function StaffOrders() {
               {!nextAction && <p className="flex items-center justify-center gap-2 text-sm text-muted-foreground"><CheckCircle2 className="h-4 w-4" />Aucune action restante</p>}
             </div>
           </>}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={Boolean(replacing)} onOpenChange={open => { if (!open) setReplacing(null); }}>
+        <DialogContent className="max-w-lg p-4 sm:p-6">
+          <DialogHeader>
+            <DialogTitle className="font-sans text-xl">Remplacer « {replacing?.product_name} »</DialogTitle>
+            <DialogDescription>Choisissez un article similaire disponible.</DialogDescription>
+          </DialogHeader>
+          {selectedOrder?.unavailable_policy !== "replace" && (
+            <p className="rounded-lg border border-warning/40 bg-warning/10 p-3 text-sm font-semibold text-warning">Le client a demandé : {unavailablePolicyLabel(selectedOrder?.unavailable_policy ?? "call")}. Appelez-le avant de remplacer.</p>
+          )}
+          <Input value={replaceSearch} onChange={event => setReplaceSearch(event.target.value)} placeholder="Rechercher un produit…" className="h-12" />
+          <div className="max-h-56 space-y-1 overflow-y-auto rounded-lg border p-1">
+            {replaceMatches.map(product => (
+              <Button key={product.id} variant={replaceProduct?.id === product.id ? "default" : "ghost"} className="h-auto w-full justify-between whitespace-normal py-2 text-left" onClick={() => chooseReplacement(product)}>
+                <span>{product.name}</span>
+                <span className="shrink-0 text-xs">{formatPrice(product.price)}/{isWeightUnit(product.unit_type) ? "kg" : "pièce"}</span>
+              </Button>
+            ))}
+            {replaceMatches.length === 0 && <p className="p-3 text-center text-sm text-muted-foreground">Aucun produit trouvé</p>}
+          </div>
+          {replaceProduct && (
+            <div className="space-y-3">
+              {isWeightUnit(replaceProduct.unit_type) ? (
+                <div className="grid grid-cols-4 gap-2">
+                  {getWeightOptions(replaceProduct.category_id).map(option => (
+                    <Button key={option.value} variant={replaceQuantity === option.value ? "default" : "secondary"} onClick={() => { setReplaceQuantity(option.value); setClientAgreed(false); }}>{option.label}</Button>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex items-center justify-center gap-4">
+                  <Button variant="secondary" disabled={replaceQuantity <= 1} onClick={() => { setReplaceQuantity(q => Math.max(1, q - 1)); setClientAgreed(false); }}>−</Button>
+                  <span className="min-w-12 text-center text-lg font-bold">{replaceQuantity}</span>
+                  <Button variant="secondary" onClick={() => { setReplaceQuantity(q => q + 1); setClientAgreed(false); }}>+</Button>
+                </div>
+              )}
+              <p className="text-sm">Ancien prix : <strong>{formatPrice(Number(replacing?.line_total ?? 0))}</strong> · Nouveau prix : <strong className="text-primary">{formatPrice(replacementPrice ?? 0)}</strong></p>
+              {priceChanges && (
+                <label className="flex items-start gap-3 rounded-lg border border-warning/40 bg-warning/10 p-3 text-sm font-semibold">
+                  <input type="checkbox" className="mt-1 h-5 w-5 accent-primary" checked={clientAgreed} onChange={event => setClientAgreed(event.target.checked)} />
+                  Le prix change : j’ai appelé le client et il accepte ce remplacement.
+                </label>
+              )}
+            </div>
+          )}
+          <Button size="lg" className="h-14 w-full" disabled={!replaceProduct || saving || (priceChanges && !clientAgreed)} onClick={confirmReplace}>
+            {saving ? <Loader2 className="animate-spin" /> : <Check />}Confirmer le remplacement
+          </Button>
         </DialogContent>
       </Dialog>
     </div>

@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { isWeightUnit } from "@/lib/product-units";
+import { unavailablePolicies } from "@/lib/staff-order-workflow";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -55,6 +56,7 @@ const CheckoutPage = () => {
   const [apartment, setApartment] = useState("");
   const [instructions, setInstructions] = useState("");
   const [notes, setNotes] = useState("");
+  const [unavailablePolicy, setUnavailablePolicy] = useState<string>("call");
   const [whatsappPhone, setWhatsappPhone] = useState("");
   const [deliveryMode, setDeliveryMode] = useState<"delivery" | "pickup">("delivery");
   const [paymentMethod, setPaymentMethod] = useState<"cash" | "card">("cash");
@@ -225,6 +227,9 @@ const CheckoutPage = () => {
 
       if (orderErr) throw orderErr;
       if (!orderId) throw new Error("La commande n’a pas pu être créée");
+      if (unavailablePolicy !== "call") {
+        await supabase.rpc("set_order_unavailable_policy", { _order_id: orderId, _policy: unavailablePolicy });
+      }
 
       // Send confirmation email (fire-and-forget)
       const { data: userProfile } = await supabase.from("profiles").select("email, name").eq("id", userId).single();
@@ -478,6 +483,29 @@ const CheckoutPage = () => {
             <p className="text-sm font-medium">💳 Paiement sur place à la boucherie</p>
           </Card>
         )}
+
+        <Separator />
+
+        {/* Unavailable product instruction */}
+        <div>
+          <Label className="text-sm font-semibold">Si un produit est indisponible</Label>
+          <div className="mt-2 grid gap-2" role="radiogroup" aria-label="Si un produit est indisponible">
+            {unavailablePolicies.map((policy) => (
+              <Button
+                key={policy.value}
+                type="button"
+                role="radio"
+                aria-checked={unavailablePolicy === policy.value}
+                variant={unavailablePolicy === policy.value ? "default" : "outline"}
+                className="h-auto justify-start whitespace-normal py-3 text-left"
+                onClick={() => setUnavailablePolicy(policy.value)}
+              >
+                {policy.label}
+              </Button>
+            ))}
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">Si le prix d’un remplacement change, nous vous appelons toujours avant.</p>
+        </div>
 
         <Separator />
 

@@ -501,8 +501,10 @@ export type Database = {
         Row: {
           created_at: string | null
           id: string
+          item_status: string
           line_total: number
           order_id: string
+          original_product_name: string | null
           product_id: string | null
           product_name: string
           quantity: string
@@ -512,8 +514,10 @@ export type Database = {
         Insert: {
           created_at?: string | null
           id?: string
+          item_status?: string
           line_total: number
           order_id: string
+          original_product_name?: string | null
           product_id?: string | null
           product_name: string
           quantity: string
@@ -523,8 +527,10 @@ export type Database = {
         Update: {
           created_at?: string | null
           id?: string
+          item_status?: string
           line_total?: number
           order_id?: string
+          original_product_name?: string | null
           product_id?: string | null
           product_name?: string
           quantity?: string
@@ -552,6 +558,8 @@ export type Database = {
         Row: {
           assignment_attempts: number | null
           assignment_status: string | null
+          availability_checked_at: string | null
+          availability_checked_by: string | null
           cash_bill_amount: number | null
           cmi_order_id: string | null
           cmi_transaction_id: string | null
@@ -566,6 +574,8 @@ export type Database = {
           driver_id: string | null
           id: string
           notes: string | null
+          payment_confirmed_at: string | null
+          payment_confirmed_by: string | null
           payment_method: string
           payment_status: string
           receipt_photo_path: string | null
@@ -575,12 +585,15 @@ export type Database = {
           status: string
           subtotal: number
           total_price: number
+          unavailable_policy: string
           updated_at: string | null
           user_id: string
         }
         Insert: {
           assignment_attempts?: number | null
           assignment_status?: string | null
+          availability_checked_at?: string | null
+          availability_checked_by?: string | null
           cash_bill_amount?: number | null
           cmi_order_id?: string | null
           cmi_transaction_id?: string | null
@@ -595,6 +608,8 @@ export type Database = {
           driver_id?: string | null
           id?: string
           notes?: string | null
+          payment_confirmed_at?: string | null
+          payment_confirmed_by?: string | null
           payment_method?: string
           payment_status?: string
           receipt_photo_path?: string | null
@@ -604,12 +619,15 @@ export type Database = {
           status?: string
           subtotal: number
           total_price: number
+          unavailable_policy?: string
           updated_at?: string | null
           user_id: string
         }
         Update: {
           assignment_attempts?: number | null
           assignment_status?: string | null
+          availability_checked_at?: string | null
+          availability_checked_by?: string | null
           cash_bill_amount?: number | null
           cmi_order_id?: string | null
           cmi_transaction_id?: string | null
@@ -624,6 +642,8 @@ export type Database = {
           driver_id?: string | null
           id?: string
           notes?: string | null
+          payment_confirmed_at?: string | null
+          payment_confirmed_by?: string | null
           payment_method?: string
           payment_status?: string
           receipt_photo_path?: string | null
@@ -633,6 +653,7 @@ export type Database = {
           status?: string
           subtotal?: number
           total_price?: number
+          unavailable_policy?: string
           updated_at?: string | null
           user_id?: string
         }
@@ -1015,12 +1036,81 @@ export type Database = {
         Returns: undefined
       }
       order_request_ips: { Args: never; Returns: unknown[] }
+      recalculate_order_totals: {
+        Args: { _order_id: string }
+        Returns: undefined
+      }
       respond_to_driver_assignment: {
         Args: { _order_id: string; _response: string }
         Returns: string
       }
+      set_order_unavailable_policy: {
+        Args: { _order_id: string; _policy: string }
+        Returns: undefined
+      }
       set_profile_role_as_admin: {
         Args: { _new_role: string; _target_user_id: string }
+        Returns: undefined
+      }
+      staff_confirm_availability: {
+        Args: { _order_id: string }
+        Returns: undefined
+      }
+      staff_confirm_payment: { Args: { _order_id: string }; Returns: undefined }
+      staff_lock_adjustable_order: {
+        Args: { _order_id: string }
+        Returns: {
+          assignment_attempts: number | null
+          assignment_status: string | null
+          availability_checked_at: string | null
+          availability_checked_by: string | null
+          cash_bill_amount: number | null
+          cmi_order_id: string | null
+          cmi_transaction_id: string | null
+          courier_called_at: string | null
+          courier_called_by: string | null
+          created_at: string | null
+          delivery_address_id: string | null
+          delivery_address_snapshot: Json | null
+          delivery_fee: number
+          delivery_mode: string
+          delivery_zone_id: string | null
+          driver_id: string | null
+          id: string
+          notes: string | null
+          payment_confirmed_at: string | null
+          payment_confirmed_by: string | null
+          payment_method: string
+          payment_status: string
+          receipt_photo_path: string | null
+          receipt_uploaded_at: string | null
+          receipt_uploaded_by: string | null
+          scheduled_for: string | null
+          status: string
+          subtotal: number
+          total_price: number
+          unavailable_policy: string
+          updated_at: string | null
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "orders"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      staff_remove_order_item: {
+        Args: { _item_id: string }
+        Returns: undefined
+      }
+      staff_replace_order_item: {
+        Args: {
+          _client_agreed?: boolean
+          _item_id: string
+          _product_id: string
+          _quantity_value: number
+        }
         Returns: undefined
       }
       submit_driver_rating: {

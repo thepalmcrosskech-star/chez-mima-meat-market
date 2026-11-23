@@ -92,6 +92,20 @@
       "when": 1795452866418,
       "tag": "0012_enforce_charcuterie_range_on_order_item_updates",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1795456161885,
+      "tag": "0013_counter_circuit_unavailable_and_payment",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1795456428814,
+      "tag": "0014_staff_item_actions_check_access_first",
+      "breakpoints": true
     }
   ]
 }

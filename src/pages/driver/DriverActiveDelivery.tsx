@@ -259,7 +259,7 @@ const DriverActiveDelivery = () => {
             Articles ({orderItems.length})
           </h3>
           <div className="space-y-1">
-            {orderItems.map((item) => (
+            {orderItems.filter((item) => item.item_status !== "removed").map((item) => (
               <div key={item.id} className="flex justify-between text-sm">
                 <span>{item.product_name} × {item.quantity}</span>
                 <span className="font-medium">{formatPrice(item.line_total)}</span>

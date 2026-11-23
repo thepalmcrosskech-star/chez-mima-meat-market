@@ -15,4 +15,4 @@
 - Keep the custom domain connected through Cloudflare proxy mode (CNAME verification, proxied record) because the direct A-record IP is unreachable from Morocco; never re-point it to a direct A record or a different IP.
 - Ship the Android store app as a Trusted Web Activity of the primary custom domain (the lovable.app host redirects there, which breaks verification), verified by public/.well-known/assetlinks.json; keep both upload and Play signing fingerprints there so the app opens without a browser bar.
 - Catalogue cards and lists show photos through productThumbnail (pre-generated lighter CDN copies, same framing); product detail keeps the original. Regenerate thumbnails when adding product photos; unknown URLs fall back to the original.
-- Staff order status, receipt and courier changes must go through the guarded staff RPCs; employees never receive direct authority over protected order fields.
+- Staff order status, receipt, courier, item replacement/removal, availability and payment confirmations must go through the guarded staff RPCs, which recalculate totals server-side; employees never receive direct authority over protected order fields.

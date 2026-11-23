@@ -66,7 +66,7 @@ serve(async (req) => {
 
     const [{ data: profile }, { data: items }] = await Promise.all([
       admin.from("profiles").select("email, name").eq("id", order.user_id).single(),
-      admin.from("order_items").select("product_name, quantity, line_total").eq("order_id", order.id),
+      admin.from("order_items").select("product_name, quantity, line_total").eq("order_id", order.id).neq("item_status", "removed"),
     ]);
     if (!profile?.email || !items?.length) {
       return new Response(JSON.stringify({ success: false, error: "Order details unavailable" }), {
