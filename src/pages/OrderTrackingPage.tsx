@@ -327,7 +327,7 @@ const OrderTrackingPage = () => {
       <div className="min-h-screen bg-background flex items-center justify-center p-6 animate-in fade-in">
         <div className="text-center space-y-4">
           <div className="text-7xl">🎉</div>
-          <h1 className="text-3xl font-bold">Commande livrée !</h1>
+          <h1 className="text-3xl font-bold">{isPickupOrder ? "Commande récupérée !" : "Commande livrée !"}</h1>
           <p className="text-muted-foreground">Bon appétit ! 🥩</p>
         </div>
       </div>

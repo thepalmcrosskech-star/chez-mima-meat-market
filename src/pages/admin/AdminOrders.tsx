@@ -101,9 +101,9 @@ const AdminOrders = () => {
       const notifMessages: Record<string, { title: string; message: string }> = {
         confirmed: { title: "Commande confirmée ✅", message: "Votre commande a été confirmée et sera bientôt préparée." },
         preparing: { title: "En préparation 🍖", message: "Votre commande est en cours de préparation." },
-        ready: { title: "Commande prête ! 🎉", message: "Votre commande est prête. Vous pouvez venir la récupérer en boucherie." },
+        ready: { title: "Commande prête ! 🎉", message: order.delivery_mode === "pickup" ? "Votre commande est prête. Vous pouvez venir la récupérer en boucherie." : "Votre commande est prête et va être confiée au livreur." },
         delivering: { title: "En livraison 🚚", message: "Votre commande est en route !" },
-        delivered: { title: "Commande livrée ✅", message: "Votre commande a été livrée. Bon appétit !" },
+        delivered: order.delivery_mode === "pickup" ? { title: "Commande récupérée ✅", message: "Votre commande a été récupérée. Merci !" } : { title: "Commande livrée ✅", message: "Votre commande a été livrée. Bon appétit !" },
         cancelled: { title: "Commande annulée ❌", message: "Votre commande a été annulée." },
       };
       const notif = notifMessages[status];
