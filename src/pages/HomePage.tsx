@@ -1,3 +1,4 @@
+import { compareProductsForDisplay } from "@/lib/productOrder";
 import { productThumbnail } from "@/lib/productThumbnail";
 import { CustomerHeader } from "@/components/OriginPromise";
 import { useState, useEffect, useCallback, useRef } from "react";
@@ -193,9 +194,9 @@ const HomePage = () => {
     return products
       .filter((product) => product.category_id === selectedCategory)
       .sort((a, b) => {
-        // Active products first, then by rating
+        // Active products first, then nature cuts, then alphabetical (flavours side by side)
         if (a.is_active !== b.is_active) return a.is_active ? -1 : 1;
-        return (productRatings[b.id] || 0) - (productRatings[a.id] || 0);
+        return compareProductsForDisplay(a, b);
       });
   })();
 
