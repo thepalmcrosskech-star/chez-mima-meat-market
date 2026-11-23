@@ -60,7 +60,7 @@ const DriverActiveDelivery = () => {
     setDriverProfile(dp);
 
     const [orderRes, itemsRes, assignRes] = await Promise.all([
-      supabase.from("orders").select("*, profiles(name, phone)").eq("id", orderId).single(),
+      supabase.from("orders").select("*, profiles!user_id(name, phone)").eq("id", orderId).single(),
       supabase.from("order_items").select("*").eq("order_id", orderId),
       supabase.from("delivery_assignments").select("id, picked_up_at, delivered_at")
         .eq("order_id", orderId).eq("driver_id", dp.id).eq("status", "accepted").limit(1),

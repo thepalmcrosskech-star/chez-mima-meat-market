@@ -79,7 +79,7 @@ const DriverDashboard = () => {
           // Fetch the order details
           const { data: orderData } = await supabase
             .from("orders")
-            .select("*, profiles(name, phone)")
+            .select("*, profiles!user_id(name, phone)")
             .eq("id", assignment.order_id)
             .single();
           
@@ -136,7 +136,7 @@ const DriverDashboard = () => {
     if (dp.status === "busy") {
       const { data: activeOrders } = await supabase
         .from("orders")
-        .select("*, profiles(name, phone)")
+        .select("*, profiles!user_id(name, phone)")
         .eq("driver_id", dp.id)
         .in("status", ["confirmed", "preparing", "ready", "delivering"])
         .limit(1);
@@ -154,7 +154,7 @@ const DriverDashboard = () => {
     if (pendingAssignment?.[0]) {
       const { data: orderData } = await supabase
         .from("orders")
-        .select("*, profiles(name, phone)")
+        .select("*, profiles!user_id(name, phone)")
         .eq("id", pendingAssignment[0].order_id)
         .single();
       if (orderData) {

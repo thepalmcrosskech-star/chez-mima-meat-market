@@ -50,6 +50,27 @@
       "when": 1795450876297,
       "tag": "0006_remove_dlc_from_conservation_tips",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1795451630085,
+      "tag": "0007_create_employee_counter_workflow",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1795451844516,
+      "tag": "0008_allow_employee_account_role",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1795451994093,
+      "tag": "0009_allow_admin_receipt_cleanup",
+      "breakpoints": true
     }
   ]
 }

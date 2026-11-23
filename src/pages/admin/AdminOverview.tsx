@@ -26,7 +26,7 @@ const AdminOverview = () => {
       supabase.from("products").select("id", { count: "exact", head: true }),
       supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", "user"),
       supabase.from("driver_profiles").select("id, status"),
-      supabase.from("orders").select("*, profiles(name, email)").order("created_at", { ascending: false }).limit(5),
+      supabase.from("orders").select("*, profiles!user_id(name, email)").order("created_at", { ascending: false }).limit(5),
     ]);
 
     const orders = ordersRes.data || [];

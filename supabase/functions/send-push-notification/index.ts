@@ -166,15 +166,15 @@ serve(async (req) => {
     if (!isInternal) {
       const callerId = typeof claims?.sub === 'string' ? claims.sub : null;
       const orderId = data?.order_id;
-      const { data: isAdmin } = callerId
-        ? await supabaseAdmin.rpc('has_admin_role', { user_id: callerId })
+      const { data: isStaff } = callerId
+        ? await supabaseAdmin.rpc('has_staff_access', { user_id: callerId })
         : { data: false };
-      if (!isAdmin || typeof orderId !== 'string' || !/^[0-9a-f-]{36}$/i.test(orderId)) {
+      if (!isStaff || typeof orderId !== 'string' || !/^[0-9a-f-]{36}$/i.test(orderId)) {
         return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
       }
       const { data: order, error: orderError } = await supabaseAdmin.from('orders')
         .select('id, user_id, status, delivery_mode').eq('id', orderId).maybeSingle();
-      if (orderError || !order || !canNotifyOrderOwner(callerId, isAdmin === true, order.user_id, user_id)) {
+      if (orderError || !order || !canNotifyOrderOwner(callerId, isStaff === true, order.user_id, user_id)) {
         return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
       }
       const notification = orderStatusNotification(order);

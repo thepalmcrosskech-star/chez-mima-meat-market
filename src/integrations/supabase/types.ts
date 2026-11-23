@@ -555,6 +555,8 @@ export type Database = {
           cash_bill_amount: number | null
           cmi_order_id: string | null
           cmi_transaction_id: string | null
+          courier_called_at: string | null
+          courier_called_by: string | null
           created_at: string | null
           delivery_address_id: string | null
           delivery_address_snapshot: Json | null
@@ -566,6 +568,9 @@ export type Database = {
           notes: string | null
           payment_method: string
           payment_status: string
+          receipt_photo_path: string | null
+          receipt_uploaded_at: string | null
+          receipt_uploaded_by: string | null
           scheduled_for: string | null
           status: string
           subtotal: number
@@ -579,6 +584,8 @@ export type Database = {
           cash_bill_amount?: number | null
           cmi_order_id?: string | null
           cmi_transaction_id?: string | null
+          courier_called_at?: string | null
+          courier_called_by?: string | null
           created_at?: string | null
           delivery_address_id?: string | null
           delivery_address_snapshot?: Json | null
@@ -590,6 +597,9 @@ export type Database = {
           notes?: string | null
           payment_method?: string
           payment_status?: string
+          receipt_photo_path?: string | null
+          receipt_uploaded_at?: string | null
+          receipt_uploaded_by?: string | null
           scheduled_for?: string | null
           status?: string
           subtotal: number
@@ -603,6 +613,8 @@ export type Database = {
           cash_bill_amount?: number | null
           cmi_order_id?: string | null
           cmi_transaction_id?: string | null
+          courier_called_at?: string | null
+          courier_called_by?: string | null
           created_at?: string | null
           delivery_address_id?: string | null
           delivery_address_snapshot?: Json | null
@@ -614,6 +626,9 @@ export type Database = {
           notes?: string | null
           payment_method?: string
           payment_status?: string
+          receipt_photo_path?: string | null
+          receipt_uploaded_at?: string | null
+          receipt_uploaded_by?: string | null
           scheduled_for?: string | null
           status?: string
           subtotal?: number
@@ -622,6 +637,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "orders_courier_called_by_fkey"
+            columns: ["courier_called_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "orders_delivery_address_id_fkey"
             columns: ["delivery_address_id"]
@@ -641,6 +663,13 @@ export type Database = {
             columns: ["driver_id"]
             isOneToOne: false
             referencedRelation: "driver_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_receipt_uploaded_by_fkey"
+            columns: ["receipt_uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
@@ -928,6 +957,10 @@ export type Database = {
     }
     Functions: {
       assert_order_ip_allowed: { Args: never; Returns: undefined }
+      attach_order_receipt: {
+        Args: { _order_id: string; _photo_path: string }
+        Returns: undefined
+      }
       can_driver_view_customer_profile: {
         Args: { _customer_id: string }
         Returns: boolean
@@ -972,7 +1005,12 @@ export type Database = {
         }[]
       }
       has_admin_role: { Args: { user_id: string }; Returns: boolean }
+      has_staff_access: { Args: { user_id: string }; Returns: boolean }
       mark_driver_order_picked_up: {
+        Args: { _order_id: string }
+        Returns: undefined
+      }
+      mark_order_courier_called: {
         Args: { _order_id: string }
         Returns: undefined
       }
@@ -992,6 +1030,10 @@ export type Database = {
           _order_id: string
           _rating: number
         }
+        Returns: undefined
+      }
+      update_staff_order_status: {
+        Args: { _new_status: string; _order_id: string }
         Returns: undefined
       }
       user_owns_order: { Args: { _order_id: string }; Returns: boolean }

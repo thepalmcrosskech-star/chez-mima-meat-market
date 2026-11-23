@@ -4,7 +4,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Search } from "lucide-react";
+import { Search, UserPlus, Loader2 } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
@@ -24,6 +27,10 @@ const AdminUsers = () => {
   const [search, setSearch] = useState("");
   const [change, setChange] = useState<{ user: Profile; role: string } | null>(null);
   const [saving, setSaving] = useState(false);
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const [inviteName, setInviteName] = useState("");
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviting, setInviting] = useState(false);
 
   useEffect(() => { fetchUsers(); }, []);
 
@@ -46,8 +53,8 @@ const AdminUsers = () => {
   };
 
   const roleBadge = (role: string) => {
-    const colors: Record<string, "default" | "secondary" | "destructive"> = { admin: "destructive", driver: "default", user: "secondary" };
-    const labels: Record<string, string> = { admin: "Admin", driver: "Livreur", user: "Client" };
+    const colors: Record<string, "default" | "secondary" | "destructive"> = { admin: "destructive", employee: "default", driver: "default", user: "secondary" };
+    const labels: Record<string, string> = { admin: "Admin", employee: "Salarié", driver: "Livreur", user: "Client" };
     return <Badge variant={colors[role] || "secondary"}>{labels[role] || role}</Badge>;
   };
 
@@ -59,7 +66,31 @@ const AdminUsers = () => {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Utilisateurs</h1>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="text-2xl font-bold">Utilisateurs</h1>
+        <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
+          <DialogTrigger asChild><Button><UserPlus />Inviter un salarié</Button></DialogTrigger>
+          <DialogContent>
+            <DialogHeader><DialogTitle>Inviter un salarié</DialogTitle><DialogDescription>Il recevra un e-mail pour choisir son mot de passe et accéder uniquement au comptoir.</DialogDescription></DialogHeader>
+            <form className="space-y-4" onSubmit={async event => {
+              event.preventDefault();
+              setInviting(true);
+              const { data, error } = await supabase.functions.invoke("invite-employee", { body: { name: inviteName, email: inviteEmail } });
+              setInviting(false);
+              if (error || data?.error) {
+                toast({ title: "Invitation impossible", description: data?.error || error?.message, variant: "destructive" });
+                return;
+              }
+              toast({ title: "Invitation envoyée", description: `${inviteEmail} peut maintenant créer son mot de passe.` });
+              setInviteOpen(false); setInviteName(""); setInviteEmail(""); fetchUsers();
+            }}>
+              <div><Label htmlFor="employee-name">Nom complet</Label><Input id="employee-name" required minLength={2} value={inviteName} onChange={event => setInviteName(event.target.value)} /></div>
+              <div><Label htmlFor="employee-email">E-mail</Label><Input id="employee-email" required type="email" value={inviteEmail} onChange={event => setInviteEmail(event.target.value)} /></div>
+              <Button className="w-full" disabled={inviting} type="submit">{inviting ? <Loader2 className="animate-spin" /> : <UserPlus />}{inviting ? "Envoi…" : "Envoyer l’invitation"}</Button>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
 
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -87,7 +118,7 @@ const AdminUsers = () => {
                   <TableCell>
                     <Select value={u.role} disabled={saving} onValueChange={role => setChange({ user: u, role })}>
                       <SelectTrigger aria-label={`Rôle de ${u.name}`} className="w-40"><SelectValue>{roleBadge(u.role)}</SelectValue></SelectTrigger>
-                      <SelectContent><SelectItem value="user">Client</SelectItem><SelectItem value="driver">Livreur</SelectItem><SelectItem value="admin">Administrateur</SelectItem></SelectContent>
+                      <SelectContent><SelectItem value="user">Client</SelectItem><SelectItem value="employee">Salarié</SelectItem><SelectItem value="driver">Livreur</SelectItem><SelectItem value="admin">Administrateur</SelectItem></SelectContent>
                     </Select>
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">{u.created_at ? new Date(u.created_at).toLocaleDateString("fr-FR") : "—"}</TableCell>
@@ -102,7 +133,7 @@ const AdminUsers = () => {
       </Card>
       <AlertDialog open={!!change} onOpenChange={open => { if (!open && !saving) setChange(null); }}>
         <AlertDialogContent>
-          <AlertDialogHeader><AlertDialogTitle>Confirmer le changement de rôle</AlertDialogTitle><AlertDialogDescription>{change?.user.email} : {change?.role === "admin" ? "cet utilisateur pourra gérer toute la boutique." : change?.role === "driver" ? "cet utilisateur accédera à l’espace livreur." : "cet utilisateur accédera uniquement à l’espace client."}</AlertDialogDescription></AlertDialogHeader>
+          <AlertDialogHeader><AlertDialogTitle>Confirmer le changement de rôle</AlertDialogTitle><AlertDialogDescription>{change?.user.email} : {change?.role === "admin" ? "cet utilisateur pourra gérer toute la boutique." : change?.role === "employee" ? "cet utilisateur accédera uniquement aux commandes application et aux produits du comptoir." : change?.role === "driver" ? "cet utilisateur accédera à l’espace livreur." : "cet utilisateur accédera uniquement à l’espace client."}</AlertDialogDescription></AlertDialogHeader>
           <AlertDialogFooter><AlertDialogCancel disabled={saving}>Annuler</AlertDialogCancel><AlertDialogAction disabled={saving} onClick={saveRole}>Confirmer</AlertDialogAction></AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

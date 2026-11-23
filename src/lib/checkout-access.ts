@@ -6,7 +6,7 @@ export const checkoutLoginPath = "/login?next=%2Fcheckout";
 export function loginDestination(roles: string[], next: string | null): string {
   const destination = destinationForRoles(roles);
   if (destination !== "/" || !next) return destination;
-  const safe = /^\/(?!\/)/.test(next) && !/^\/(admin|driver|login)/.test(next);
+  const safe = /^\/(?!\/)/.test(next) && !/^\/(admin|staff|driver|login)/.test(next);
   return safe ? next : destination;
 }
 

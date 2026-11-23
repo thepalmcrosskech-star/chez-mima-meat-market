@@ -1,44 +1,42 @@
-# Portail Salariés Chez Mima
+# Comptoir salarié Chez Mima
 
-## Ce qui sera visible
+## Fonctionnement sur la tablette
 
-- Un nouvel espace `/staff`, séparé de l’administration et du site client, avec uniquement trois rubriques : **Comptoir**, **Commandes** et **Produits**.
-- Après connexion, un salarié arrive directement dans cet espace. Il ne peut pas ouvrir les pages d’administration, de livraison ou les réglages sensibles.
+- Un nouvel espace `/staff`, distinct du site client et de l’administration, avec uniquement **Commandes** et **Produits**.
+- Le salarié se connecte avec son propre accès et arrive directement sur les commandes de l’application.
+- Une nouvelle commande apparaît sans recharger la page ; le salarié peut activer une alerte sonore sur la tablette.
 
-## 1. Comptoir
+## Parcours d’une commande
 
-- Recherche et sélection des produits disponibles, avec filtres par rayon.
-- Panier de vente au poids ou à la pièce, quantités modifiables et total calculé automatiquement.
-- Encaissement en espèces ou par carte, calcul de la monnaie pour les espèces.
-- Validation de la vente, affichage d’un ticket imprimable et liste des ventes récentes du comptoir.
+1. **À confirmer** : le salarié consulte le client, les articles, les quantités, le total et le mode de retrait ou de livraison.
+2. **En préparation** : il confirme puis prépare la commande comme une commande de plateforme.
+3. **Ticket de caisse** : il saisit la vente dans Chez Mima Gestion, imprime le ticket, puis prend sa photo depuis la tablette.
+4. **Prête** : la photo du ticket est obligatoire avant cette étape. Elle reste visible uniquement par le salarié et l’administrateur.
+5. **Livreur** : pour une livraison, le salarié appelle le coursier, enregistre « Livreur appelé », puis remet la commande et le ticket papier au coursier avant d’indiquer le départ en livraison. Aucun livreur interne n’est attribué automatiquement depuis ce comptoir.
+6. **Livrée** : la clôture reste disponible pour le suivi interne. Les notifications client existantes sont conservées.
 
-## 2. Commandes de l’application
-
-- Reprise de l’écran de commandes existant : recherche, filtres, détail client, articles, montants et changement de statut.
-- Attribution d’un livreur et notifications client conservées.
-- Le bannissement d’IP et toute modification des prix ou du paiement d’une commande restent réservés à l’administrateur.
-
-## 3. Produits
+## Produits
 
 - Reprise de la gestion existante : ajout, modification, photo, prix, rayon et disponibilité.
-- Les salariés peuvent voir les produits masqués afin de les réactiver, sans accéder à la gestion des catégories, bannières ou paramètres.
+- Les produits masqués restent visibles dans cet espace pour pouvoir être réactivés.
+- Aucun accès aux catégories, bannières, réglages, zones, bannissements ou comptes utilisateurs.
 
-## 4. Création des accès
+## Création des accès
 
-- Dans **Admin → Utilisateurs**, ajout d’un bouton **Inviter un salarié** avec nom et e-mail.
-- Le salarié reçoit une invitation, choisit son mot de passe, puis est dirigé vers `/staff`.
-- Le choix **Salarié** sera aussi disponible dans la gestion des rôles existants.
+- Dans **Admin → Utilisateurs**, un bouton **Inviter un salarié** envoie une invitation par e-mail.
+- Le salarié choisit son mot de passe puis arrive dans `/staff`.
+- Le rôle **Salarié** est également disponible pour un compte déjà inscrit.
 
 ## Protections et vérifications
 
-- Nouveau rôle protégé `employee`, contrôlé côté serveur pour chaque lecture et modification.
-- Les ventes du comptoir seront enregistrées séparément des commandes clients, avec leurs articles et le salarié ayant encaissé.
-- Les prix et totaux des ventes seront recalculés côté serveur pour empêcher toute modification depuis le navigateur.
-- Tests des droits : un client reste exclu ; un salarié peut gérer uniquement le comptoir, les commandes et les produits ; un administrateur conserve tous ses accès.
-- Vérification complète dans le navigateur : invitation, choix du mot de passe, connexion, vente avec ticket, changement de statut et modification de disponibilité.
+- Le rôle `employee` est contrôlé côté serveur ; modifier les données depuis le navigateur ne permet pas d’obtenir d’autres droits.
+- Les changements de statut du salarié passent par une fonction limitée au parcours prévu. Prix, paiement, coordonnées et articles restent intouchables.
+- La photo du ticket est enregistrée dans un espace privé, avec accès réservé au personnel et à l’administrateur.
+- Vérifications : client exclu, salarié limité, administrateur conservé, photo obligatoire avant « Prête », parcours de livraison et gestion des produits.
 
 ## Détails techniques
 
-- Ajout des règles de ligne et de fonctions serveur strictement limitées au comptoir et aux opérations autorisées.
-- Les montants des commandes clients resteront protégés par le contrôle existant ; seuls le statut et l’attribution du livreur seront ouverts aux salariés.
-- Une fonction sécurisée enverra les invitations sans exposer de clé privée dans l’application.
+- Nouvelle fonction de contrôle du rôle salarié et règles de ligne limitées aux commandes, articles, clients concernés et produits.
+- Colonnes de suivi interne pour la photo du ticket et l’appel au coursier.
+- Fonction sécurisée pour les changements de statut et les notifications, stockage privé des tickets, invitation par fonction serveur.
+- Abonnement temps réel aux commandes, correctement fermé lorsque l’écran est quitté.

@@ -36,6 +36,8 @@ import ProductPage from "./pages/ProductPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import RequireCheckoutSession from "./components/RequireCheckoutSession";
 import OrderTrackingPage from "./pages/OrderTrackingPage";
+import StaffLayout from "./pages/staff/StaffLayout";
+import StaffOrders from "./pages/staff/StaffOrders";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { supabase } from "@/integrations/supabase/client";
 const queryClient = new QueryClient();
@@ -110,6 +112,10 @@ const AppContent = () => {
             <Route path="banners" element={<AdminBanners />} />
             <Route path="settings" element={<AdminSettings />} />
             <Route path="banned-ips" element={<AdminBannedIPs />} />
+          </Route>
+          <Route path="/staff" element={<StaffLayout />}>
+            <Route index element={<StaffOrders />} />
+            <Route path="products" element={<AdminProducts />} />
           </Route>
           <Route path="/driver" element={<DriverLayout />}>
             <Route index element={<DriverDashboard />} />

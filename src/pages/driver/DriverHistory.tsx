@@ -36,7 +36,7 @@ const DriverHistory = () => {
 
     const { data } = await supabase
       .from("delivery_assignments")
-      .select("id, order_id, delivered_at, distance_to_shop, created_at, orders(total_price, delivery_fee, delivery_address_snapshot, profiles(name))")
+      .select("id, order_id, delivered_at, distance_to_shop, created_at, orders(total_price, delivery_fee, delivery_address_snapshot, profiles!user_id(name))")
       .eq("driver_id", dp.id)
       .not("delivered_at", "is", null)
       .order("delivered_at", { ascending: false })

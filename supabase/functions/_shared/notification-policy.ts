@@ -2,9 +2,9 @@ export function orderStatusNotification(order: { id: string; status: string; del
   const messages: Record<string, { title: string; body: string }> = {
     confirmed: { title: "Commande confirmée ✅", body: "Votre commande a été confirmée et sera bientôt préparée." },
     preparing: { title: "En préparation 🍖", body: "Votre commande est en cours de préparation." },
-    ready: { title: "Commande prête ! 🎉", body: order.delivery_mode === "pickup" ? "Votre commande est prête. Vous pouvez venir la récupérer en boucherie." : "Votre commande est prête. Un livreur est recherché." },
+    ready: { title: "Commande prête ! 🎉", body: order.delivery_mode === "pickup" ? "Votre commande est prête. Vous pouvez venir la récupérer en boucherie." : "Votre commande est prête et va être confiée au livreur." },
     delivering: { title: "En livraison 🚚", body: "Votre commande est en route !" },
-    delivered: { title: "Commande livrée ✅", body: "Votre commande a été livrée. Bon appétit !" },
+    delivered: { title: order.delivery_mode === "pickup" ? "Commande récupérée ✅" : "Commande livrée ✅", body: order.delivery_mode === "pickup" ? "Votre commande a été récupérée. Merci !" : "Votre commande a été livrée. Bon appétit !" },
     cancelled: { title: "Commande annulée ❌", body: "Votre commande a été annulée." },
   };
   const message = messages[order.status];

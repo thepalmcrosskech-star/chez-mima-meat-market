@@ -34,6 +34,7 @@ describe("visitor checkout access", () => {
   });
   it("preserves administrator and driver destinations", () => {
     expect(loginDestination(["admin"], "/checkout")).toBe("/admin");
+    expect(loginDestination(["employee"], "/checkout")).toBe("/staff");
     expect(loginDestination(["driver"], "/checkout")).toBe("/driver");
   });
 });describe("cart login return", () => {
@@ -42,5 +43,6 @@ describe("visitor checkout access", () => {
   });
   it("never returns a customer to staff pages", () => {
     expect(loginDestination(["user"], "/admin")).toBe("/");
+    expect(loginDestination(["user"], "/staff")).toBe("/");
   });
 });

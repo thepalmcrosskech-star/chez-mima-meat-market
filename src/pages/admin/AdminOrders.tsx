@@ -33,6 +33,9 @@ interface Order {
   cash_bill_amount: number | null;
   delivery_mode: string;
   scheduled_for: string | null;
+  receipt_photo_path: string | null;
+  receipt_uploaded_at: string | null;
+  courier_called_at: string | null;
   profiles?: { name: string; email: string; phone: string | null };
   delivery_address_snapshot?: any;
 }
@@ -56,15 +59,16 @@ const AdminOrders = () => {
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
   const [detailOpen, setDetailOpen] = useState(false);
   const [banDialogOpen, setBanDialogOpen] = useState(false);
+  const [receiptUrl, setReceiptUrl] = useState<string | null>(null);
 
   useEffect(() => { fetchData(); }, []);
 
   const fetchData = async () => {
     const [ordersRes, driversRes] = await Promise.all([
-      supabase.from("orders").select("*, profiles(name, email, phone)").order("created_at", { ascending: false }),
+      supabase.from("orders").select("*, profiles!user_id(name, email, phone)").order("created_at", { ascending: false }),
       supabase.from("driver_profiles").select("id, user_id, profiles(name)"),
     ]);
-    if (ordersRes.data) setOrders(ordersRes.data as Order[]);
+    if (ordersRes.data) setOrders(ordersRes.data as unknown as Order[]);
     if (driversRes.data) setDrivers(driversRes.data as unknown as DriverProfile[]);
     setLoading(false);
   };
@@ -73,6 +77,11 @@ const AdminOrders = () => {
     setSelectedOrder(order);
     const { data } = await supabase.from("order_items").select("*").eq("order_id", order.id);
     setOrderItems((data || []) as OrderItem[]);
+    setReceiptUrl(null);
+    if (order.receipt_photo_path) {
+      const { data: receipt } = await supabase.storage.from("order-receipts").createSignedUrl(order.receipt_photo_path, 3600);
+      if (receipt) setReceiptUrl(receipt.signedUrl);
+    }
     setDetailOpen(true);
   };
 
@@ -289,6 +298,14 @@ const AdminOrders = () => {
                 <div className="flex justify-between"><span className="text-muted-foreground">Livraison</span><span>{selectedOrder.delivery_fee === 0 ? "Gratuit" : formatPrice(selectedOrder.delivery_fee)}</span></div>
                 <div className="flex justify-between font-bold text-lg border-t border-border pt-2"><span>Total</span><span className="text-primary">{formatPrice(selectedOrder.total_price)}</span></div>
               </div>
+
+              {selectedOrder.receipt_photo_path && (
+                <div className="rounded-lg border border-border p-3 space-y-2">
+                  <p className="text-xs font-bold uppercase text-muted-foreground">Ticket de caisse interne</p>
+                  {receiptUrl ? <button type="button" className="w-full" onClick={() => window.open(receiptUrl, "_blank", "noopener,noreferrer")}><img src={receiptUrl} alt="Ticket de caisse photographié" className="mx-auto max-h-72 rounded-lg object-contain" /></button> : <p className="text-sm text-muted-foreground">Chargement de la photo…</p>}
+                  {selectedOrder.courier_called_at && <p className="text-xs text-muted-foreground">Livreur appelé le {new Date(selectedOrder.courier_called_at).toLocaleString("fr-FR", { timeZone: "Africa/Casablanca" })}</p>}
+                </div>
+              )}
 
               {/* Cash payment info for driver */}
               <div className="rounded-lg border border-border p-3 space-y-1">

@@ -1,9 +1,10 @@
 import { supabase } from "@/integrations/supabase/client";
 
-export type AccountRole = "admin" | "driver" | "user";
+export type AccountRole = "admin" | "employee" | "driver" | "user";
 
 export function destinationForRoles(roles: string[]): string {
   if (roles.includes("admin")) return "/admin";
+  if (roles.includes("employee")) return "/staff";
   if (roles.includes("driver")) return "/driver";
   return "/";
 }
