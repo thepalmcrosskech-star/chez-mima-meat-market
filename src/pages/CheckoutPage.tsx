@@ -158,12 +158,17 @@ const CheckoutPage = () => {
   })();
 
   const getNextOpeningDate = () => {
-    const now = new Date();
+    // Prochaine ouverture à l'heure du Maroc (aujourd'hui si avant l'ouverture, sinon demain)
     const [oh, om] = openingHour.split(":").map(Number);
-    const next = new Date(now);
-    next.setDate(next.getDate() + 1);
-    next.setHours(oh, om, 0, 0);
-    return next;
+    const now = new Date();
+    const get = (d: Date) => Object.fromEntries(new Intl.DateTimeFormat("en-GB", { timeZone: "Africa/Casablanca", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false }).formatToParts(d).map(p => [p.type, Number(p.value)]));
+    const c = get(now);
+    const localMins = (c.hour % 24) * 60 + c.minute;
+    const dayOffset = localMins < oh * 60 + om ? 0 : 1;
+    const guess = new Date(Date.UTC(c.year, c.month - 1, c.day + dayOffset, oh, om));
+    const g = get(guess);
+    const offsetMs = Date.UTC(g.year, g.month - 1, g.day, g.hour % 24, g.minute) - guess.getTime();
+    return new Date(guess.getTime() - offsetMs);
   };
 
   // Auto-enable scheduling when store is closed
@@ -306,7 +311,7 @@ const CheckoutPage = () => {
               <div>
                 <p className="font-semibold text-sm text-warning">🌙 La boucherie est fermée</p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Votre commande sera programmée pour demain à l'ouverture ({openingHour}).
+                  Votre commande sera programmée à la prochaine ouverture ({openingHour}).
                   Elle sera préparée dès notre ouverture !
                 </p>
               </div>
@@ -325,9 +330,9 @@ const CheckoutPage = () => {
             <div>
               <p className="text-sm font-medium flex items-center gap-1.5">
                 <Clock className="h-4 w-4 text-primary" />
-                Programmer pour demain ({openingHour})
+                Programmer à l'ouverture ({openingHour})
               </p>
-              <p className="text-xs text-muted-foreground">Réservez maintenant, on prépare demain à l'ouverture</p>
+              <p className="text-xs text-muted-foreground">Réservez maintenant, on prépare dès l'ouverture</p>
             </div>
           </div>
         )}
@@ -552,7 +557,7 @@ const CheckoutPage = () => {
           {isScheduled && (
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground flex items-center gap-1"><CalendarClock className="h-3.5 w-3.5" /> Programmée pour</span>
-              <span className="font-medium text-warning">Demain {openingHour}</span>
+              <span className="font-medium text-warning">À l'ouverture ({openingHour})</span>
             </div>
           )}
           <div className="flex justify-between font-bold text-lg border-t border-border pt-2">
