@@ -314,7 +314,7 @@ const CheckoutPage = () => {
         <Separator />
 
         {/* Scheduled delivery banner */}
-        {!isStoreOpen && (
+        {hoursLoaded && !isStoreOpen && (
           <Card className="p-4 border-warning/30 bg-warning/10">
             <div className="flex items-start gap-3">
               <CalendarClock className="h-5 w-5 text-warning mt-0.5 shrink-0" />
@@ -329,7 +329,7 @@ const CheckoutPage = () => {
           </Card>
         )}
 
-        {isStoreOpen && (
+        {hoursLoaded && isStoreOpen && (
           <div
             className="flex items-center gap-3 cursor-pointer"
             onClick={() => setIsScheduled(!isScheduled)}
