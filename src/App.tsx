@@ -91,6 +91,7 @@ const AppContent = () => {
         <RoleRedirect />
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/index" element={<Navigate to="/" replace />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/product/:id" element={<ProductPage />} />
           <Route path="/cart" element={<CartPage />} />
