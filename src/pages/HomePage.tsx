@@ -51,6 +51,18 @@ const HomePage = () => {
   const pageRef = useRef<HTMLDivElement>(null);
   const categoryBarRef = useRef<HTMLElement>(null);
   const categoryRowRef = useRef<HTMLDivElement>(null);
+  const productsRef = useRef<HTMLElement>(null);
+  // When switching rayon, always land at the start of the new product list (never keep the old scroll depth).
+  const scrollToProductsTop = useCallback(() => {
+    requestAnimationFrame(() => {
+      const list = productsRef.current;
+      const bar = categoryBarRef.current;
+      if (!list) return;
+      const barBottom = bar ? bar.getBoundingClientRect().bottom : 0;
+      const target = window.scrollY + list.getBoundingClientRect().top - barBottom - 8;
+      if (window.scrollY > target) window.scrollTo({ top: Math.max(0, target), behavior: "auto" });
+    });
+  }, []);
   const [categoryHint, setCategoryHint] = useState(false);
   const updateCategoryHint = useCallback(() => {
     const row = categoryRowRef.current;
@@ -305,6 +317,7 @@ const HomePage = () => {
                 onClick={() => {
                   setSelectedCategory(category.id);
                   setSearchParams({ cat: category.id }, { replace: true });
+                  scrollToProductsTop();
                 }}
               >
                 {category.emoji} {category.name}
@@ -319,7 +332,7 @@ const HomePage = () => {
       </section>
 
       {/* Products Section */}
-      <section className="px-4">
+      <section ref={productsRef} className="px-4">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-2xl font-normal text-foreground">
             {!selectedCategory || selectedCategory === "all" ? "Nos meilleures ventes" : "Nos produits"}

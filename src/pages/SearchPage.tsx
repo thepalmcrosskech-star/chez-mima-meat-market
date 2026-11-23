@@ -80,7 +80,7 @@ const SearchPage = () => {
             variant={!selectedCategory ? "default" : "secondary"}
             size="sm"
             className="rounded-full whitespace-nowrap text-xs"
-            onClick={() => setSelectedCategory(null)}
+            onClick={() => { setSelectedCategory(null); window.scrollTo({ top: 0 }); }}
           >
             Tout
           </Button>
@@ -90,7 +90,7 @@ const SearchPage = () => {
               variant={selectedCategory === c.id ? "default" : "secondary"}
               size="sm"
               className="rounded-full whitespace-nowrap text-xs"
-              onClick={() => setSelectedCategory(c.id)}
+              onClick={() => { setSelectedCategory(c.id); window.scrollTo({ top: 0 }); }}
             >
               {c.emoji} {c.name}
             </Button>
