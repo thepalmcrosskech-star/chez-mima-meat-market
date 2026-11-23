@@ -147,10 +147,13 @@ const CheckoutPage = () => {
 
   // Store open/close logic
   const isStoreOpen = (() => {
-    const now = new Date();
     const [oh, om] = openingHour.split(":").map(Number);
     const [ch, cm] = closingHour.split(":").map(Number);
-    const mins = now.getHours() * 60 + now.getMinutes();
+    // Heure du Maroc, quel que soit le réglage du téléphone
+    const parts = new Intl.DateTimeFormat("en-GB", { timeZone: "Africa/Casablanca", hour: "2-digit", minute: "2-digit", hour12: false }).formatToParts(new Date());
+    const h = Number(parts.find(p => p.type === "hour")?.value ?? 0) % 24;
+    const m = Number(parts.find(p => p.type === "minute")?.value ?? 0);
+    const mins = h * 60 + m;
     return mins >= (oh * 60 + om) && mins < (ch * 60 + cm);
   })();
 
