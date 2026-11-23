@@ -40,6 +40,7 @@ const statusSteps = [
   { key: "pending", label: "En attente", icon: Clock, description: "Votre commande est en cours de validation" },
   { key: "confirmed", label: "Confirmée", icon: CheckCircle2, description: "Votre commande a été acceptée" },
   { key: "preparing", label: "En préparation", icon: Package, description: "Nous préparons votre commande" },
+  { key: "ready", label: "Prête", icon: Package, description: "Votre commande est prête" },
   { key: "delivering", label: "En livraison", icon: Bike, description: "Le livreur est en route vers vous" },
   { key: "delivered", label: "Livrée", icon: CheckCircle2, description: "Votre commande a été livrée" },
 ];
@@ -290,10 +291,20 @@ const OrderTrackingPage = () => {
     }
   };
 
+  const isPickupOrder = order?.delivery_mode === "pickup";
+  const steps = statusSteps
+    .filter((s) => !(isPickupOrder && s.key === "delivering"))
+    .map((s) => {
+      if (!isPickupOrder) return s.key === "ready" ? { ...s, description: "Votre commande est prête, elle va être remise au livreur" } : s;
+      if (s.key === "ready") return { ...s, label: "Prête à retirer", description: "Votre commande vous attend à la boutique" };
+      if (s.key === "delivered") return { ...s, label: "Récupérée", description: "Vous avez récupéré votre commande" };
+      return s;
+    });
+
   const getCurrentStepIndex = () => {
     if (!order) return 0;
     if (order.status === "cancelled") return -1;
-    return statusSteps.findIndex((s) => s.key === order.status);
+    return steps.findIndex((s) => s.key === order.status);
   };
 
   if (loading) {
@@ -435,7 +446,7 @@ const OrderTrackingPage = () => {
             </div>
           ) : (
             <div className="space-y-0">
-              {statusSteps.map((step, index) => {
+              {steps.map((step, index) => {
                 const isActive = index === currentStep;
                 const isDone = index < currentStep;
                 const StepIcon = step.icon;
@@ -449,7 +460,7 @@ const OrderTrackingPage = () => {
                       }`}>
                         <StepIcon className="h-4 w-4" />
                       </div>
-                      {index < statusSteps.length - 1 && (
+                      {index < steps.length - 1 && (
                         <div className={`w-0.5 h-8 ${isDone ? "bg-primary" : "bg-muted"}`} />
                       )}
                     </div>
