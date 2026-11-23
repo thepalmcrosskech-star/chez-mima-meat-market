@@ -6,6 +6,7 @@ import { ShoppingCart, Trash2, Plus, Minus, Beef } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import BottomNav from "@/components/BottomNav";
 import { isWeightUnit } from "@/lib/product-units";
+import { formatCartQuantity } from "@/lib/cart-display";
 
 const formatPrice = (n: number) =>
   new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(n) + " MAD";
@@ -38,47 +39,50 @@ const CartPage = () => {
             {items.map((item) => {
               const step = getStep(item.unit_type);
               const min = getMin(item.unit_type);
-              const displayQty = isWeightUnit(item.unit_type) ? `${item.quantity} kg` : `${item.quantity}`;
+              const displayQty = formatCartQuantity(item.quantity, item.unit_type);
               return (
-                <Card key={item.id} className="p-3 sm:p-4 flex flex-wrap items-center gap-3">
-                  <div className="w-16 h-16 rounded-lg bg-accent/30 flex items-center justify-center overflow-hidden shrink-0">
+                <Card key={item.id} className="p-3 sm:p-4 flex items-center gap-3">
+                  <div className="w-20 h-20 rounded-lg bg-accent/30 flex items-center justify-center overflow-hidden shrink-0">
                     {item.image_url ? (
                       <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
                     ) : (
                       <Beef className="h-8 w-8 text-muted-foreground/40" aria-hidden="true" />
                     )}
                   </div>
-                  <div className="flex-1 min-w-[140px]">
-                    <h4 className="font-bold text-sm truncate">{item.name}</h4>
-                    <p className="text-primary font-semibold text-sm">{formatPrice(item.price * item.quantity)}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="secondary"
-                      size="icon"
-                      className="w-7 h-7 rounded-full"
-                      onClick={() => updateQuantity(item.id, +(item.quantity - step).toFixed(2))}
-                      disabled={item.quantity <= min}
-                    >
-                      <Minus className="h-3 w-3" />
-                    </Button>
-                    <span className="text-sm font-bold min-w-[40px] text-center">{displayQty}</span>
-                    <Button
-                      variant="secondary"
-                      size="icon"
-                      className="w-7 h-7 rounded-full"
-                      onClick={() => updateQuantity(item.id, +(item.quantity + step).toFixed(2))}
-                    >
-                      <Plus className="h-3 w-3" />
-                    </Button>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-bold text-sm leading-snug line-clamp-2">{item.name}</h4>
+                    <p className="text-primary font-semibold text-sm mt-0.5">{formatPrice(item.price * item.quantity)}</p>
+                    <div className="flex items-center gap-2 mt-2">
+                      <Button
+                        variant="secondary"
+                        size="icon"
+                        className="w-9 h-9 rounded-full"
+                        aria-label="Diminuer la quantité"
+                        onClick={() => updateQuantity(item.id, +(item.quantity - step).toFixed(2))}
+                        disabled={item.quantity <= min}
+                      >
+                        <Minus className="h-4 w-4" />
+                      </Button>
+                      <span className="text-sm font-bold min-w-[52px] text-center tabular-nums">{displayQty}</span>
+                      <Button
+                        variant="secondary"
+                        size="icon"
+                        className="w-9 h-9 rounded-full"
+                        aria-label="Augmenter la quantité"
+                        onClick={() => updateQuantity(item.id, +(item.quantity + step).toFixed(2))}
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="text-destructive shrink-0"
+                    className="text-destructive shrink-0 self-start"
+                    aria-label={`Retirer ${item.name} du panier`}
                     onClick={() => removeItem(item.id)}
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-5 w-5" />
                   </Button>
                 </Card>
               );

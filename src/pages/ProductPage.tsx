@@ -289,7 +289,8 @@ const ProductPage = () => {
             key={displayedImage.url}
             src={displayedImage.url}
             alt={displayedImage.label}
-            className="w-full aspect-[848/1264]"
+            className="w-full aspect-[4/5] max-h-[58dvh] md:mx-auto md:max-w-lg md:max-h-[70dvh]"
+            imageClassName="object-[center_72%]"
             onOpen={() => setImageZoomed(true)}
           />
         ) : (

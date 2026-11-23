@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, ClipboardList, ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import BottomNav from "@/components/BottomNav";
 
 interface Order {
@@ -33,6 +34,7 @@ const OrdersPage = () => {
   const navigate = useNavigate();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [signedOut, setSignedOut] = useState(false);
 
   useEffect(() => {
     fetchOrders();
@@ -40,7 +42,11 @@ const OrdersPage = () => {
 
   const fetchOrders = async () => {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    if (!user) {
+      setSignedOut(true);
+      setLoading(false);
+      return;
+    }
 
     const { data } = await supabase
       .from("orders")
@@ -63,6 +69,13 @@ const OrdersPage = () => {
       <div className="px-4 py-4">
         {loading ? (
           <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+        ) : signedOut ? (
+          <div className="text-center py-20">
+            <ClipboardList className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+            <h2 className="text-lg font-bold mb-2">Connectez-vous pour voir vos commandes</h2>
+            <p className="text-muted-foreground text-sm mb-6">Retrouvez ici le suivi de toutes vos commandes.</p>
+            <Button onClick={() => navigate("/login?next=%2Forders")}>Se connecter</Button>
+          </div>
         ) : orders.length === 0 ? (
           <div className="text-center py-20">
             <ClipboardList className="h-16 w-16 mx-auto text-muted-foreground mb-4" />

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -36,7 +36,6 @@ import ProductPage from "./pages/ProductPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import RequireCheckoutSession from "./components/RequireCheckoutSession";
 import OrderTrackingPage from "./pages/OrderTrackingPage";
-import SplashScreen from "./components/SplashScreen";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { supabase } from "@/integrations/supabase/client";
 const queryClient = new QueryClient();
@@ -80,30 +79,10 @@ const RoleRedirect = () => {
 
 const AppContent = () => {
   const { banned, checked } = useIpBanCheck();
-  const [showSplash, setShowSplash] = useState(false);
-
-  useEffect(() => {
-    const isMobile = window.innerWidth < 768;
-    const hasSeenSplash = sessionStorage.getItem("splashShown");
-    if (isMobile && !hasSeenSplash) {
-      setShowSplash(true);
-    }
-  }, []);
-
-  const handleSplashComplete = useCallback(() => {
-    try {
-      sessionStorage.setItem("splashShown", "true");
-    } catch {
-      // Opening the application must not depend on browser storage permission.
-    }
-    setShowSplash(false);
-  }, []);
-
   if (banned) return <BannedScreen />;
 
   return (
     <>
-      {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
       <Toaster />
       <Sonner />
       <BrowserRouter>

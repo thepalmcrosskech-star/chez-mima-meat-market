@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { cartBadgeCount } from "@/lib/cart-display";
 import { toast } from "sonner";
 import { cartLoginPath } from "@/lib/checkout-access";
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
@@ -80,7 +81,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const clearCart = () => setItems([]);
 
-  const totalItems = items.reduce((sum, i) => sum + i.quantity, 0);
+  const totalItems = cartBadgeCount(items);
   const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
 
   return (

@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { Save, MapPin, RotateCcw, Clock } from "lucide-react";
+import { Save, MapPin, Clock } from "lucide-react";
 import MapboxMap from "@/components/MapboxMap";
 import mapboxgl from "mapbox-gl";
 
@@ -157,23 +157,6 @@ const AdminSettings = () => {
         </CardContent>
       </Card>
 
-      {/* Dev Tools */}
-      <Card>
-        <CardHeader><CardTitle>Outils développeur</CardTitle></CardHeader>
-        <CardContent>
-          <Button
-            variant="outline"
-            className="gap-2"
-            onClick={() => {
-              sessionStorage.removeItem("splashShown");
-              sonnerToast.success("Splash screen réactivé — rechargez la page");
-            }}
-          >
-            <RotateCcw className="h-4 w-4" />
-            Forcer le splash screen
-          </Button>
-        </CardContent>
-      </Card>
     </div>
   );
 };

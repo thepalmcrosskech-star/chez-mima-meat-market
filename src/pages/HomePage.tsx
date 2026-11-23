@@ -49,6 +49,18 @@ const HomePage = () => {
   const [themeIcon, setThemeIcon] = useState<string>(localStorage.getItem("theme") || "light");
   const pageRef = useRef<HTMLDivElement>(null);
   const categoryBarRef = useRef<HTMLElement>(null);
+  const categoryRowRef = useRef<HTMLDivElement>(null);
+  const [categoryHint, setCategoryHint] = useState(false);
+  const updateCategoryHint = useCallback(() => {
+    const row = categoryRowRef.current;
+    if (!row) return;
+    setCategoryHint(row.scrollLeft + row.clientWidth < row.scrollWidth - 8);
+  }, []);
+  useEffect(() => {
+    updateCategoryHint();
+    window.addEventListener("resize", updateCategoryHint);
+    return () => window.removeEventListener("resize", updateCategoryHint);
+  }, [categories, updateCategoryHint]);
   const [headerHeight, setHeaderHeight] = useState(0);
   const [categoryBarStuck, setCategoryBarStuck] = useState(false);
 
@@ -279,7 +291,7 @@ const HomePage = () => {
         style={{ top: headerHeight }}
       >
         <div className="relative">
-          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+          <div ref={categoryRowRef} onScroll={updateCategoryHint} className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
             {categories.map((category) => (
               <Button
                 key={category.id}
@@ -298,10 +310,10 @@ const HomePage = () => {
               </Button>
             ))}
           </div>
-          {/* Scroll hint arrow */}
-          <div className="absolute right-0 top-0 bottom-2 w-12 flex items-center justify-end pointer-events-none bg-gradient-to-l from-background via-background/80 to-transparent">
+          {/* Scroll hint arrow, only while more rayons are hidden to the right */}
+          {categoryHint && <div className="absolute right-0 top-0 bottom-2 w-12 flex items-center justify-end pointer-events-none bg-gradient-to-l from-background via-background/80 to-transparent">
             <ChevronRight className="h-7 w-7 text-primary animate-pulse drop-shadow-md" />
-          </div>
+          </div>}
         </div>
       </section>
 
@@ -393,7 +405,7 @@ const HomePage = () => {
                       <div>
                         {isFamily && <span className="text-xs text-muted-foreground">dès </span>}
                         <span className="text-lg font-bold text-primary">{formatPrice(price)}</span>
-                        <span className="text-sm text-muted-foreground">/{product.unit_type === "weight" ? "Kg" : "Pièce"}</span>
+                        <span className="text-sm text-muted-foreground">/{product.unit_type === "weight" ? "kg" : "pièce"}</span>
                       </div>
                       {!unavailable && (
                         <Button 
