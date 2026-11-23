@@ -66,6 +66,7 @@ const CheckoutPage = () => {
   const [storeAddress, setStoreAddress] = useState("");
   const [openingHour, setOpeningHour] = useState("08:00");
   const [closingHour, setClosingHour] = useState("20:00");
+  const [hoursLoaded, setHoursLoaded] = useState(false);
   const [isScheduled, setIsScheduled] = useState(false);
 
   useEffect(() => {
@@ -104,6 +105,7 @@ const CheckoutPage = () => {
 
     if (openRes.data?.value) setOpeningHour(String(openRes.data.value).replace(/"/g, ""));
     if (closeRes.data?.value) setClosingHour(String(closeRes.data.value).replace(/"/g, ""));
+    setHoursLoaded(true);
 
     const { data: storeAddrData } = await supabase.from("app_settings").select("value").eq("key", "store_address").single();
     if (storeAddrData?.value) setStoreAddress(String(storeAddrData.value));
@@ -179,8 +181,10 @@ const CheckoutPage = () => {
 
   // Auto-enable scheduling when store is closed
   useEffect(() => {
-    if (!isStoreOpen) setIsScheduled(true);
-  }, [isStoreOpen]);
+    // Attendre les vrais horaires avant de décider (sinon les horaires par défaut forcent « demain »)
+    if (!hoursLoaded) return;
+    setIsScheduled(!isStoreOpen);
+  }, [isStoreOpen, hoursLoaded]);
 
   const isPickup = deliveryMode === "pickup";
   const { zone: deliveryZone, fee: deliveryFee } = isPickup ? { zone: null, fee: 0 } : getDeliveryInfo();
