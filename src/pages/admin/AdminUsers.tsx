@@ -30,6 +30,7 @@ const AdminUsers = () => {
   const [inviteOpen, setInviteOpen] = useState(false);
   const [inviteName, setInviteName] = useState("");
   const [inviteEmail, setInviteEmail] = useState("");
+  const [invitePassword, setInvitePassword] = useState("");
   const [inviting, setInviting] = useState(false);
 
   useEffect(() => { fetchUsers(); }, []);
@@ -69,24 +70,25 @@ const AdminUsers = () => {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-2xl font-bold">Utilisateurs</h1>
         <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
-          <DialogTrigger asChild><Button><UserPlus />Inviter un salarié</Button></DialogTrigger>
+          <DialogTrigger asChild><Button><UserPlus />Ajouter un salarié</Button></DialogTrigger>
           <DialogContent>
-            <DialogHeader><DialogTitle>Inviter un salarié</DialogTitle><DialogDescription>Il recevra un e-mail pour choisir son mot de passe et accéder uniquement au comptoir.</DialogDescription></DialogHeader>
+            <DialogHeader><DialogTitle>Ajouter un salarié</DialogTitle><DialogDescription>Choisissez son e-mail et son mot de passe, puis donnez-les-lui. Il aura accès uniquement au comptoir.</DialogDescription></DialogHeader>
             <form className="space-y-4" onSubmit={async event => {
               event.preventDefault();
               setInviting(true);
-              const { data, error } = await supabase.functions.invoke("invite-employee", { body: { name: inviteName, email: inviteEmail } });
+              const { data, error } = await supabase.functions.invoke("invite-employee", { body: { name: inviteName, email: inviteEmail, password: invitePassword } });
               setInviting(false);
               if (error || data?.error) {
-                toast({ title: "Invitation impossible", description: data?.error || error?.message, variant: "destructive" });
+                toast({ title: "Création impossible", description: data?.error || error?.message, variant: "destructive" });
                 return;
               }
-              toast({ title: "Invitation envoyée", description: `${inviteEmail} peut maintenant créer son mot de passe.` });
-              setInviteOpen(false); setInviteName(""); setInviteEmail(""); fetchUsers();
+              toast({ title: "Salarié ajouté", description: `${inviteEmail} peut se connecter avec le mot de passe choisi.` });
+              setInviteOpen(false); setInviteName(""); setInviteEmail(""); setInvitePassword(""); fetchUsers();
             }}>
               <div><Label htmlFor="employee-name">Nom complet</Label><Input id="employee-name" required minLength={2} value={inviteName} onChange={event => setInviteName(event.target.value)} /></div>
               <div><Label htmlFor="employee-email">E-mail</Label><Input id="employee-email" required type="email" value={inviteEmail} onChange={event => setInviteEmail(event.target.value)} /></div>
-              <Button className="w-full" disabled={inviting} type="submit">{inviting ? <Loader2 className="animate-spin" /> : <UserPlus />}{inviting ? "Envoi…" : "Envoyer l’invitation"}</Button>
+              <div><Label htmlFor="employee-password">Mot de passe (8 caractères minimum)</Label><Input id="employee-password" required minLength={8} maxLength={72} type="text" autoComplete="new-password" value={invitePassword} onChange={event => setInvitePassword(event.target.value)} /></div>
+              <Button className="w-full" disabled={inviting} type="submit">{inviting ? <Loader2 className="animate-spin" /> : <UserPlus />}{inviting ? "Création…" : "Créer l’accès"}</Button>
             </form>
           </DialogContent>
         </Dialog>

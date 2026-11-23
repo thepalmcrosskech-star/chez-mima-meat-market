@@ -33,6 +33,10 @@ Deno.serve(async req => {
     const payload = await req.json();
     const email = typeof payload?.email === "string" ? payload.email.trim().toLowerCase() : "";
     const name = typeof payload?.name === "string" ? payload.name.trim() : "";
+    const password = typeof payload?.password === "string" ? payload.password : "";
+    if (password.length < 8 || password.length > 72) {
+      return Response.json({ error: "Le mot de passe doit contenir au moins 8 caractères" }, { status: 400, headers: corsHeaders });
+    }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254 || name.length < 2 || name.length > 120) {
       return Response.json({ error: "Nom ou e-mail invalide" }, { status: 400, headers: corsHeaders });
     }
@@ -42,25 +46,23 @@ Deno.serve(async req => {
       return Response.json({ error: "Ce compte existe déjà : choisissez le rôle Salarié dans la liste." }, { status: 409, headers: corsHeaders });
     }
 
-    const origin = req.headers.get("origin");
-    const redirectTo = origin && /^https?:\/\//.test(origin)
-      ? `${origin}/reset-password?next=/staff`
-      : undefined;
-    const { data: invited, error: inviteError } = await admin.auth.admin.inviteUserByEmail(email, {
-      data: { name },
-      redirectTo,
+    const { data: invited, error: inviteError } = await admin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: { name },
     });
     if (inviteError || !invited.user) {
-      return Response.json({ error: inviteError?.message || "Invitation impossible" }, { status: 400, headers: corsHeaders });
+      return Response.json({ error: inviteError?.message || "Création impossible" }, { status: 400, headers: corsHeaders });
     }
 
     const { error: roleError } = await admin.from("profiles").update({ name, role: "employee" }).eq("id", invited.user.id);
     if (roleError) {
-      return Response.json({ error: "Invitation créée, mais le rôle n’a pas pu être attribué. Choisissez Salarié dans la liste." }, { status: 500, headers: corsHeaders });
+      return Response.json({ error: "Compte créé, mais le rôle n’a pas pu être attribué. Choisissez Salarié dans la liste." }, { status: 500, headers: corsHeaders });
     }
 
     return Response.json({ success: true }, { headers: corsHeaders });
   } catch (error) {
-    return Response.json({ error: error instanceof Error ? error.message : "Invitation impossible" }, { status: 500, headers: corsHeaders });
+    return Response.json({ error: error instanceof Error ? error.message : "Création impossible" }, { status: 500, headers: corsHeaders });
   }
 });
