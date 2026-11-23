@@ -28,6 +28,7 @@ import { canAdjustItems, canCancelAtCounter, nextStaffOrderAction, staffOrderSte
 import { getWeightOptions, isWeightUnit } from "@/lib/product-units";
 import { formatCartQuantity } from "@/lib/cart-display";
 import { toast } from "@/hooks/use-toast";
+import { canReplaceArticle } from "@/lib/item-unavailable-policy";
 
 type StaffOrder = {
   id: string;
@@ -63,6 +64,7 @@ type StaffOrderItem = {
   item_status: string;
   original_product_name: string | null;
   ordered_quantity_value: number | null;
+  unavailable_policy: string | null;
 };
 
 type CatalogueProduct = { id: string; name: string; price: number; unit_type: string; category_id: string | null };
@@ -191,7 +193,7 @@ export default function StaffOrders() {
   const loadItems = async (orderId: string) => {
     const { data } = await supabase
       .from("order_items")
-      .select("id, product_id, product_name, quantity, quantity_value, unit_price, line_total, item_status, original_product_name, ordered_quantity_value")
+      .select("id, product_id, product_name, quantity, quantity_value, unit_price, line_total, item_status, original_product_name, ordered_quantity_value, unavailable_policy")
       .eq("order_id", orderId)
       .order("created_at");
     setItems((data ?? []) as StaffOrderItem[]);
@@ -441,7 +443,6 @@ export default function StaffOrders() {
                   </div>
                   <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
                     <Badge variant="outline">{order.delivery_mode === "pickup" ? <Store className="mr-1 h-3 w-3" /> : <Bike className="mr-1 h-3 w-3" />}{order.delivery_mode === "pickup" ? "Retrait" : "Livraison"}</Badge>
-                    {order.unavailable_policy !== "call" && <Badge variant="outline">Rupture : {unavailablePolicyLabel(order.unavailable_policy)}</Badge>}
                     {order.receipt_photo_path && <Badge variant="outline" className="border-success/40 text-success"><ReceiptText className="mr-1 h-3 w-3" />Ticket photographié</Badge>}
                     {order.courier_called_at && <Badge variant="outline"><Phone className="mr-1 h-3 w-3" />Livreur appelé</Badge>}
                   </div>
@@ -477,7 +478,7 @@ export default function StaffOrders() {
             )}
 
             <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 text-sm">
-              <p><strong>Si un produit est indisponible :</strong> {unavailablePolicyLabel(selectedOrder.unavailable_policy)}</p>
+              {items.some(item => item.unavailable_policy === null) && <p><strong>Consigne des anciens articles :</strong> {unavailablePolicyLabel(selectedOrder.unavailable_policy)}</p>}
               <p className="mt-1 text-muted-foreground">Si le remplacement n’a pas le même prix, appelez toujours le client avant de modifier.</p>
             </div>
 
@@ -514,12 +515,13 @@ export default function StaffOrders() {
                         <p className="text-muted-foreground">{formatCartQuantity(Number(item.quantity_value), item.quantity.endsWith("kg") ? "weight" : "piece")} × {formatPrice(item.unit_price)}</p>
                         {item.item_status === "replaced" && <p className="text-xs font-semibold text-warning">Remplace : {item.original_product_name}</p>}
                         {removed && <p className="text-xs font-semibold text-destructive">Retiré (indisponible)</p>}
+                        <p className="mt-1 text-xs font-semibold">Si indisponible : {unavailablePolicyLabel(item.unavailable_policy ?? selectedOrder.unavailable_policy)}</p>
                       </div>
                       <span className={`shrink-0 font-bold ${removed ? "line-through text-muted-foreground" : ""}`}>{formatPrice(item.line_total)}</span>
                     </div>
                     {adjustable && !removed && (
                       <div className="grid grid-cols-2 gap-2">
-                        <Button variant="outline" size="sm" disabled={saving} onClick={() => openReplace(item)}>Remplacer</Button>
+                        <Button variant="outline" size="sm" disabled={saving || !canReplaceArticle(item.unavailable_policy)} onClick={() => openReplace(item)}>Remplacer</Button>
                         <Button variant="outline" size="sm" className="text-destructive" disabled={saving} onClick={() => removeItem(item)}>Retirer</Button>
                       </div>
                     )}
@@ -593,8 +595,8 @@ export default function StaffOrders() {
             <DialogTitle className="font-sans text-xl">Remplacer « {replacing?.product_name} »</DialogTitle>
             <DialogDescription>Choisissez un article similaire disponible.</DialogDescription>
           </DialogHeader>
-          {selectedOrder?.unavailable_policy !== "replace" && (
-            <p className="rounded-lg border border-warning/40 bg-warning/10 p-3 text-sm font-semibold text-warning">Le client a demandé : {unavailablePolicyLabel(selectedOrder?.unavailable_policy ?? "call")}. Appelez-le avant de remplacer.</p>
+          {(replacing?.unavailable_policy ?? selectedOrder?.unavailable_policy) !== "replace" && (
+            <p className="rounded-lg border border-warning/40 bg-warning/10 p-3 text-sm font-semibold text-warning">Le client a demandé : {unavailablePolicyLabel(replacing?.unavailable_policy ?? selectedOrder?.unavailable_policy ?? "call")}. Appelez-le avant de remplacer.</p>
           )}
           <Input value={replaceSearch} onChange={event => setReplaceSearch(event.target.value)} placeholder="Rechercher un produit…" className="h-12" />
           <div className="max-h-56 space-y-1 overflow-y-auto rounded-lg border p-1">

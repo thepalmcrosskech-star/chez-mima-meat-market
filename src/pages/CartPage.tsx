@@ -8,13 +8,14 @@ import { useCart } from "@/contexts/CartContext";
 import BottomNav from "@/components/BottomNav";
 import { adjustQuantity, getQuantityRules } from "@/lib/product-units";
 import { formatCartQuantity } from "@/lib/cart-display";
+import ItemUnavailableChoice from "@/components/ItemUnavailableChoice";
 
 const formatPrice = (n: number) =>
   new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(n) + " MAD";
 
 const CartPage = () => {
   const navigate = useNavigate();
-  const { items, updateQuantity, removeItem, subtotal } = useCart();
+  const { items, updateQuantity, updateUnavailablePolicy, removeItem, subtotal } = useCart();
 
   return (
     <div className="client-page min-h-screen bg-background">
@@ -38,7 +39,8 @@ const CartPage = () => {
               const { minimum, maximum } = getQuantityRules(item.unit_type, item.category_id);
               const displayQty = formatCartQuantity(item.quantity, item.unit_type);
               return (
-                <Card key={item.id} className="p-3 sm:p-4 flex items-center gap-3">
+                <Card key={item.id} className="p-3 sm:p-4 space-y-3">
+                  <div className="flex items-center gap-3">
                   <div className="w-20 h-20 rounded-lg bg-accent/30 flex items-center justify-center overflow-hidden shrink-0">
                     {item.image_url ? (
                       <img src={productThumbnail(item.image_url)} alt={item.name} className="w-full h-full object-cover" />
@@ -82,6 +84,8 @@ const CartPage = () => {
                   >
                     <Trash2 className="h-5 w-5" />
                   </Button>
+                  </div>
+                  <ItemUnavailableChoice name={item.name} value={item.unavailable_policy} onChange={policy => updateUnavailablePolicy(item.id, policy)} />
                 </Card>
               );
             })}

@@ -3,6 +3,7 @@ import { cartBadgeCount } from "@/lib/cart-display";
 import { toast } from "sonner";
 import { cartLoginPath } from "@/lib/checkout-access";
 import { getQuantityRules } from "@/lib/product-units";
+import { updateItemPreference, type ItemUnavailablePolicy } from "@/lib/item-unavailable-policy";
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
 export interface CartItem {
@@ -13,6 +14,7 @@ export interface CartItem {
   image_url: string | null;
   category_id?: string | null;
   quantity: number;
+  unavailable_policy?: ItemUnavailablePolicy;
 }
 
 interface CartContextType {
@@ -20,6 +22,7 @@ interface CartContextType {
   addItem: (product: Omit<CartItem, "quantity">, quantity: number) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
+  updateUnavailablePolicy: (id: string, policy: ItemUnavailablePolicy) => void;
   clearCart: () => void;
   totalItems: number;
   subtotal: number;
@@ -64,7 +67,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       if (existing) {
         return prev.map((i) =>
           i.id === product.id
-            ? { ...i, category_id: i.category_id ?? product.category_id, quantity: withinLimits(i.quantity + quantity) }
+            ? { ...i, category_id: i.category_id ?? product.category_id, unavailable_policy: product.unavailable_policy ?? i.unavailable_policy, quantity: withinLimits(i.quantity + quantity) }
             : i
         );
       }
@@ -87,12 +90,14 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const clearCart = () => setItems([]);
+  const updateUnavailablePolicy = (id: string, policy: ItemUnavailablePolicy) =>
+    setItems(prev => updateItemPreference(prev, id, policy));
 
   const totalItems = cartBadgeCount(items);
   const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
 
   return (
-    <CartContext.Provider value={{ items, addItem, removeItem, updateQuantity, clearCart, totalItems, subtotal }}>
+    <CartContext.Provider value={{ items, addItem, removeItem, updateQuantity, updateUnavailablePolicy, clearCart, totalItems, subtotal }}>
       {children}
     </CartContext.Provider>
   );

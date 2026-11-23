@@ -120,6 +120,13 @@
       "when": 1795457131023,
       "tag": "0016_disable_staff_item_weight",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1795475822058,
+      "tag": "0017_per_article_unavailable_preferences",
+      "breakpoints": true
     }
   ]
 }

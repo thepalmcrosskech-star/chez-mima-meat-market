@@ -12,6 +12,7 @@ import { Eye, Search, Bike, ShieldBan, Clock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatPrice, statusOptions, getStatusInfo } from "@/lib/format";
+import { unavailablePolicyLabel } from "@/lib/staff-order-workflow";
 
 interface DriverProfile {
   id: string;
@@ -48,6 +49,7 @@ interface OrderItem {
   line_total: number;
   item_status?: string;
   original_product_name?: string | null;
+  unavailable_policy?: string | null;
 }
 
 
@@ -276,7 +278,7 @@ const AdminOrders = () => {
                   <TableBody>
                     {orderItems.map((item) => (
                       <TableRow key={item.id}>
-                        <TableCell className={item.item_status === "removed" ? "line-through text-muted-foreground" : ""}>{item.product_name}{item.item_status === "replaced" && <span className="block text-xs text-warning">Remplace : {item.original_product_name}</span>}{item.item_status === "removed" && <span className="block text-xs text-destructive no-underline">Retiré (indisponible)</span>}</TableCell>
+                        <TableCell className={item.item_status === "removed" ? "line-through text-muted-foreground" : ""}>{item.product_name}{item.item_status === "replaced" && <span className="block text-xs text-warning">Remplace : {item.original_product_name}</span>}{item.item_status === "removed" && <span className="block text-xs text-destructive no-underline">Retiré (indisponible)</span>}{item.unavailable_policy && <span className="block text-xs text-muted-foreground">Si indisponible : {unavailablePolicyLabel(item.unavailable_policy)}</span>}</TableCell>
                         <TableCell>{item.quantity}</TableCell>
                         <TableCell className="text-right">{formatPrice(item.line_total)}</TableCell>
                       </TableRow>

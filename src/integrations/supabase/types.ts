@@ -510,6 +510,7 @@ export type Database = {
           product_name: string
           quantity: string
           quantity_value: number
+          unavailable_policy: string | null
           unit_price: number
         }
         Insert: {
@@ -524,6 +525,7 @@ export type Database = {
           product_name: string
           quantity: string
           quantity_value: number
+          unavailable_policy?: string | null
           unit_price: number
         }
         Update: {
@@ -538,6 +540,7 @@ export type Database = {
           product_name?: string
           quantity?: string
           quantity_value?: number
+          unavailable_policy?: string | null
           unit_price?: number
         }
         Relationships: [

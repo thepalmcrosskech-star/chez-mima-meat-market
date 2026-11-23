@@ -4,7 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { defaultWeeklyHours, isOpenAt, nextOpening, parseWeeklyHours, type WeeklyHours } from "@/lib/store-hours";
 import { supabase } from "@/integrations/supabase/client";
 import { isWeightUnit } from "@/lib/product-units";
-import { unavailablePolicies } from "@/lib/staff-order-workflow";
+import { orderItemPayload } from "@/lib/item-unavailable-policy";
+import ItemUnavailableChoice from "@/components/ItemUnavailableChoice";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -44,7 +45,7 @@ import { haversineDistance } from "@/lib/geo";
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
-  const { items, subtotal, clearCart } = useCart();
+  const { items, subtotal, clearCart, updateUnavailablePolicy } = useCart();
 
   const [userId, setUserId] = useState<string | null>(null);
   const [storeLocation, setStoreLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -57,7 +58,6 @@ const CheckoutPage = () => {
   const [apartment, setApartment] = useState("");
   const [instructions, setInstructions] = useState("");
   const [notes, setNotes] = useState("");
-  const [unavailablePolicy, setUnavailablePolicy] = useState<string>("replace");
   const [whatsappPhone, setWhatsappPhone] = useState("");
   const [deliveryMode, setDeliveryMode] = useState<"delivery" | "pickup">("delivery");
   const [paymentMethod, setPaymentMethod] = useState<"cash" | "card">("cash");
@@ -209,7 +209,7 @@ const CheckoutPage = () => {
       }
 
       const { data: orderId, error: orderErr } = await supabase.rpc("create_customer_order", {
-        _items: items.map((item) => ({ product_id: item.id, quantity_value: item.quantity })),
+        _items: orderItemPayload(items),
         _delivery_mode: deliveryMode,
         _delivery_address_id: isPickup ? null : addressId,
         _delivery_zone_id: isPickup ? null : deliveryZone?.id ?? null,
@@ -221,9 +221,6 @@ const CheckoutPage = () => {
 
       if (orderErr) throw orderErr;
       if (!orderId) throw new Error("La commande n’a pas pu être créée");
-      if (unavailablePolicy !== "replace") {
-        await supabase.rpc("set_order_unavailable_policy", { _order_id: orderId, _policy: unavailablePolicy });
-      }
 
       // Send confirmation email (fire-and-forget)
       const { data: userProfile } = await supabase.from("profiles").select("email, name").eq("id", userId).single();
@@ -480,29 +477,6 @@ const CheckoutPage = () => {
 
         <Separator />
 
-        {/* Unavailable product instruction */}
-        <div>
-          <Label className="text-sm font-semibold">Si un produit est indisponible</Label>
-          <div className="mt-2 grid gap-2" role="radiogroup" aria-label="Si un produit est indisponible">
-            {unavailablePolicies.map((policy) => (
-              <Button
-                key={policy.value}
-                type="button"
-                role="radio"
-                aria-checked={unavailablePolicy === policy.value}
-                variant={unavailablePolicy === policy.value ? "default" : "outline"}
-                className="h-auto justify-start whitespace-normal py-3 text-left"
-                onClick={() => setUnavailablePolicy(policy.value)}
-              >
-                {policy.label}
-              </Button>
-            ))}
-          </div>
-          <p className="mt-1 text-xs text-muted-foreground">Si le prix d’un remplacement change, nous vous appelons toujours avant.</p>
-        </div>
-
-        <Separator />
-
         {/* Order Notes */}
         <div>
           <Label className="text-sm font-semibold">Notes pour la commande (optionnel)</Label>
@@ -515,11 +489,15 @@ const CheckoutPage = () => {
         <Card className="p-4 space-y-2">
           <h3 className="font-bold mb-2">Résumé</h3>
           {items.map((item) => (
-            <div key={item.id} className="flex justify-between text-sm">
-              <span className="text-muted-foreground">{item.quantity}{isWeightUnit(item.unit_type) ? " kg" : " ×"} {item.name}</span>
-              <span>{formatPrice(item.price * item.quantity)}</span>
+            <div key={item.id} className="space-y-2 border-b border-border pb-3 text-sm">
+              <div className="flex justify-between gap-3">
+                <span className="min-w-0 text-muted-foreground">{item.quantity}{isWeightUnit(item.unit_type) ? " kg" : " ×"} {item.name}</span>
+                <span className="shrink-0">{formatPrice(item.price * item.quantity)}</span>
+              </div>
+              <ItemUnavailableChoice name={item.name} value={item.unavailable_policy} onChange={policy => updateUnavailablePolicy(item.id, policy)} />
             </div>
           ))}
+          <p className="text-xs text-muted-foreground">Si le prix d’un remplacement change, nous vous appelons toujours avant.</p>
           <Separator className="my-2" />
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Sous-total</span>

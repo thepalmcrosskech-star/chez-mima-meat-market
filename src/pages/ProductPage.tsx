@@ -29,6 +29,8 @@ import BottomNav from "@/components/BottomNav";
 import { catalogueGallery } from "@/lib/catalogue-gallery";
 import { ProductPhoto } from "@/components/ProductPhoto";
 import { getDefaultQuantity, getWeightOptions, isWeightUnit } from "@/lib/product-units";
+import ItemUnavailableChoice from "@/components/ItemUnavailableChoice";
+import { itemUnavailablePolicy, type ItemUnavailablePolicy } from "@/lib/item-unavailable-policy";
 
 interface Product {
   id: string;
@@ -84,7 +86,8 @@ const StarRating = ({
 const ProductPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { addItem } = useCart();
+  const { addItem, items } = useCart();
+  const [unavailablePolicy, setUnavailablePolicy] = useState<ItemUnavailablePolicy>("replace");
 
   const [product, setProduct] = useState<Product | null>(null);
   const [variants, setVariants] = useState<Product[]>([]);
@@ -102,6 +105,7 @@ const ProductPage = () => {
 
   useEffect(() => {
     setSelectedImage(0);
+    setUnavailablePolicy(itemUnavailablePolicy(items.find(item => item.id === id)?.unavailable_policy));
     if (id) {
       fetchProduct();
       fetchReviews();
@@ -160,6 +164,7 @@ const ProductPage = () => {
         unit_type: product.unit_type,
         image_url: product.image_url,
         category_id: product.category_id,
+        unavailable_policy: unavailablePolicy,
       },
       quantity
     );
@@ -408,6 +413,8 @@ const ProductPage = () => {
             </div>
           )}
         </div>
+
+        <ItemUnavailableChoice name={product.name} value={unavailablePolicy} onChange={setUnavailablePolicy} />
 
         {/* Add to Cart Button */}
         {product.is_active === false ? (

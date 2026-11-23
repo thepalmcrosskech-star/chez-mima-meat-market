@@ -17,3 +17,4 @@
 - Catalogue cards and lists show photos through productThumbnail (pre-generated lighter CDN copies, same framing); product detail keeps the original. Regenerate thumbnails when adding product photos; unknown URLs fall back to the original.
 - Staff order status, receipt, courier, item replacement/removal, availability and payment confirmations must go through the guarded staff RPCs, which recalculate totals server-side; employees never receive direct authority over protected order fields.
 - Customer address selection uses a keyless Leaflet/OpenStreetMap map and device geolocation; preserve coordinates independently of manually entered address text so no geocoding credential is required.
+- Persist per-article unavailable choices in the cart and atomically through the order-creation RPC; staff reads order-item preferences and server replacement guards respect them, with a nullable legacy fallback so historical orders remain unchanged.
