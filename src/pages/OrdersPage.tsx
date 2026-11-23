@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import BottomNav from "@/components/BottomNav";
 
 interface Order {
+  delivery_mode?: string | null;
   id: string;
   status: string;
   total_price: number;
@@ -85,7 +86,8 @@ const OrdersPage = () => {
         ) : (
           <div className="space-y-3">
             {orders.map((order) => {
-              const info = statusLabels[order.status] || { label: order.status, variant: "secondary" as const };
+              const baseInfo = statusLabels[order.status] || { label: order.status, variant: "secondary" as const };
+              const info = order.delivery_mode === "pickup" && order.status === "delivered" ? { ...baseInfo, label: "Récupérée" } : order.delivery_mode === "pickup" && order.status === "ready" ? { ...baseInfo, label: "Prête à retirer" } : baseInfo;
               return (
                 <Card key={order.id} className="p-4 cursor-pointer hover:border-primary/50 transition-all" onClick={() => navigate(`/order-tracking/${order.id}`)}>
                   <div className="flex items-center justify-between mb-2">

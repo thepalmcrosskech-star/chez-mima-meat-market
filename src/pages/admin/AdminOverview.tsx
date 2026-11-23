@@ -61,6 +61,7 @@ const AdminOverview = () => {
     pending: "En attente",
     confirmed: "Confirmée",
     preparing: "En préparation",
+    ready: "Prête",
     delivering: "En livraison",
     delivered: "Livrée",
     cancelled: "Annulée",
