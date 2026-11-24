@@ -18,3 +18,4 @@
 - Staff order status, receipt, courier, item replacement/removal, availability and payment confirmations must go through the guarded staff RPCs, which recalculate totals server-side; employees never receive direct authority over protected order fields.
 - Customer address selection uses a keyless Leaflet/OpenStreetMap map and device geolocation; preserve coordinates independently of manually entered address text so no geocoding credential is required.
 - Persist per-article unavailable choices in the cart and atomically through the order-creation RPC; staff reads order-item preferences and server replacement guards respect them, with a nullable legacy fallback so historical orders remain unchanged.
+- Post-delivery shop feedback uses configured shop phone/WhatsApp contacts and the full order reference, independent of an internal driver; opening WhatsApp is not confirmation that a message was sent.

@@ -12,6 +12,8 @@ import MapboxMap, { getMapboxToken } from "@/components/MapboxMap";
 import mapboxgl from "mapbox-gl";
 import { formatPrice } from "@/lib/format";
 import DriverRating from "@/components/tracking/DriverRating";
+import DeliveryFeedback from "@/components/tracking/DeliveryFeedback";
+import { canGiveDeliveryFeedback } from "@/lib/delivery-feedback";
 
 interface Order {
   id: string;
@@ -352,7 +354,7 @@ const OrderTrackingPage = () => {
       <DriverRating
         orderId={order.id}
         driverId={order.driver_id}
-        onComplete={() => { setShowRating(false); navigate("/orders"); }}
+        onComplete={() => { setShowRating(false); }}
       />
     );
   }
@@ -375,6 +377,7 @@ const OrderTrackingPage = () => {
       </CustomerHeader>
 
       <div className="px-4 py-4 space-y-4">
+        {canGiveDeliveryFeedback(order.status, order.delivery_mode) && <DeliveryFeedback key={order.id} orderId={order.id} />}
         {/* Map */}
         {showMap && (
           <Card className="overflow-hidden border-0 shadow-lg">
