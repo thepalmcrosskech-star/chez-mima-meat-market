@@ -75,8 +75,7 @@ const filters = [
   { value: "preparation", label: "À préparer" },
   { value: "ready", label: "Prêtes" },
   { value: "delivering", label: "En livraison" },
-  { value: "finished", label: "Terminées" },
-  { value: "all", label: "Toutes" },
+  { value: "finished", label: "Archivées" },
 ];
 
 const formatDate = (date: string | null) => date
@@ -331,6 +330,7 @@ export default function StaffOrders() {
             },
           }).catch(() => undefined);
         }
+        if (action.status === "delivered") setDetailOpen(false);
         toast({ title: action.status === "delivering" ? "Commande remise au livreur" : "Statut mis à jour" });
       }
       await Promise.all([fetchOrders(), loadItems(selectedOrder.id)]);
@@ -353,13 +353,13 @@ export default function StaffOrders() {
       toast({ title: "Annulation refusée", description: error.message, variant: "destructive" });
       return;
     }
-    toast({ title: "Commande annulée" });
+    setDetailOpen(false);
+    toast({ title: "Commande annulée", description: "Elle est rangée dans les archives." });
     await fetchOrders();
   };
 
   const filtered = orders.filter(order => {
-    const matchesFilter = filter === "all"
-      || (filter === "active" && !["delivered", "cancelled"].includes(order.status))
+    const matchesFilter = (filter === "active" && !["delivered", "cancelled"].includes(order.status))
       || (filter === "finished" && ["delivered", "cancelled"].includes(order.status))
       || (filter === "preparation" && ["confirmed", "preparing"].includes(order.status))
       || order.status === filter;

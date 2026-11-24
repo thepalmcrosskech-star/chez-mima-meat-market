@@ -1,3 +1,4 @@
+import { PasswordInput } from "@/components/ui/password-input";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
@@ -87,7 +88,7 @@ const AdminUsers = () => {
             }}>
               <div><Label htmlFor="employee-name">Nom complet</Label><Input id="employee-name" required minLength={2} value={inviteName} onChange={event => setInviteName(event.target.value)} /></div>
               <div><Label htmlFor="employee-email">E-mail</Label><Input id="employee-email" required type="email" value={inviteEmail} onChange={event => setInviteEmail(event.target.value)} /></div>
-              <div><Label htmlFor="employee-password">Mot de passe (8 caractères minimum)</Label><Input id="employee-password" required minLength={8} maxLength={72} type="text" autoComplete="new-password" value={invitePassword} onChange={event => setInvitePassword(event.target.value)} /></div>
+              <div><Label htmlFor="employee-password">Mot de passe (8 caractères minimum)</Label><PasswordInput id="employee-password" required minLength={8} maxLength={72} autoComplete="new-password" value={invitePassword} onChange={event => setInvitePassword(event.target.value)} /></div>
               <Button className="w-full" disabled={inviting} type="submit">{inviting ? <Loader2 className="animate-spin" /> : <UserPlus />}{inviting ? "Création…" : "Créer l’accès"}</Button>
             </form>
           </DialogContent>

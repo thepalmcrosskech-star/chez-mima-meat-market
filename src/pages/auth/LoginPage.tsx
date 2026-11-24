@@ -1,3 +1,4 @@
+import { PasswordInput } from "@/components/ui/password-input";
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -155,9 +156,8 @@ const LoginPage = () => {
           {mode !== "forgot" && (
             <div className="space-y-1.5">
               <Label htmlFor="password">Mot de passe</Label>
-              <Input
+              <PasswordInput
                 id="password"
-                type="password"
                 name="password"
                 autoComplete={mode === "register" ? "new-password" : "current-password"}
                 placeholder="6 caractères minimum"
