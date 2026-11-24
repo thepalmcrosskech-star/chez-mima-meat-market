@@ -577,6 +577,7 @@ export type Database = {
           delivery_fee: number
           delivery_mode: string
           delivery_zone_id: string | null
+          discount_amount: number
           driver_id: string | null
           id: string
           notes: string | null
@@ -584,6 +585,7 @@ export type Database = {
           payment_confirmed_by: string | null
           payment_method: string
           payment_status: string
+          promo_code: string | null
           receipt_photo_path: string | null
           receipt_uploaded_at: string | null
           receipt_uploaded_by: string | null
@@ -611,6 +613,7 @@ export type Database = {
           delivery_fee?: number
           delivery_mode?: string
           delivery_zone_id?: string | null
+          discount_amount?: number
           driver_id?: string | null
           id?: string
           notes?: string | null
@@ -618,6 +621,7 @@ export type Database = {
           payment_confirmed_by?: string | null
           payment_method?: string
           payment_status?: string
+          promo_code?: string | null
           receipt_photo_path?: string | null
           receipt_uploaded_at?: string | null
           receipt_uploaded_by?: string | null
@@ -645,6 +649,7 @@ export type Database = {
           delivery_fee?: number
           delivery_mode?: string
           delivery_zone_id?: string | null
+          discount_amount?: number
           driver_id?: string | null
           id?: string
           notes?: string | null
@@ -652,6 +657,7 @@ export type Database = {
           payment_confirmed_by?: string | null
           payment_method?: string
           payment_status?: string
+          promo_code?: string | null
           receipt_photo_path?: string | null
           receipt_uploaded_at?: string | null
           receipt_uploaded_by?: string | null
@@ -992,6 +998,7 @@ export type Database = {
         Args: { _customer_id: string }
         Returns: boolean
       }
+      check_promo_code: { Args: { _code: string }; Returns: number }
       claim_first_admin: { Args: never; Returns: undefined }
       complete_driver_delivery: {
         Args: { _order_id: string }
@@ -1006,6 +1013,7 @@ export type Database = {
           _items: Json
           _notes?: string
           _payment_method?: string
+          _promo_code?: string
           _scheduled_for?: string
         }
         Returns: string
@@ -1081,6 +1089,7 @@ export type Database = {
           delivery_fee: number
           delivery_mode: string
           delivery_zone_id: string | null
+          discount_amount: number
           driver_id: string | null
           id: string
           notes: string | null
@@ -1088,6 +1097,7 @@ export type Database = {
           payment_confirmed_by: string | null
           payment_method: string
           payment_status: string
+          promo_code: string | null
           receipt_photo_path: string | null
           receipt_uploaded_at: string | null
           receipt_uploaded_by: string | null

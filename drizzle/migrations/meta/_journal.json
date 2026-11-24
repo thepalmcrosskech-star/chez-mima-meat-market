@@ -141,6 +141,13 @@
       "when": 1795514838106,
       "tag": "0019_public_shop_whatsapp_contact",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1795534272971,
+      "tag": "0020_promo_code_bienvenue",
+      "breakpoints": true
     }
   ]
 }

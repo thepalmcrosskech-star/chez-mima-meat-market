@@ -22,6 +22,8 @@ interface Order {
   total_price: number;
   delivery_fee: number;
   subtotal: number;
+  discount_amount?: number | null;
+  promo_code?: string | null;
   created_at: string | null;
   delivery_address_snapshot: any;
   driver_id: string | null;
@@ -523,6 +525,12 @@ const OrderTrackingPage = () => {
             <span className="text-muted-foreground">Sous-total</span>
             <span>{formatPrice(order.subtotal)}</span>
           </div>
+          {!!order.discount_amount && order.discount_amount > 0 && (
+            <div className="flex justify-between text-sm text-success">
+              <span>Code {order.promo_code}</span>
+              <span>-{formatPrice(order.discount_amount)}</span>
+            </div>
+          )}
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">{order.delivery_mode === "pickup" ? "Retrait" : "Livraison"}</span>
             <span>{order.delivery_fee === 0 ? "Gratuit" : formatPrice(order.delivery_fee)}</span>

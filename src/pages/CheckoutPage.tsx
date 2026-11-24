@@ -62,6 +62,23 @@ const CheckoutPage = () => {
   const [deliveryMode, setDeliveryMode] = useState<"delivery" | "pickup">("delivery");
   const [paymentMethod, setPaymentMethod] = useState<"cash" | "card">("cash");
   const [cashBillAmount, setCashBillAmount] = useState<number | null>(null);
+  const [promoInput, setPromoInput] = useState("");
+  const [promoCode, setPromoCode] = useState<string | null>(null);
+  const [promoChecking, setPromoChecking] = useState(false);
+  const applyPromo = async () => {
+    const code = promoInput.trim().toUpperCase();
+    if (!code) return;
+    setPromoChecking(true);
+    const { error } = await supabase.rpc("check_promo_code", { _code: code });
+    setPromoChecking(false);
+    if (error) {
+      setPromoCode(null);
+      toast({ title: "Code refusé", description: error.message.includes("première") ? "Ce code est réservé à votre première commande." : "Ce code promo n’existe pas.", variant: "destructive" });
+      return;
+    }
+    setPromoCode(code);
+    toast({ title: "Code appliqué", description: "-10 % sur vos articles" });
+  };
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [storeAddress, setStoreAddress] = useState("");
@@ -172,7 +189,8 @@ const CheckoutPage = () => {
 
   const isPickup = deliveryMode === "pickup";
   const { zone: deliveryZone, fee: deliveryFee } = isPickup ? { zone: null, fee: 0 } : getDeliveryInfo();
-  const total = isPickup ? subtotal : (deliveryFee !== null ? subtotal + deliveryFee : subtotal);
+  const discount = promoCode ? Math.round(subtotal * 10) / 100 : 0;
+  const total = (isPickup ? subtotal : (deliveryFee !== null ? subtotal + deliveryFee : subtotal)) - discount;
   const hasAddress = selectedAddressId || newAddress;
   const isValidPhone = whatsappPhone.replace(/\s/g, "").length >= 9;
   const canOrder = isPickup ? isValidPhone : (paymentMethod === "card" ? false : (hasAddress && deliveryZone && deliveryFee !== null && isValidPhone));
@@ -225,6 +243,7 @@ const CheckoutPage = () => {
         _scheduled_for: isScheduled ? getNextOpeningDate().toISOString() : null,
         _payment_method: isPickup ? "on_site" : paymentMethod,
         _cash_bill_amount: !isPickup && paymentMethod === "cash" ? cashBillAmount : null,
+        _promo_code: promoCode,
       });
 
       if (orderErr) throw orderErr;
@@ -511,6 +530,12 @@ const CheckoutPage = () => {
             <span className="text-muted-foreground">Sous-total</span>
             <span>{formatPrice(subtotal)}</span>
           </div>
+          {promoCode && (
+            <div className="flex justify-between text-sm">
+              <span className="text-success">Code {promoCode} (-10 %)</span>
+              <span className="text-success">-{formatPrice(discount)}</span>
+            </div>
+          )}
           {!isPickup && (
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Livraison</span>
@@ -532,6 +557,12 @@ const CheckoutPage = () => {
               <span className="font-medium text-warning">À l'ouverture ({openingHour})</span>
             </div>
           )}
+          <div className="flex gap-2 pt-1">
+            <Input value={promoInput} onChange={e => { setPromoInput(e.target.value); setPromoCode(null); }} placeholder="Code promo (ex. BIENVENUE)" aria-label="Code promo" />
+            <Button type="button" variant="outline" onClick={applyPromo} disabled={promoChecking || !promoInput.trim()}>
+              {promoChecking ? <Loader2 className="h-4 w-4 animate-spin" /> : "Appliquer"}
+            </Button>
+          </div>
           <div className="flex justify-between font-bold text-lg border-t border-border pt-2">
             <span>Total</span>
             <span className="text-primary">{formatPrice(total)}</span>
