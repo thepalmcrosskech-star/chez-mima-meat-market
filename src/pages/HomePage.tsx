@@ -23,6 +23,7 @@ import { isWeightUnit } from "@/lib/product-units";
 import { formatPrice } from "@/lib/format";
 import { groupByFamily, familyMinPrice } from "@/lib/product-families";
 import { getTopSellingProducts } from "@/lib/top-selling-products";
+import { shopNavigationPath } from "@/lib/shop-navigation";
 
 interface Banner {
   id: string;
@@ -268,8 +269,9 @@ const HomePage = () => {
                     className="bg-primary hover:bg-primary/90 text-primary-foreground w-fit px-6 py-2 font-bold rounded-xl"
                     onClick={() => {
                       const url = banners[currentBanner].link_url;
-                      if (url.startsWith("http")) window.open(url, "_blank");
-                      else navigate(url);
+                      const path = shopNavigationPath(url, window.location.origin);
+                      if (path !== null) navigate(path);
+                      else window.open(url, "_blank", "noopener,noreferrer");
                     }}
                   >
                     {banners[currentBanner]?.button_text || "Découvrir"}

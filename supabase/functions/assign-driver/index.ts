@@ -295,7 +295,7 @@ Deno.serve(async (req) => {
                 <p style="margin: 5px 0;"><strong>Adresse :</strong> ${safeAddress}</p>
               </div>
               <div style="text-align: center; margin: 25px 0;">
-                <a href="https://chezmima.lovable.app/driver" style="background: #D3111A; color: white; padding: 14px 30px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px; display: inline-block;">Ouvrir l'application livreur</a>
+                <a href="https://boucheriechezmima.com/driver" style="background: #D3111A; color: white; padding: 14px 30px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px; display: inline-block;">Ouvrir l'application livreur</a>
               </div>
               <p style="color: #666; font-size: 13px; text-align: center;">⏱️ Cette demande expire dans 60 secondes</p>
             </div>

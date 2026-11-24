@@ -1,6 +1,7 @@
 import { forwardRef, type KeyboardEvent, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { shopNavigationPath } from "@/lib/shop-navigation";
 
 interface AppLinkProps {
   to: string;
@@ -18,7 +19,11 @@ const AppLink = forwardRef<HTMLDivElement, AppLinkProps>(
   ({ to, className, children, ariaLabel }, ref) => {
     const navigate = useNavigate();
 
-    const open = () => navigate(to);
+    const open = () => {
+      const path = shopNavigationPath(to, window.location.origin);
+      if (path !== null) navigate(path);
+      else window.open(to, "_blank", "noopener,noreferrer");
+    };
 
     const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
       if (event.key === "Enter" || event.key === " ") {
