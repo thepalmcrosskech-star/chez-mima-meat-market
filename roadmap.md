@@ -77,3 +77,11 @@
 - [x] Assess delivery membership economics: distinguish 50 EUR from 50 MAD, illustrate subscription revenue minus per-delivery costs, recommend starting with basket-based bounded subsidy and measuring actual usage/margins before a capped membership. Public official CMI material does not establish recurring-card support for this merchant contract; bank/acquirer confirmation required. No payment or membership enabled.
 - [x] Configure +212707462630 as shop phone and WhatsApp; live settings verified and feedback control opens a correctly addressed, order-referenced WhatsApp message without sending it. A completed customer order end-to-end check remains unavailable on the owner's account.
 - [x] Show stored delivery address, apartment and instructions in shared staff/admin/customer details; actual received order's apartment verified in admin (its instructions field is empty). Glovo handoff no longer requires cash collection; guarded delivery payment confirmation is rejected while pickup safeguards remain. Focused tests passed; no real customer order status changed during checks.
+- [x] « Recommander » en un clic depuis Mes commandes (prix du jour, articles indisponibles ignorés).
+- [x] Connexion Google et Apple.
+- [x] Message clair « ouvrez votre boîte mail » après inscription.
+- [ ] Codes promo (attend les offres souhaitées par le propriétaire).
+- [ ] Fidélité, puis parrainage (attend les règles du propriétaire).
+- [ ] Préparation au choix + note au boucher ; créneaux de livraison ; packs.
+- [ ] Avis clients visibles ; photo de la commande préparée.
+- [ ] Statistiques simples et alerte de stock bas.

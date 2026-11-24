@@ -7,6 +7,11 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2, ClipboardList, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import BottomNav from "@/components/BottomNav";
+import { RotateCcw } from "lucide-react";
+import { toast } from "sonner";
+import { useCart } from "@/contexts/CartContext";
+import { buildReorderLines } from "@/lib/reorder";
+import type { ItemUnavailablePolicy } from "@/lib/item-unavailable-policy";
 
 interface Order {
   delivery_mode?: string | null;
@@ -36,6 +41,26 @@ const OrdersPage = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [signedOut, setSignedOut] = useState(false);
+  const [reordering, setReordering] = useState<string | null>(null);
+  const { addItem } = useCart();
+
+  const reorder = async (orderId: string) => {
+    setReordering(orderId);
+    const { data, error } = await supabase
+      .from("order_items")
+      .select("product_id, quantity_value, ordered_quantity_value, item_status, unavailable_policy, product:products(id, name, price, unit_type, image_url, category_id, is_active, stock_quantity)")
+      .eq("order_id", orderId);
+    setReordering(null);
+    if (error || !data) { toast.error("Impossible de reprendre cette commande"); return; }
+    const { lines, skipped } = buildReorderLines(data as never);
+    if (lines.length === 0) { toast.error("Ces articles ne sont plus disponibles"); return; }
+    for (const l of lines) {
+      const policy = l.policy === "replace" || l.policy === "remove_item" ? (l.policy as ItemUnavailablePolicy) : undefined;
+      addItem({ id: l.product.id, name: l.product.name, price: Number(l.product.price), unit_type: l.product.unit_type, image_url: l.product.image_url, category_id: l.product.category_id, unavailable_policy: policy }, l.quantity);
+    }
+    toast.success(skipped ? `Articles ajoutés au panier (${skipped} plus disponible${skipped > 1 ? "s" : ""})` : "Articles ajoutés au panier, aux prix du jour");
+    navigate("/cart");
+  };
 
   useEffect(() => {
     fetchOrders();
@@ -109,6 +134,13 @@ const OrdersPage = () => {
                       <ChevronRight className="h-4 w-4 text-muted-foreground" />
                     </div>
                   </div>
+                  {(order.status === "delivered" || order.status === "cancelled") && (
+                    <Button variant="outline" size="sm" className="mt-3 w-full" disabled={reordering === order.id}
+                      onClick={(e) => { e.stopPropagation(); reorder(order.id); }}>
+                      {reordering === order.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <RotateCcw className="h-4 w-4" />}
+                      Recommander
+                    </Button>
+                  )}
                 </Card>
               );
             })}
