@@ -242,6 +242,17 @@ const HomePage = () => {
       </header>
       </CustomerHeader>
 
+      <section className="px-4 pt-4">
+        <div className="flex items-center justify-between gap-3 rounded-xl border border-primary/30 bg-primary/5 px-4 py-3">
+          <p className="text-sm leading-snug">
+            <span className="font-bold text-primary">-10 % sur votre 1re commande</span>
+            <span className="text-muted-foreground"> avec le code </span>
+            <span className="font-mono font-bold">BIENVENUE</span>
+          </p>
+          <span className="shrink-0 text-xs text-muted-foreground">au paiement</span>
+        </div>
+      </section>
+
       {/* Hero Banners */}
       {banners.length > 0 && (
         <section className="px-4 py-6">
