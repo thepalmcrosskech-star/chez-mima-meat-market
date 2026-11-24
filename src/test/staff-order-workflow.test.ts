@@ -28,12 +28,16 @@ describe("parcours du comptoir", () => {
     expect(canAdjustItems({ ...base, ...checked, status: "preparing" })).toBe(false);
   });
 
-  it("exige l’appel puis les espèces avant la remise au coursier", () => {
+  it("permet la remise Glovo sans encaissement en espèces après l’appel", () => {
     const ready = { ...base, ...checked, ...ticket, status: "ready" };
     expect(nextStaffOrderAction(ready)).toMatchObject({ kind: "courier" });
     const called = { ...ready, courier_called_at: "2026-11-23T16:10:00Z" };
-    expect(nextStaffOrderAction(called)).toMatchObject({ kind: "payment", label: "Espèces reçues du coursier" });
-    expect(nextStaffOrderAction({ ...called, payment_confirmed_at: "2026-11-23T16:20:00Z" })).toMatchObject({ status: "delivering" });
+    expect(nextStaffOrderAction(called)).toMatchObject({ kind: "status", status: "delivering" });
+    expect(called.payment_confirmed_at).toBeNull();
+  });
+
+  it("permet la remise Glovo par carte sans encaissement au comptoir", () => {
+    expect(nextStaffOrderAction({ ...base, ...checked, ...ticket, status: "ready", payment_method: "card", courier_called_at: "2026-11-24T10:00:00Z" })).toMatchObject({ kind: "status", status: "delivering" });
   });
 
   it("ne clôture la livraison qu’à la confirmation du coursier", () => {

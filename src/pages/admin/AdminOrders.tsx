@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatPrice, statusOptions, getStatusInfo } from "@/lib/format";
 import { unavailablePolicyLabel } from "@/lib/staff-order-workflow";
+import OrderDeliveryAddress from "@/components/OrderDeliveryAddress";
 
 interface DriverProfile {
   id: string;
@@ -265,6 +266,7 @@ const AdminOrders = () => {
                 <div><p className="text-xs text-muted-foreground">Téléphone</p><p className="font-medium">{selectedOrder.profiles?.phone || "—"}</p></div>
               </div>
               {selectedOrder.notes && <div><p className="text-xs text-muted-foreground">Notes</p><p className="text-sm">{selectedOrder.notes}</p></div>}
+              {selectedOrder.delivery_mode !== "pickup" && selectedOrder.delivery_address_snapshot && <OrderDeliveryAddress snapshot={selectedOrder.delivery_address_snapshot} />}
 
               <div className="border border-border rounded-lg overflow-hidden">
                 <Table>
@@ -314,6 +316,7 @@ const AdminOrders = () => {
               {/* Cash payment info for driver */}
               <div className="rounded-lg border border-border p-3 space-y-1">
                 <p className="text-xs font-bold uppercase text-muted-foreground mb-1">💳 Paiement</p>
+                {selectedOrder.delivery_mode !== "pickup" && <p className="text-sm text-success">Glovo encaisse le client et règle Chez Mima par virement deux fois par mois. Aucun règlement du coursier à la boutique.</p>}
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Méthode</span>
                   <Badge variant={selectedOrder.payment_method === "cash" ? "secondary" : selectedOrder.payment_method === "on_site" ? "outline" : "default"}>

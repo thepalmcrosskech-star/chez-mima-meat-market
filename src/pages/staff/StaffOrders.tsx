@@ -29,6 +29,7 @@ import { getWeightOptions, isWeightUnit } from "@/lib/product-units";
 import { formatCartQuantity } from "@/lib/cart-display";
 import { toast } from "@/hooks/use-toast";
 import { canReplaceArticle } from "@/lib/item-unavailable-policy";
+import OrderDeliveryAddress from "@/components/OrderDeliveryAddress";
 
 type StaffOrder = {
   id: string;
@@ -500,15 +501,15 @@ export default function StaffOrders() {
                 <p className="text-xs font-semibold uppercase text-muted-foreground">Paiement</p>
                 <p className="mt-1 font-bold">{selectedOrder.payment_method === "cash" ? "Espèces" : selectedOrder.payment_method === "on_site" ? "Sur place" : "Carte bancaire"}</p>
                 <p className="text-sm text-muted-foreground">Total : <span className="font-bold text-primary">{formatPrice(selectedOrder.total_price)}</span></p>
-                {selectedOrder.payment_method === "cash" && selectedOrder.delivery_mode !== "pickup" && (
-                  <p className="mt-1 text-sm font-semibold text-success">Le coursier règle à la boutique, puis se fait payer par le client.</p>
+                {selectedOrder.delivery_mode !== "pickup" && (
+                  <p className="mt-1 text-sm font-semibold text-success">Aucun règlement du coursier à la boutique. Glovo encaisse le client et vous règle par virement deux fois par mois, en espèces comme par carte.</p>
                 )}
-                {selectedOrder.payment_method === "card" && <p className="mt-1 text-sm text-muted-foreground">Paiement reçu ultérieurement selon le flux de règlement.</p>}
+                {selectedOrder.delivery_mode === "pickup" && selectedOrder.payment_method === "card" && <p className="mt-1 text-sm text-muted-foreground">Paiement reçu ultérieurement selon le flux de règlement.</p>}
               </div>
             </div>
 
             {selectedOrder.delivery_mode !== "pickup" && selectedOrder.delivery_address_snapshot && (
-              <div className="flex gap-2 rounded-lg bg-muted p-3 text-sm"><MapPin className="mt-0.5 h-4 w-4 shrink-0 text-primary" /><span>{String(selectedOrder.delivery_address_snapshot.full_address ?? selectedOrder.delivery_address_snapshot.address ?? "Adresse enregistrée")}</span></div>
+              <OrderDeliveryAddress snapshot={selectedOrder.delivery_address_snapshot} />
             )}
             {selectedOrder.notes && <div className="rounded-lg border border-warning/40 bg-warning/10 p-3 text-sm"><strong>Note du client :</strong> {selectedOrder.notes}</div>}
 
@@ -536,7 +537,7 @@ export default function StaffOrders() {
                   </div>
                 );
               })}
-              <div className="flex justify-between bg-muted/40 p-3 font-bold"><span>Total à encaisser</span><span className="text-primary">{formatPrice(selectedOrder.total_price)}</span></div>
+              <div className="flex justify-between bg-muted/40 p-3 font-bold"><span>{selectedOrder.delivery_mode === "pickup" ? "Total à encaisser" : "Total de la commande"}</span><span className="text-primary">{formatPrice(selectedOrder.total_price)}</span></div>
             </div>
 
             {adjustable && (
@@ -577,9 +578,7 @@ export default function StaffOrders() {
                 <p className="flex items-center gap-2 font-bold"><Bike className="h-5 w-5 text-primary" />Livraison par votre coursier</p>
                 {!selectedOrder.courier_called_at
                   ? <p className="mt-1 text-muted-foreground">Appelez votre coursier habituel, puis confirmez l’appel ci-dessous.</p>
-                  : selectedOrder.payment_method === "cash" && !selectedOrder.payment_confirmed_at
-                    ? <p className="mt-1 font-semibold text-warning">À son arrivée, encaissez {formatPrice(selectedOrder.total_price)} en espèces avant de lui remettre la commande.</p>
-                    : <p className="mt-1 font-semibold text-success">Remettez-lui la commande et le ticket papier, puis confirmez le départ.</p>}
+                  : <p className="mt-1 font-semibold text-success">Remettez-lui la commande et le ticket papier sans encaisser le coursier, puis confirmez le départ.</p>}
               </div>
             )}
 

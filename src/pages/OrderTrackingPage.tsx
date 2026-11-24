@@ -14,6 +14,7 @@ import { formatPrice } from "@/lib/format";
 import DriverRating from "@/components/tracking/DriverRating";
 import DeliveryFeedback from "@/components/tracking/DeliveryFeedback";
 import { canGiveDeliveryFeedback } from "@/lib/delivery-feedback";
+import OrderDeliveryAddress from "@/components/OrderDeliveryAddress";
 
 interface Order {
   id: string;
@@ -513,15 +514,7 @@ const OrderTrackingPage = () => {
         )}
 
         {!isPickupOrder && order.delivery_address_snapshot && (
-          <Card className="p-4">
-            <div className="flex items-start gap-3">
-              <MapPin className="h-5 w-5 text-primary mt-0.5" />
-              <div>
-                <p className="text-sm font-semibold">Adresse de livraison</p>
-                <p className="text-xs text-muted-foreground">{(order.delivery_address_snapshot as any)?.full_address}</p>
-              </div>
-            </div>
-          </Card>
+          <OrderDeliveryAddress snapshot={order.delivery_address_snapshot} />
         )}
 
         {/* Order Total */}

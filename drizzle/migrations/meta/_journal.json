@@ -127,6 +127,13 @@
       "when": 1795475822058,
       "tag": "0017_per_article_unavailable_preferences",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1795514337477,
+      "tag": "0018_glovo_deferred_settlement",
+      "breakpoints": true
     }
   ]
 }

@@ -46,9 +46,6 @@ export function nextStaffOrderAction(order: StaffWorkflowOrder): StaffOrderActio
         return { kind: "status", status: "delivered", label: "Commande récupérée" };
       }
       if (!order.courier_called_at) return { kind: "courier", label: "J’ai appelé le coursier" };
-      if (order.payment_method === "cash" && !order.payment_confirmed_at) {
-        return { kind: "payment", label: "Espèces reçues du coursier" };
-      }
       return { kind: "status", status: "delivering", label: "Remettre au coursier" };
     case "delivering":
       return { kind: "status", status: "delivered", label: "Livraison confirmée par le coursier" };
@@ -79,7 +76,6 @@ export function staffOrderSteps(order: StaffWorkflowOrder): StaffStep[] {
     steps.push({ label: "Règlement", done: Boolean(order.payment_confirmed_at) || (order.payment_method === "card" && order.status === "delivered") });
   } else {
     steps.push({ label: "Coursier appelé", done: Boolean(order.courier_called_at) });
-    if (order.payment_method === "cash") steps.push({ label: "Espèces reçues", done: Boolean(order.payment_confirmed_at) });
     steps.push({ label: "Remise", done: reached(["delivering", "delivered"]) });
   }
   steps.push({ label: "Clôturée", done: order.status === "delivered" });
