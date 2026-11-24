@@ -12,15 +12,15 @@ import texmex from "@/assets/catalogue/brochettes-tex-mex-light.webp.asset.json"
 export function catalogueGallery(productId: string, primaryUrl: string | null) {
   if (productId === "20450307-1fcb-41ef-ab9d-968f726b16a8") {
     return [
-      { url: herbes.url, label: "Brochettes fines herbes" },
-      { url: arizona.url, label: "Brochettes poulet Arizona" },
-      { url: poivres.url, label: "Brochettes trois poivres" },
-      { url: ail.url, label: "Brochettes ail des ours" },
-      { url: provencal.url, label: "Brochettes provençal" },
-      { url: poivrons.url, label: "Brochettes trois poivrons" },
-      { url: maitre.url, label: "Brochettes maître d’hôtel" },
-      { url: thym.url, label: "Brochettes thym citron" },
-      { url: texmex.url, label: "Brochettes poulet Tex-Mex" },
+      { url: herbes.url, label: "Cubes de poulet marinés – fines herbes" },
+      { url: arizona.url, label: "Cubes de poulet marinés – Arizona" },
+      { url: poivres.url, label: "Cubes de poulet marinés – trois poivres" },
+      { url: ail.url, label: "Cubes de poulet marinés – ail des ours" },
+      { url: provencal.url, label: "Cubes de poulet marinés – provençal" },
+      { url: poivrons.url, label: "Cubes de poulet marinés – trois poivrons" },
+      { url: maitre.url, label: "Cubes de poulet marinés – maître d’hôtel" },
+      { url: thym.url, label: "Cubes de poulet marinés – thym citron" },
+      { url: texmex.url, label: "Cubes de poulet marinés – Tex-Mex" },
     ];
   }
   return primaryUrl ? [{ url: primaryUrl, label: "Photo du produit" }] : [];

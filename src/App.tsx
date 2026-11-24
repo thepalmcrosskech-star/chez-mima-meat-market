@@ -25,6 +25,7 @@ import AdminDrivers from "./pages/admin/AdminDrivers";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminDeliveryZones from "./pages/admin/AdminDeliveryZones";
 import AdminBanners from "./pages/admin/AdminBanners";
+import ContactPage from "./pages/ContactPage";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminBannedIPs from "./pages/admin/AdminBannedIPs";
 import DriverLayout from "./pages/driver/DriverLayout";
@@ -92,6 +93,7 @@ const AppContent = () => {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/index" element={<Navigate to="/" replace />} />
+          <Route path="/contact" element={<ContactPage />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/product/:id" element={<ProductPage />} />
           <Route path="/cart" element={<CartPage />} />
