@@ -151,9 +151,17 @@ const CheckoutPage = () => {
   const isStoreOpen = isOpenAt(weeklyHours);
   const nextOpen = nextOpening(weeklyHours);
   const getNextOpeningDate = () => nextOpen ?? new Date();
-  const openingHour = nextOpen
-    ? new Intl.DateTimeFormat("fr-FR", { timeZone: "Africa/Casablanca", weekday: "long", hour: "2-digit", minute: "2-digit" }).format(nextOpen)
-    : "prochaine ouverture";
+  const openingHour = (() => {
+    if (!nextOpen) return "prochaine ouverture";
+    const tz = "Africa/Casablanca";
+    const dayKey = (d: Date) => new Intl.DateTimeFormat("en-CA", { timeZone: tz }).format(d);
+    const time = new Intl.DateTimeFormat("fr-FR", { timeZone: tz, hour: "2-digit", minute: "2-digit" }).format(nextOpen).replace(":", " h ");
+    const today = new Date();
+    const tomorrow = new Date(today.getTime() + 86400000);
+    if (dayKey(nextOpen) === dayKey(today)) return `aujourd'hui à ${time}`;
+    if (dayKey(nextOpen) === dayKey(tomorrow)) return `demain à ${time}`;
+    return `${new Intl.DateTimeFormat("fr-FR", { timeZone: tz, weekday: "long" }).format(nextOpen)} à ${time}`;
+  })();
 
   // Auto-enable scheduling when store is closed
   useEffect(() => {
@@ -533,7 +541,7 @@ const CheckoutPage = () => {
         {/* Submit */}
         <Button className="w-full py-6 text-base font-bold" disabled={!canOrder || submitting} onClick={handleSubmit}>
           {submitting ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
-          {submitting ? "Envoi en cours..." : isScheduled ? "📅 Réserver pour demain" : isPickup ? "Confirmer le retrait" : "Confirmer la commande"}
+          {submitting ? "Envoi en cours..." : isScheduled ? `📅 Réserver pour ${openingHour}` : isPickup ? "Confirmer le retrait" : "Confirmer la commande"}
         </Button>
       </div>
     </div>
