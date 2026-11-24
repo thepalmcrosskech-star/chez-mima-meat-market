@@ -66,14 +66,21 @@ const OrderTrackingPage = () => {
   const routeIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    fetchOrder();
+    const channels: ReturnType<typeof supabase.channel>[] = [];
+    let cancelled = false;
+    fetchOrder(channels, () => cancelled);
     return () => {
+      cancelled = true;
+      channels.forEach((c) => supabase.removeChannel(c));
       if (routeIntervalRef.current) clearInterval(routeIntervalRef.current);
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     };
   }, [id]);
 
-  const fetchOrder = async () => {
+  const fetchOrder = async (
+    channels: ReturnType<typeof supabase.channel>[],
+    isCancelled: () => boolean,
+  ) => {
     if (!id) return;
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { navigate("/login"); return; }
@@ -100,9 +107,11 @@ const OrderTrackingPage = () => {
       if (driver) setDriverInfo(driver as any);
     }
 
+    if (isCancelled()) return;
+    const suffix = Math.random().toString(36).slice(2);
     // Subscribe to order status changes
     const orderChannel = supabase
-      .channel(`order-${id}`)
+      .channel(`order-${id}-${suffix}`)
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "orders", filter: `id=eq.${id}` }, (payload) => {
         const updated = payload.new as any;
         setOrder((prev) => prev ? { ...prev, ...updated } : null);
@@ -125,11 +134,12 @@ const OrderTrackingPage = () => {
         }
       })
       .subscribe();
+    channels.push(orderChannel);
 
     // Subscribe to driver_locations for realtime tracking
     if (data.driver_id) {
       const driverChannel = supabase
-        .channel(`driver-tracking-${data.driver_id}`)
+        .channel(`driver-tracking-${data.driver_id}-${suffix}`)
         .on("postgres_changes", {
           event: "*",
           schema: "public",
@@ -142,14 +152,8 @@ const OrderTrackingPage = () => {
           }
         })
         .subscribe();
-
-      return () => {
-        supabase.removeChannel(orderChannel);
-        supabase.removeChannel(driverChannel);
-      };
+      channels.push(driverChannel);
     }
-
-    return () => { supabase.removeChannel(orderChannel); };
   };
 
   const animateDriverMarker = useCallback((targetLat: number, targetLng: number) => {
