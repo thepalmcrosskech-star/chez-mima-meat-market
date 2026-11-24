@@ -70,12 +70,9 @@ type StaffOrderItem = {
 type CatalogueProduct = { id: string; name: string; price: number; unit_type: string; category_id: string | null };
 
 const filters = [
-  { value: "active", label: "En cours" },
-  { value: "pending", label: "Nouvelles" },
-  { value: "preparation", label: "À préparer" },
-  { value: "ready", label: "Prêtes" },
-  { value: "delivering", label: "En livraison" },
-  { value: "finished", label: "Archivées" },
+  { value: "pending", label: "Nouvelles commandes" },
+  { value: "active", label: "Commandes en cours" },
+  { value: "finished", label: "Récupérées" },
 ];
 
 const formatDate = (date: string | null) => date
@@ -91,7 +88,7 @@ const formatDate = (date: string | null) => date
 export default function StaffOrders() {
   const [orders, setOrders] = useState<StaffOrder[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState("active");
+  const [filter, setFilter] = useState("pending");
   const [search, setSearch] = useState("");
   const [selectedOrder, setSelectedOrder] = useState<StaffOrder | null>(null);
   const [items, setItems] = useState<StaffOrderItem[]>([]);
@@ -354,12 +351,12 @@ export default function StaffOrders() {
       return;
     }
     setDetailOpen(false);
-    toast({ title: "Commande annulée", description: "Elle est rangée dans les archives." });
+    toast({ title: "Commande annulée", description: "Elle est rangée dans « Récupérées »." });
     await fetchOrders();
   };
 
   const filtered = orders.filter(order => {
-    const matchesFilter = (filter === "active" && !["delivered", "cancelled"].includes(order.status))
+    const matchesFilter = (filter === "active" && !["pending", "delivered", "cancelled"].includes(order.status))
       || (filter === "finished" && ["delivered", "cancelled"].includes(order.status))
       || (filter === "preparation" && ["confirmed", "preparing"].includes(order.status))
       || order.status === filter;
