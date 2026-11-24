@@ -41,6 +41,7 @@ interface DeliveryZone {
 }
 
 import { formatPrice } from "@/lib/format";
+import { usablePoints, pointsValue } from "@/lib/loyalty";
 import { haversineDistance } from "@/lib/geo";
 
 const CheckoutPage = () => {
@@ -65,6 +66,11 @@ const CheckoutPage = () => {
   const [promoInput, setPromoInput] = useState("");
   const [promoCode, setPromoCode] = useState<string | null>(null);
   const [promoChecking, setPromoChecking] = useState(false);
+  const [loyaltyBalance, setLoyaltyBalance] = useState(0);
+  const [useLoyalty, setUseLoyalty] = useState(false);
+  useEffect(() => {
+    supabase.rpc("get_my_loyalty_balance").then(({ data }) => setLoyaltyBalance(Number(data) || 0));
+  }, []);
   const applyPromo = async () => {
     const code = promoInput.trim().toUpperCase();
     if (!code) return;
@@ -190,7 +196,9 @@ const CheckoutPage = () => {
   const isPickup = deliveryMode === "pickup";
   const { zone: deliveryZone, fee: deliveryFee } = isPickup ? { zone: null, fee: 0 } : getDeliveryInfo();
   const discount = promoCode ? Math.round(subtotal * 10) / 100 : 0;
-  const total = (isPickup ? subtotal : (deliveryFee !== null ? subtotal + deliveryFee : subtotal)) - discount;
+  const loyaltyPoints = useLoyalty ? usablePoints(loyaltyBalance, subtotal - discount) : 0;
+  const loyaltyDiscount = pointsValue(loyaltyPoints);
+  const total = -loyaltyDiscount + (isPickup ? subtotal : (deliveryFee !== null ? subtotal + deliveryFee : subtotal)) - discount;
   const hasAddress = selectedAddressId || newAddress;
   const isValidPhone = whatsappPhone.replace(/\s/g, "").length >= 9;
   const canOrder = isPickup ? isValidPhone : (paymentMethod === "card" ? false : (hasAddress && deliveryZone && deliveryFee !== null && isValidPhone));
@@ -244,6 +252,7 @@ const CheckoutPage = () => {
         _payment_method: isPickup ? "on_site" : paymentMethod,
         _cash_bill_amount: !isPickup && paymentMethod === "cash" ? cashBillAmount : null,
         _promo_code: promoCode,
+        _loyalty_points: loyaltyPoints,
       });
 
       if (orderErr) throw orderErr;
@@ -556,6 +565,18 @@ const CheckoutPage = () => {
               <span className="text-muted-foreground flex items-center gap-1"><CalendarClock className="h-3.5 w-3.5" /> Programmée pour</span>
               <span className="font-medium text-warning">À l'ouverture ({openingHour})</span>
             </div>
+          )}
+          {loyaltyPoints > 0 && (
+            <div className="flex justify-between text-sm">
+              <span className="text-success">Points fidélité ({loyaltyPoints})</span>
+              <span className="text-success">-{formatPrice(loyaltyDiscount)}</span>
+            </div>
+          )}
+          {usablePoints(loyaltyBalance, subtotal - discount) > 0 && (
+            <label className="flex items-center gap-2 rounded-lg border border-border p-3 text-sm">
+              <input type="checkbox" checked={useLoyalty} onChange={e => setUseLoyalty(e.target.checked)} className="h-4 w-4 accent-primary" />
+              <span>Utiliser mes points : {loyaltyBalance} points disponibles (50 points = 10 DH)</span>
+            </label>
           )}
           <div className="flex gap-2 pt-1">
             <Input value={promoInput} onChange={e => { setPromoInput(e.target.value); setPromoCode(null); }} placeholder="Code promo (ex. BIENVENUE)" aria-label="Code promo" />

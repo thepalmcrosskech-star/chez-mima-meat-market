@@ -580,6 +580,8 @@ export type Database = {
           discount_amount: number
           driver_id: string | null
           id: string
+          loyalty_discount: number
+          loyalty_points_used: number
           notes: string | null
           payment_confirmed_at: string | null
           payment_confirmed_by: string | null
@@ -616,6 +618,8 @@ export type Database = {
           discount_amount?: number
           driver_id?: string | null
           id?: string
+          loyalty_discount?: number
+          loyalty_points_used?: number
           notes?: string | null
           payment_confirmed_at?: string | null
           payment_confirmed_by?: string | null
@@ -652,6 +656,8 @@ export type Database = {
           discount_amount?: number
           driver_id?: string | null
           id?: string
+          loyalty_discount?: number
+          loyalty_points_used?: number
           notes?: string | null
           payment_confirmed_at?: string | null
           payment_confirmed_by?: string | null
@@ -1011,6 +1017,7 @@ export type Database = {
           _delivery_mode: string
           _delivery_zone_id?: string
           _items: Json
+          _loyalty_points?: number
           _notes?: string
           _payment_method?: string
           _promo_code?: string
@@ -1022,6 +1029,7 @@ export type Database = {
         Args: { _order_id: string }
         Returns: boolean
       }
+      get_my_loyalty_balance: { Args: never; Returns: number }
       get_public_product_ratings: {
         Args: never
         Returns: {
@@ -1041,6 +1049,7 @@ export type Database = {
       }
       has_admin_role: { Args: { user_id: string }; Returns: boolean }
       has_staff_access: { Args: { user_id: string }; Returns: boolean }
+      loyalty_balance_for: { Args: { _user: string }; Returns: number }
       mark_driver_order_picked_up: {
         Args: { _order_id: string }
         Returns: undefined
@@ -1092,6 +1101,8 @@ export type Database = {
           discount_amount: number
           driver_id: string | null
           id: string
+          loyalty_discount: number
+          loyalty_points_used: number
           notes: string | null
           payment_confirmed_at: string | null
           payment_confirmed_by: string | null

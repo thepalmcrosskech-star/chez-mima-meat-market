@@ -148,6 +148,13 @@
       "when": 1795534272971,
       "tag": "0020_promo_code_bienvenue",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1795534796777,
+      "tag": "0021_loyalty_points",
+      "breakpoints": true
     }
   ]
 }

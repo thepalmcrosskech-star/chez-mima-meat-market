@@ -27,6 +27,10 @@ const ProfilePage = () => {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [saving, setSaving] = useState(false);
+  const [points, setPoints] = useState<number | null>(null);
+  useEffect(() => {
+    supabase.rpc("get_my_loyalty_balance").then(({ data, error }) => { if (!error) setPoints(Number(data) || 0); });
+  }, []);
 
   useEffect(() => {
     fetchProfile();
@@ -81,6 +85,15 @@ const ProfilePage = () => {
       </CustomerHeader>
 
       <div className="px-4 pt-4 space-y-4">
+        {points !== null && (
+          <Card className="border-primary/30 bg-primary/5">
+            <CardContent className="pt-6">
+              <p className="text-sm text-muted-foreground">Mes points fidélité</p>
+              <p className="text-3xl font-bold text-primary">{points} points</p>
+              <p className="mt-1 text-xs text-muted-foreground">1 point tous les 10 DH d’achats, gagné à la livraison ou au retrait. 50 points = 10 DH à utiliser au paiement.</p>
+            </CardContent>
+          </Card>
+        )}
         {/* Profile Info */}
         <Card>
           <CardContent className="pt-6 space-y-4">

@@ -28,6 +28,8 @@ interface Order {
   subtotal: number;
   discount_amount?: number | null;
   promo_code?: string | null;
+  loyalty_discount?: number | null;
+  loyalty_points_used?: number | null;
   delivery_fee: number;
   total_price: number;
   notes: string | null;
@@ -304,6 +306,7 @@ const AdminOrders = () => {
                 )}
                 <div className="flex justify-between"><span className="text-muted-foreground">Sous-total</span><span>{formatPrice(selectedOrder.subtotal)}</span></div>
                 {!!selectedOrder.discount_amount && selectedOrder.discount_amount > 0 && <div className="flex justify-between text-success"><span>Code {selectedOrder.promo_code}</span><span>-{formatPrice(selectedOrder.discount_amount)}</span></div>}
+                {!!selectedOrder.loyalty_discount && selectedOrder.loyalty_discount > 0 && <div className="flex justify-between text-success"><span>Points fidélité ({selectedOrder.loyalty_points_used})</span><span>-{formatPrice(selectedOrder.loyalty_discount)}</span></div>}
                 <div className="flex justify-between"><span className="text-muted-foreground">Livraison</span><span>{selectedOrder.delivery_fee === 0 ? "Gratuit" : formatPrice(selectedOrder.delivery_fee)}</span></div>
                 <div className="flex justify-between font-bold text-lg border-t border-border pt-2"><span>Total</span><span className="text-primary">{formatPrice(selectedOrder.total_price)}</span></div>
               </div>

@@ -23,6 +23,7 @@ interface Order {
   subtotal: number;
   discount_amount?: number | null;
   promo_code?: string | null;
+  loyalty_discount?: number | null;
 }
 
 const statusLabels: Record<string, { label: string; variant: "default" | "secondary" | "destructive" }> = {
@@ -129,7 +130,7 @@ const OrdersPage = () => {
                   </div>
                   <div className="flex flex-wrap gap-3 items-center justify-between">
                     <div className="text-sm text-muted-foreground">
-                      Sous-total: {formatPrice(order.subtotal)} · Livraison: {formatPrice(order.delivery_fee)}{order.discount_amount ? ` · Code ${order.promo_code} : -${formatPrice(order.discount_amount)}` : ""}
+                      Sous-total: {formatPrice(order.subtotal)} · Livraison: {formatPrice(order.delivery_fee)}{order.discount_amount ? ` · Code ${order.promo_code} : -${formatPrice(order.discount_amount)}` : ""}{order.loyalty_discount ? ` · Points : -${formatPrice(order.loyalty_discount)}` : ""}
                     </div>
                     <div className="flex items-center gap-2">
                       <p className="text-lg font-bold text-primary">{formatPrice(order.total_price)}</p>

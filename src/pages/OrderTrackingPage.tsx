@@ -24,6 +24,8 @@ interface Order {
   subtotal: number;
   discount_amount?: number | null;
   promo_code?: string | null;
+  loyalty_discount?: number | null;
+  loyalty_points_used?: number | null;
   created_at: string | null;
   delivery_address_snapshot: any;
   driver_id: string | null;
@@ -529,6 +531,12 @@ const OrderTrackingPage = () => {
             <div className="flex justify-between text-sm text-success">
               <span>Code {order.promo_code}</span>
               <span>-{formatPrice(order.discount_amount)}</span>
+            </div>
+          )}
+          {!!order.loyalty_discount && order.loyalty_discount > 0 && (
+            <div className="flex justify-between text-sm text-success">
+              <span>Points fidélité ({order.loyalty_points_used})</span>
+              <span>-{formatPrice(order.loyalty_discount)}</span>
             </div>
           )}
           <div className="flex justify-between text-sm">
