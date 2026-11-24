@@ -67,7 +67,7 @@ const DriverDashboard = () => {
     if (!driverProfile) return;
 
     const channel = supabase
-      .channel(`driver-assignments-${driverProfile.id}`)
+      .channel(`driver-assignments-${driverProfile.id}-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes", {
         event: "INSERT",
         schema: "public",

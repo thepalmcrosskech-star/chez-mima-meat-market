@@ -39,7 +39,7 @@ const AdminDrivers = () => {
   // Realtime driver locations
   useEffect(() => {
     const channel = supabase
-      .channel("admin-driver-locations")
+      .channel(`admin-driver-locations-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes", {
         event: "*",
         schema: "public",
