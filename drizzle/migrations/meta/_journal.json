@@ -134,6 +134,13 @@
       "when": 1795514337477,
       "tag": "0018_glovo_deferred_settlement",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1795514838106,
+      "tag": "0019_public_shop_whatsapp_contact",
+      "breakpoints": true
     }
   ]
 }

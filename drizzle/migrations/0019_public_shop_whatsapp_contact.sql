@@ -1,0 +1,1 @@
+CREATE POLICY "Anyone can read shop WhatsApp contact" ON public.app_settings FOR SELECT TO anon, authenticated USING (key = 'whatsapp_number');
