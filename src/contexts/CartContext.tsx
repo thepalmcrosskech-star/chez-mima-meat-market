@@ -31,6 +31,7 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 const CART_KEY = "chezmima_cart";
+const PENDING_KEY = "chezmima_pending_cart_item";
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [items, setItems] = useState<CartItem[]>(() => {
@@ -53,12 +54,34 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     return () => data.subscription.unsubscribe();
   }, []);
 
+  useEffect(() => {
+    if (!signedIn) return;
+    try {
+      const raw = localStorage.getItem(PENDING_KEY);
+      if (!raw) return;
+      localStorage.removeItem(PENDING_KEY);
+      const { product, quantity } = JSON.parse(raw);
+      if (product?.id && quantity > 0) {
+        putItem(product, quantity);
+        toast.success(`${product.name} ajouté au panier`);
+      }
+    } catch {
+      localStorage.removeItem(PENDING_KEY);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [signedIn]);
+
   const addItem = (product: Omit<CartItem, "quantity">, quantity: number) => {
     if (!signedIn) {
+      try { localStorage.setItem(PENDING_KEY, JSON.stringify({ product, quantity })); } catch { /* ignore */ }
       toast("Créez votre espace client pour ajouter des articles au panier");
       window.location.assign(cartLoginPath(window.location.pathname + window.location.search));
       return;
     }
+    putItem(product, quantity);
+  };
+
+  function putItem(product: Omit<CartItem, "quantity">, quantity: number) {
     setItems((prev) => {
       const { minimum, maximum } = getQuantityRules(product.unit_type, product.category_id);
       const withinLimits = (value: number) =>
@@ -73,7 +96,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       }
       return [...prev, { ...product, quantity: withinLimits(quantity) }];
     });
-  };
+  }
 
   const removeItem = (id: string) => {
     setItems((prev) => prev.filter((i) => i.id !== id));
