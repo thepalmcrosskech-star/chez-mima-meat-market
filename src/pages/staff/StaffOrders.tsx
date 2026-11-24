@@ -319,7 +319,7 @@ export default function StaffOrders() {
           _new_status: action.status,
         });
         if (error) throw error;
-        if (["confirmed", "ready", "delivering", "delivered"].includes(action.status)) {
+        if (["confirmed", "preparing", "ready", "delivering", "delivered"].includes(action.status)) {
           void supabase.functions.invoke("send-push-notification", {
             body: {
               user_id: selectedOrder.user_id,
@@ -358,6 +358,9 @@ export default function StaffOrders() {
       toast({ title: "Annulation refusée", description: error.message, variant: "destructive" });
       return;
     }
+    void supabase.functions.invoke("send-push-notification", {
+      body: { user_id: selectedOrder.user_id, title: "", body: "", data: { order_id: selectedOrder.id } },
+    }).catch(() => undefined);
     setDetailOpen(false);
     toast({ title: "Commande annulée", description: "Elle est rangée dans « Récupérées »." });
     await fetchOrders();

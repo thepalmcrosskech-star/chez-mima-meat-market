@@ -117,7 +117,7 @@ const AdminOrders = () => {
           message: notif.message,
         });
 
-        const pushStatuses = ['confirmed', 'delivering', 'delivered', 'ready'];
+        const pushStatuses = ['confirmed', 'preparing', 'ready', 'delivering', 'delivered', 'cancelled'];
         if (pushStatuses.includes(status)) {
           supabase.functions.invoke('send-push-notification', {
             body: {
