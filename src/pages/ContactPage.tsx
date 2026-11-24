@@ -24,7 +24,7 @@ const ContactPage = () => (
       </Card>
       <Card className="p-4 space-y-2">
         <h2 className="font-bold flex items-center gap-2"><Building2 className="h-5 w-5 text-primary" />Mentions légales</h2>
-        <p className="text-sm text-muted-foreground">L'enseigne Chez Mima est exploitée en gérance libre par la société <strong className="text-foreground">Viandas</strong>, éditrice de cette application.</p>
+        <p className="text-sm text-muted-foreground">Application éditée par la société <strong className="text-foreground">Viandas</strong>.</p>
         <p className="text-sm text-muted-foreground">Siège social : N 3 Immeuble Palmier, 104 Lotissement Iguider 2, Rouidate, Marrakech</p>
         <p className="text-sm text-muted-foreground">Contact : contact@chezmima.app</p>
       </Card>

@@ -453,7 +453,7 @@ const HomePage = () => {
       />
 
       <footer className="px-4 pt-2 pb-28 text-center text-xs text-muted-foreground">
-        Chez Mima – exploitée en gérance libre par Viandas ·{" "}
+        © Viandas – Chez Mima ·{" "}
         <AppLink to="/contact" className="underline">Assistance & Contact</AppLink>
       </footer>
 
