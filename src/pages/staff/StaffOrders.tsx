@@ -213,6 +213,7 @@ export default function StaffOrders() {
       toast({ title: "Article non retiré", description: error.message, variant: "destructive" });
       return;
     }
+    pushLatestNotification(selectedOrder);
     toast({ title: "Article retiré", description: "Le total a été recalculé et le client prévenu." });
     await Promise.all([fetchOrders(), loadItems(selectedOrder.id)]);
   };
@@ -255,6 +256,7 @@ export default function StaffOrders() {
       toast({ title: "Remplacement refusé", description: error.message, variant: "destructive" });
       return;
     }
+    pushLatestNotification(selectedOrder);
     toast({ title: "Article remplacé", description: "Le client a été prévenu." });
     setReplacing(null);
     await Promise.all([fetchOrders(), loadItems(selectedOrder.id)]);
@@ -336,6 +338,12 @@ export default function StaffOrders() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const pushLatestNotification = (order: { id: string; user_id: string }) => {
+    void supabase.functions.invoke("send-push-notification", {
+      body: { user_id: order.user_id, title: "", body: "", data: { order_id: order.id, latest_notification: true } },
+    }).catch(() => undefined);
   };
 
   const cancelOrder = async () => {

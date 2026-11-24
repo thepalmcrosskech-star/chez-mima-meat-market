@@ -177,7 +177,16 @@ serve(async (req) => {
       if (orderError || !order || !canNotifyOrderOwner(callerId, isStaff === true, order.user_id, user_id)) {
         return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
       }
-      const notification = orderStatusNotification(order);
+      let notification = orderStatusNotification(order);
+      if (data?.latest_notification === true) {
+        // Article retiré/remplacé : renvoie la dernière notification enregistrée par le serveur pour cette commande
+        const { data: latest } = await supabaseAdmin.from('notifications')
+          .select('title, message, created_at').eq('order_id', order.id).eq('user_id', order.user_id)
+          .order('created_at', { ascending: false }).limit(1).maybeSingle();
+        notification = latest && Date.now() - new Date(latest.created_at).getTime() < 5 * 60 * 1000
+          ? { title: latest.title, body: latest.message, data: { order_id: order.id } }
+          : null;
+      }
       if (!notification) {
         return new Response(JSON.stringify({ error: 'Order status cannot be notified' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
       }
