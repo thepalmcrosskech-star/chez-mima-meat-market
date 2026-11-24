@@ -85,3 +85,4 @@
 - [ ] Préparation au choix + note au boucher ; créneaux de livraison ; packs.
 - [ ] Avis clients visibles ; photo de la commande préparée.
 - [ ] Statistiques simples et alerte de stock bas.
+- [x] Préparer quatre captures iPhone 1206 × 2622 pour l’App Store et les textes de la fiche Apple : quatre écrans publics réels de la boutique publiée, photos chargées et images inspectées ; ZIP vérifié, sans données personnelles. Textes fournis dans le chat ; dépôt et vérification dans le simulateur iOS restent à faire avec le propriétaire.
