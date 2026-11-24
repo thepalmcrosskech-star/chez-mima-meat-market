@@ -48,6 +48,18 @@ export function registerAppServiceWorker() {
   }
 
   if ("serviceWorker" in navigator) {
-    void registerSW({ immediate: true })().catch(() => undefined);
+    registerSW({
+      immediate: true,
+      onRegisteredSW(_url, registration) {
+        if (!registration) return;
+        const check = () => { void registration.update().catch(() => undefined); };
+        // Look for a newly published version when the app comes back to the screen and every 10 minutes.
+        document.addEventListener("visibilitychange", () => {
+          if (document.visibilityState === "visible") check();
+        });
+        window.addEventListener("focus", check);
+        window.setInterval(check, 10 * 60 * 1000);
+      },
+    });
   }
 }
