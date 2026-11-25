@@ -162,6 +162,13 @@
       "when": 1795609800526,
       "tag": "0022_harden_order_profile_grants",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1795627710556,
+      "tag": "0023_enforce_glovo_delivery_area",
+      "breakpoints": true
     }
   ]
 }

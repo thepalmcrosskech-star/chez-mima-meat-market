@@ -1049,6 +1049,10 @@ export type Database = {
       }
       has_admin_role: { Args: { user_id: string }; Returns: boolean }
       has_staff_access: { Args: { user_id: string }; Returns: boolean }
+      is_in_delivery_area: {
+        Args: { _lat: number; _lng: number }
+        Returns: boolean
+      }
       loyalty_balance_for: { Args: { _user: string }; Returns: number }
       mark_driver_order_picked_up: {
         Args: { _order_id: string }
