@@ -30,10 +30,12 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
-    // Get client IP from headers
-    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
-      || req.headers.get('cf-connecting-ip')
-      || req.headers.get('x-real-ip')
+    // Get client IP from headers.
+    // cf-connecting-ip is set by Cloudflare itself and cannot be forged by the
+    // client, so it wins over x-forwarded-for / x-real-ip which a client can inject.
+    const ip = req.headers.get('cf-connecting-ip')?.trim()
+      || req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+      || req.headers.get('x-real-ip')?.trim()
       || 'unknown';
 
     const payload = await req.json();
