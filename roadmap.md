@@ -87,3 +87,6 @@
 - [ ] Avis clients visibles ; photo de la commande préparée.
 - [ ] Statistiques simples et alerte de stock bas.
 - [x] Préparer quatre captures iPhone 1206 × 2622 pour l’App Store et les textes de la fiche Apple : quatre écrans publics réels de la boutique publiée, photos chargées et images inspectées ; ZIP vérifié, sans données personnelles. Textes fournis dans le chat ; dépôt et vérification dans le simulateur iOS restent à faire avec le propriétaire.
+- [x] Capture iPad 13 pouces 2048 × 2732 ajoutée à la fiche Apple ; retrait de la Chine continentale fait.
+- [ ] Compte de test Apple réellement fonctionnant : compte client créé (debbarh.jalal+apple@gmail.com, rôle client, e-mail de confirmation envoyé), activation en attente du clic sur le lien par le propriétaire, puis vérification de la connexion avant de remettre les identifiants à Apple.
+- [ ] Soumettre la version 1.0 à la vérification Apple (build 1.0 (1) ajouté, remarques exactes sur l'accès public au catalogue et les fonctions nécessitant un compte).
