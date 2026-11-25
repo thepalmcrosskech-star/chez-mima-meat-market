@@ -12,6 +12,7 @@ import CartPage from "./pages/CartPage";
 import OrdersPage from "./pages/OrdersPage";
 import ProfilePage from "./pages/ProfilePage";
 import LoyaltyPage from "./pages/LoyaltyPage";
+import AddressesPage from "./pages/AddressesPage";
 import NotFound from "./pages/NotFound";
 import LoginPage from "./pages/auth/LoginPage";
 import AdminSetupPage from "./pages/auth/AdminSetupPage";
@@ -64,7 +65,7 @@ const RoleRedirect = () => {
   const location = useLocation();
 
   useEffect(() => {
-    const clientRoutes = ["/", "/search", "/cart", "/orders", "/checkout", "/profile", "/loyalty"];
+    const clientRoutes = ["/", "/search", "/cart", "/orders", "/checkout", "/profile", "/loyalty", "/addresses"];
     const isClientRoute = clientRoutes.includes(location.pathname) || location.pathname.startsWith("/product/");
 
     if (!isClientRoute) return;
@@ -103,6 +104,7 @@ const AppContent = () => {
           <Route path="/order-tracking/:id" element={<OrderTrackingPage />} />
           <Route path="/checkout" element={<RequireCheckoutSession><CheckoutPage /></RequireCheckoutSession>} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/addresses" element={<AddressesPage />} />
           <Route path="/loyalty" element={<LoyaltyPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />

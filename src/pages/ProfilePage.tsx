@@ -124,13 +124,13 @@ const ProfilePage = () => {
         {/* Quick Links */}
         <Card>
           <CardContent className="pt-4 space-y-1">
-            <button onClick={() => navigate("/orders")} className="w-full flex items-center justify-between py-3 hover:bg-accent/50 rounded-lg px-2 transition-colors">
+            <Button variant="ghost" onClick={() => navigate("/addresses")} className="w-full h-auto flex items-center justify-between py-3 rounded-lg px-2">
               <div className="flex items-center gap-3">
                 <MapPin className="h-5 w-5 text-muted-foreground" />
                 <span className="font-medium text-sm">Mes adresses</span>
               </div>
               <ChevronRight className="h-4 w-4 text-muted-foreground" />
-            </button>
+            </Button>
           </CardContent>
         </Card>
 
