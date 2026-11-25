@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import { LogOut, Menu, Package, ShoppingBag, X } from "lucide-react";
+import { LogOut, Menu, Package, ShoppingBag, X, QrCode } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getAccountAccess } from "@/lib/account-access";
 import { brandLogo as logo } from "@/lib/brand";
@@ -10,6 +10,7 @@ import { toast } from "@/hooks/use-toast";
 const navItems = [
   { label: "Commandes", path: "/staff", icon: ShoppingBag },
   { label: "Produits", path: "/staff/products", icon: Package },
+  { label: "Fidélité", path: "/staff/loyalty", icon: QrCode },
 ];
 
 export default function StaffLayout() {
@@ -57,7 +58,7 @@ export default function StaffLayout() {
   if (!authorized) return null;
 
   const navigation = (mobile = false) => (
-    <nav className={mobile ? "grid grid-cols-2 gap-2 p-3" : "flex-1 space-y-2 p-4"}>
+    <nav className={mobile ? "grid grid-cols-3 gap-2 p-3" : "flex-1 space-y-2 p-4"}>
       {navItems.map(item => {
         const active = item.path === "/staff" ? location.pathname === "/staff" : location.pathname.startsWith(item.path);
         return (

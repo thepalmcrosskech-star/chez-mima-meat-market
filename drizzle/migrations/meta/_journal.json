@@ -176,6 +176,13 @@
       "when": 1795633767465,
       "tag": "0024_definitive_glovo_store_boundary",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1795645388252,
+      "tag": "0025_store_loyalty_card",
+      "breakpoints": true
     }
   ]
 }

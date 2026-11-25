@@ -410,6 +410,32 @@ export type Database = {
           },
         ]
       }
+      loyalty_cards: {
+        Row: {
+          created_at: string
+          token: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          token?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          token?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loyalty_cards_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           content: string
@@ -883,6 +909,57 @@ export type Database = {
           },
         ]
       }
+      store_loyalty_transactions: {
+        Row: {
+          articles_total: number
+          created_at: string
+          id: string
+          points_earned: number
+          points_used: number
+          receipt_reference: string
+          request_id: string
+          staff_id: string
+          user_id: string
+        }
+        Insert: {
+          articles_total: number
+          created_at?: string
+          id?: string
+          points_earned: number
+          points_used?: number
+          receipt_reference: string
+          request_id: string
+          staff_id: string
+          user_id: string
+        }
+        Update: {
+          articles_total?: number
+          created_at?: string
+          id?: string
+          points_earned?: number
+          points_used?: number
+          receipt_reference?: string
+          request_id?: string
+          staff_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_loyalty_transactions_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "store_loyalty_transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "loyalty_cards"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       user_addresses: {
         Row: {
           apartment: string | null
@@ -995,6 +1072,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      activate_my_loyalty_card: { Args: never; Returns: string }
       assert_order_ip_allowed: { Args: never; Returns: undefined }
       attach_order_receipt: {
         Args: { _order_id: string; _photo_path: string }
@@ -1062,6 +1140,7 @@ export type Database = {
         Args: { _order_id: string }
         Returns: undefined
       }
+      normalize_loyalty_phone: { Args: { _phone: string }; Returns: string }
       order_request_ips: { Args: never; Returns: unknown[] }
       recalculate_order_totals: {
         Args: { _order_id: string }
@@ -1084,6 +1163,15 @@ export type Database = {
         Returns: undefined
       }
       staff_confirm_payment: { Args: { _order_id: string }; Returns: undefined }
+      staff_find_loyalty_card: {
+        Args: { _query: string }
+        Returns: {
+          balance: number
+          customer_name: string
+          phone: string
+          token: string
+        }[]
+      }
       staff_lock_adjustable_order: {
         Args: { _order_id: string }
         Returns: {
@@ -1130,6 +1218,16 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      staff_record_loyalty_sale: {
+        Args: {
+          _articles_total: number
+          _points_used: number
+          _receipt: string
+          _request_id: string
+          _token: string
+        }
+        Returns: Json
       }
       staff_remove_order_item: {
         Args: { _item_id: string }

@@ -6,12 +6,13 @@ import { toast } from "@/hooks/use-toast";
 import { brandLogo as logo } from "@/lib/brand";
 import { getAccountAccess } from "@/lib/account-access";
 import {
-  LayoutDashboard, Package, Tags, ShoppingBag, Truck, Users, MapPin, Settings, LogOut, Menu, X, ChevronRight, Image, Shield,
+  LayoutDashboard, Package, Tags, ShoppingBag, Truck, Users, MapPin, Settings, LogOut, Menu, X, ChevronRight, Image, Shield, QrCode,
 } from "lucide-react";
 
 const navItems = [
   { label: "Tableau de bord", icon: LayoutDashboard, path: "/admin" },
   { label: "Commandes", icon: ShoppingBag, path: "/admin/orders" },
+  { label: "Fidélité boutique", icon: QrCode, path: "/admin/loyalty" },
   { label: "Produits", icon: Package, path: "/admin/products" },
   { label: "Catégories", icon: Tags, path: "/admin/categories" },
   { label: "Bannières", icon: Image, path: "/admin/banners" },
