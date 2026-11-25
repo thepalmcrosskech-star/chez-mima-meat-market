@@ -29,7 +29,7 @@ export default function StaffLoyalty() {
     setBusy(true); setCustomers([]); setCustomer(null); resetSale();
     const { data, error } = await supabase.rpc("staff_find_loyalty_card", { _query: value.trim() });
     if (error) toast({ title: "Recherche impossible", description: error.message, variant: "destructive" });
-    else if (!data?.length) toast({ title: "Aucune carte trouvée", description: "Le client doit activer sa carte dans son profil et renseigner son téléphone." });
+    else if (!data?.length) toast({ title: "Aucune carte trouvée", description: "Le client doit activer sa carte dans « Ma carte » et renseigner son téléphone dans son profil." });
     else if (data.length === 1) setCustomer(data[0]);
     else setCustomers(data);
     setBusy(false);
@@ -65,7 +65,7 @@ export default function StaffLoyalty() {
     setBusy(false);
   };
   return <div className="max-w-2xl mx-auto space-y-6">
-    <header><h1 className="text-3xl">Fidélité boutique</h1><p className="text-muted-foreground">2 % · 1 point / 10 DH · 50 points = 10 DH</p></header>
+    <header><h1 className="text-3xl">Fidélité boutique</h1><p className="text-muted-foreground">1 point / 10 DH · 50 points = 10 DH</p></header>
     <form onSubmit={e => { e.preventDefault(); void find(query); }} className="space-y-3">
       <Label htmlFor="loyalty-search">Téléphone du client ou code de la carte</Label>
       <div className="flex gap-2"><Input id="loyalty-search" value={query} onChange={e => setQuery(e.target.value)} placeholder="06… / +212…" className="min-w-0" /><Button type="submit" disabled={busy || !query.trim()} size="icon" aria-label="Rechercher le client"><Search /></Button></div>

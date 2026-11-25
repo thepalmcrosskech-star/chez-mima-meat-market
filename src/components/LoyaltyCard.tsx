@@ -3,24 +3,22 @@ import { QRCodeSVG } from "qrcode.react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
-import { pointsValue } from "@/lib/loyalty";
+import { brandLogo } from "@/lib/brand";
 
 export default function LoyaltyCard() {
   const [token, setToken] = useState<string | null>(null);
   const [balance, setBalance] = useState<number | null>(null);
   const [busy, setBusy] = useState(false);
-  const [history, setHistory] = useState<{ id: string; created_at: string; receipt_reference: string; points_earned: number; points_used: number }[]>([]);
+  const [logoReady, setLogoReady] = useState(false);
   const refresh = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
-    const [card, points, sales] = await Promise.all([
+    const [card, points] = await Promise.all([
       supabase.from("loyalty_cards").select("token").eq("user_id", user.id).maybeSingle(),
       supabase.rpc("get_my_loyalty_balance"),
-      supabase.from("store_loyalty_transactions").select("id,created_at,receipt_reference,points_earned,points_used").eq("user_id", user.id).order("created_at", { ascending: false }).limit(5),
     ]);
     if (!card.error) setToken(card.data?.token ?? null);
     if (!points.error) setBalance(points.data);
-    if (!sales.error) setHistory(sales.data ?? []);
   };
   useEffect(() => {
     void refresh();
@@ -36,17 +34,21 @@ export default function LoyaltyCard() {
     else { setToken(data); void refresh(); }
     setBusy(false);
   };
-  return <section className="rounded-lg border border-primary/30 bg-card overflow-hidden" aria-label="Ma carte fidélité">
-    <div className="bg-primary text-primary-foreground px-5 py-4 flex justify-between items-center gap-3">
-      <h2 className="text-2xl">Ma carte Chez Mima</h2><strong className="text-2xl shrink-0">2 %</strong>
-    </div>
-    <div className="p-5 space-y-4">
-      <div className="text-center"><p className="text-3xl font-bold text-primary">{balance === null ? "…" : balance} points</p>
-        {balance !== null && <p className="text-sm text-muted-foreground">Valeur cumulée : {pointsValue(balance).toFixed(2)} DH · 50 points = 10 DH</p>}
+  return <section className="loyalty-virtual-card w-full max-w-sm mx-auto overflow-hidden rounded-lg border border-border bg-card" aria-label="Ma carte fidélité">
+    <div className="flex items-center justify-between gap-4 border-b border-border px-6 py-4">
+      <div className="relative h-16 w-28 shrink-0 flex items-center">
+        {!logoReady && <span className="font-display text-3xl leading-none text-primary">CHEZ MIMA</span>}
+        <img src={brandLogo} alt={logoReady ? "Chez Mima" : ""} className={`absolute inset-0 h-full w-full object-contain ${logoReady ? "visible" : "invisible"}`} onLoad={event => { const image = event.currentTarget; void image.decode().then(() => setLogoReady(true)).catch(() => setLogoReady(false)); }} onError={() => setLogoReady(false)} />
       </div>
-      {token ? <div className="flex justify-center"><div className="loyalty-qr p-4 rounded-md"><QRCodeSVG value={`MIMA:${token}`} size={208} level="M" title="Carte fidélité Chez Mima" /></div></div> : <Button className="w-full" disabled={busy} onClick={activate}>{busy ? "Activation…" : "Activer ma carte boutique"}</Button>}
-      <p className="text-sm text-muted-foreground text-center">1 point par tranche de 10 DH d’articles réglés. Solde commun en boutique et pour vos commandes.</p>
-      {history.length > 0 && <div className="border-t pt-3 space-y-2"><h3 className="text-lg">Derniers passages en boutique</h3>{history.map(sale => <div key={sale.id} className="flex justify-between gap-3 text-sm"><span>{new Date(sale.created_at).toLocaleDateString("fr-FR")} · {sale.receipt_reference}</span><span className="shrink-0 text-success">+{sale.points_earned}{sale.points_used > 0 ? ` / −${sale.points_used}` : ""} pts</span></div>)}</div>}
+      <span className="text-right font-display text-xl leading-tight text-primary">CARTE DE<br />FIDÉLITÉ</span>
     </div>
+    <div className="px-6 py-5 text-center">
+      <p className="text-xs font-semibold uppercase text-muted-foreground">Mon solde</p>
+      <p className="mt-2 flex items-baseline justify-center gap-2 text-primary" aria-live="polite"><strong className="text-5xl leading-none tabular-nums">{balance === null ? "…" : balance}</strong><span className="text-base font-medium">points</span></p>
+      <div className="mt-5 flex min-h-52 items-center justify-center">
+        {token ? <div className="loyalty-qr p-3 rounded-md"><QRCodeSVG value={`MIMA:${token}`} size={184} level="M" title="Carte fidélité Chez Mima" /></div> : <Button className="w-full whitespace-normal" disabled={busy} onClick={activate}>{busy ? "Activation…" : "Activer ma carte"}</Button>}
+      </div>
+    </div>
+    <div className="bg-primary px-6 py-3 text-center text-primary-foreground"><span className="font-display text-lg">CHEZ MIMA · MARRAKECH</span></div>
   </section>;
 }

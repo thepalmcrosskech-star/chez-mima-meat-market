@@ -10,7 +10,6 @@ import { toast } from "@/hooks/use-toast";
 import { Loader2, LogOut, User, Mail, Phone, MapPin, ChevronRight } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import { brandLogo as logo } from "@/lib/brand";
-import LoyaltyCard from "@/components/LoyaltyCard";
 
 interface Profile {
   id: string;
@@ -82,7 +81,6 @@ const ProfilePage = () => {
       </CustomerHeader>
 
       <div className="px-4 pt-4 space-y-4">
-        <LoyaltyCard />
         {/* Profile Info */}
         <Card>
           <CardContent className="pt-6 space-y-4">

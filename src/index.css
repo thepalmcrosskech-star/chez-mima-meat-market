@@ -88,6 +88,7 @@
   }
   .app-card { border-radius: var(--radius); border-width: 1px; box-shadow: var(--shadow-card); }
   .loyalty-qr { background: hsl(var(--qr-paper)); }
+  .loyalty-virtual-card { box-shadow: var(--shadow-card); }
   .app-button { letter-spacing: 0; border-radius: calc(var(--radius) - 4px); }
   .app-button:active:not(:disabled) { transform: scale(.98); }
   .client-page { width: 100%; max-width: 1200px; margin-inline: auto; padding-bottom: calc(6rem + env(safe-area-inset-bottom)); }

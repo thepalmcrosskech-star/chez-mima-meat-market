@@ -1,12 +1,12 @@
 import { forwardRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Home, Search, ShoppingCart, User, ClipboardList } from "lucide-react";
+import { Home, QrCode, ShoppingCart, User, ClipboardList } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 
 const navItems = [
   { label: "Accueil", icon: Home, path: "/" },
-  { label: "Recherche", icon: Search, path: "/search" },
+  { label: "Ma carte", icon: QrCode, path: "/loyalty" },
   { label: "Panier", icon: ShoppingCart, path: "/cart", badge: true },
   { label: "Commandes", icon: ClipboardList, path: "/orders" },
   { label: "Profil", icon: User, path: "/profile" },

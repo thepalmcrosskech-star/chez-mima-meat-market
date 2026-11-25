@@ -1,6 +1,7 @@
 # Project Engineering Rules
 
 - Keep store loyalty in an append-only receipt ledger with random card tokens and staff-only RPCs; share the order RPC's per-user advisory lock and balance calculation to prevent duplicate receipts and cross-channel double spending.
+- Render the customer loyalty card on its own authenticated page linked from bottom navigation; keep the shared card presentation separate from point calculations so visual changes never alter rewards.
 
 - Use row-level access rules and narrowly granted `SECURITY DEFINER` RPCs for order and role-sensitive workflows, so client-side writes cannot bypass server validation.
 - Enforce IP bans from gateway request headers at both order RPC entry and every order insert; fail closed without an IP and compare all forwarded IP candidates as inet so forged prefixes and IPv6 formatting cannot bypass bans, while admin unban remains independent of order guards.
