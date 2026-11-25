@@ -80,8 +80,9 @@
 - [x] « Recommander » en un clic depuis Mes commandes (prix du jour, articles indisponibles ignorés).
 - [x] Connexion Google et Apple.
 - [x] Message clair « ouvrez votre boîte mail » après inscription.
-- [ ] Codes promo (attend les offres souhaitées par le propriétaire).
-- [ ] Fidélité, puis parrainage (attend les règles du propriétaire).
+- [x] Codes promo : code BIENVENUE, -10 % sur la première commande, une seule fois par client.
+- [x] Fidélité : 1 point par 10 DH, 50 points = 10 DH, gagnés après livraison.
+- [ ] Parrainage (attend les règles du propriétaire).
 - [ ] Préparation au choix + note au boucher ; créneaux de livraison ; packs.
 - [ ] Avis clients visibles ; photo de la commande préparée.
 - [ ] Statistiques simples et alerte de stock bas.
