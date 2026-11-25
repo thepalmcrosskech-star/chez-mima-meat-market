@@ -36,7 +36,11 @@ document.addEventListener("visibilitychange", () => {
   }
   const away = hiddenAt ? Date.now() - hiddenAt : 0;
   const path = window.location.pathname;
-  const safeToReload = !path.startsWith("/driver") && !path.startsWith("/checkout");
+  const safeToReload =
+    !path.startsWith("/driver") &&
+    !path.startsWith("/checkout") &&
+    !path.startsWith("/staff") &&
+    !path.startsWith("/admin");
   if (away > 2 * 60 * 1000 && safeToReload) {
     window.location.reload();
   } else {
