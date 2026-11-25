@@ -1,3 +1,4 @@
+import { isInDeliveryArea } from "@/lib/delivery-area";
 import { CustomerHeader } from "@/components/OriginPromise";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -138,6 +139,7 @@ const CheckoutPage = () => {
 
   const findZone = (lat: number, lng: number): DeliveryZone | null => {
     if (!storeLocation) return null;
+    if (!isInDeliveryArea(lat, lng)) return null;
     const dist = haversineDistance(storeLocation.lat, storeLocation.lng, lat, lng);
     // Find the matching zone where dist is between min_radius_km and radius_km
     // Sort by radius_km ascending to find the tightest match
