@@ -8,8 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { ArrowLeft, Loader2, Package, Bike, CheckCircle2, Clock, MapPin, Phone, Star, XCircle } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import MapboxMap, { getMapboxToken } from "@/components/MapboxMap";
-import mapboxgl from "mapbox-gl";
+import OpenStreetMap from "@/components/OpenStreetMap";
+import L from "leaflet";
+import { addMapMarker, mapPoint, getRoadRoute } from "@/lib/open-map";
 import { formatPrice } from "@/lib/format";
 import DriverRating from "@/components/tracking/DriverRating";
 import DeliveryFeedback from "@/components/tracking/DeliveryFeedback";
@@ -65,9 +66,10 @@ const OrderTrackingPage = () => {
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [cancelling, setCancelling] = useState(false);
 
-  const mapRef = useRef<mapboxgl.Map | null>(null);
-  const driverMarkerRef = useRef<mapboxgl.Marker | null>(null);
-  const destMarkerRef = useRef<mapboxgl.Marker | null>(null);
+  const mapRef = useRef<L.Map | null>(null);
+  const routeLineRef = useRef<L.Polyline | null>(null);
+  const driverMarkerRef = useRef<L.Marker | null>(null);
+  const destMarkerRef = useRef<L.Marker | null>(null);
   const prevPositionRef = useRef<{ lat: number; lng: number } | null>(null);
   const animFrameRef = useRef<number | null>(null);
   const routeIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -171,7 +173,7 @@ const OrderTrackingPage = () => {
       // First position - just set it
       updateDriverMarkerPosition(targetLat, targetLng);
       prevPositionRef.current = { lat: targetLat, lng: targetLng };
-      mapRef.current.flyTo({ center: [targetLng, targetLat], zoom: 15, duration: 1000 });
+      mapRef.current.flyTo([targetLat, targetLng], 15, { duration: 1 });
       return;
     }
 
@@ -207,13 +209,13 @@ const OrderTrackingPage = () => {
     if (!mapRef.current) return;
 
     if (driverMarkerRef.current) {
-      driverMarkerRef.current.setLngLat([lng, lat]);
+      driverMarkerRef.current.setLatLng([lat, lng]);
     } else {
       const el = document.createElement("div");
       el.innerHTML = `<div style="background: hsl(var(--primary)); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 4px 12px rgba(0,0,0,0.3); animation: pulse 2s infinite;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18.5" cy="18.5" r="3.5"/><circle cx="5.5" cy="18.5" r="3.5"/><path d="M15 18.5h-6"/><path d="m14 2-3 6h9l-1 4"/><path d="M5.5 15V7h4l3-5"/></svg>
       </div>`;
-      driverMarkerRef.current = new mapboxgl.Marker({ element: el }).setLngLat([lng, lat]).addTo(mapRef.current);
+      driverMarkerRef.current = addMapMarker(mapRef.current, [lng, lat], { element: el });
     }
   };
 
@@ -223,55 +225,40 @@ const OrderTrackingPage = () => {
     if (!snapshot?.latitude || !snapshot?.longitude) return;
 
     try {
-      const token = await getMapboxToken();
-      const res = await fetch(
-        `https://api.mapbox.com/directions/v5/mapbox/driving/${driverLng},${driverLat};${snapshot.longitude},${snapshot.latitude}?geometries=geojson&access_token=${token}`
-      );
-      const data = await res.json();
-      if (!data.routes?.[0]) return;
-
-      const route = data.routes[0];
+      const route = await getRoadRoute([driverLng, driverLat], [snapshot.longitude, snapshot.latitude]);
       setEta(`~${Math.ceil(route.duration / 60)} min`);
       setDistanceLeft(`${(route.distance / 1000).toFixed(1)} km`);
 
       const map = mapRef.current;
-      if (map.getSource("route")) {
-        (map.getSource("route") as mapboxgl.GeoJSONSource).setData({
-          type: "Feature", properties: {}, geometry: route.geometry,
-        });
-      } else {
-        map.addSource("route", {
-          type: "geojson",
-          data: { type: "Feature", properties: {}, geometry: route.geometry },
-        });
-        map.addLayer({
-          id: "route", type: "line", source: "route",
-          layout: { "line-join": "round", "line-cap": "round" },
-          paint: { "line-color": "#D3111A", "line-width": 4, "line-opacity": 0.7 },
-        });
-      }
-    } catch {}
+      if (!map || !map.getContainer().isConnected) return;
+      const points = route.geometry.coordinates.map(mapPoint);
+      if (routeLineRef.current) routeLineRef.current.setLatLngs(points);
+      else routeLineRef.current = L.polyline(points, { color: "hsl(var(--primary))", weight: 4, opacity: 0.8 }).addTo(map);
+    } catch {
+      setEta(null);
+      setDistanceLeft(null);
+    }
   }, [order]);
 
-  const handleMapReady = async (map: mapboxgl.Map) => {
+  const handleMapReady = async (map: L.Map) => {
     mapRef.current = map;
 
     const snapshot = order?.delivery_address_snapshot as any;
     if (snapshot?.latitude && snapshot?.longitude) {
-      destMarkerRef.current = new mapboxgl.Marker({ color: "#D3111A" })
-        .setLngLat([snapshot.longitude, snapshot.latitude])
-        .addTo(map);
-      map.flyTo({ center: [snapshot.longitude, snapshot.latitude], zoom: 14 });
+      destMarkerRef.current = addMapMarker(map, [snapshot.longitude, snapshot.latitude]);
+      map.flyTo([snapshot.latitude, snapshot.longitude], 14);
     }
 
     // Get initial driver location
-    if (order?.driver_id) {
+    const driverId = order?.driver_id;
+    if (driverId) {
       const { data: loc } = await supabase
         .from("driver_locations")
         .select("latitude, longitude")
-        .eq("driver_id", order.driver_id)
+        .eq("driver_id", driverId)
         .single();
 
+      if (!map.getContainer().isConnected) return;
       if (loc?.latitude && loc?.longitude) {
         const lat = Number(loc.latitude);
         const lng = Number(loc.longitude);
@@ -284,7 +271,7 @@ const OrderTrackingPage = () => {
           const { data: newLoc } = await supabase
             .from("driver_locations")
             .select("latitude, longitude")
-            .eq("driver_id", order.driver_id!)
+            .eq("driver_id", driverId)
             .single();
           if (newLoc?.latitude && newLoc?.longitude) {
             updateRoute(Number(newLoc.latitude), Number(newLoc.longitude));
@@ -293,10 +280,10 @@ const OrderTrackingPage = () => {
 
         // Fit bounds
         if (snapshot?.latitude && snapshot?.longitude) {
-          const bounds = new mapboxgl.LngLatBounds();
-          bounds.extend([lng, lat]);
-          bounds.extend([snapshot.longitude, snapshot.latitude]);
-          map.fitBounds(bounds, { padding: 60 });
+          const bounds = L.latLngBounds([]);
+          bounds.extend([lat, lng]);
+          bounds.extend([snapshot.latitude, snapshot.longitude]);
+          map.fitBounds(bounds, { padding: [60, 60] });
         }
       }
     }
@@ -387,7 +374,7 @@ const OrderTrackingPage = () => {
         {showMap && (
           <Card className="overflow-hidden border-0 shadow-lg">
             <div className="relative">
-              <MapboxMap
+              <OpenStreetMap
                 className="w-full h-64"
                 center={
                   (order.delivery_address_snapshot as any)?.longitude

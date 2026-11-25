@@ -1,8 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { DELIVERY_AREA, isInDeliveryArea } from "@/lib/delivery-area";
+import { DELIVERY_AREA, STORE_MAP_COORDINATES, isInDeliveryArea } from "@/lib/delivery-area";
 import { deliveryZoneForPoint } from "@/lib/delivery-zone";
 import { readFileSync } from "node:fs";
 describe("zone de livraison Glovo", () => {
+  it("place le magasin au point officiel fourni avec la couverture", () => expect(STORE_MAP_COORDINATES).toEqual([-8.019188, 31.588938]));
   it("accepte la boutique", () => expect(isInDeliveryArea(31.588938, -8.019188)).toBe(true));
   it("accepte Guéliz", () => expect(isInDeliveryArea(31.636, -8.010)).toBe(true));
   it("refuse Tameslouht (hors contour, < 10 km)", () => expect(isInDeliveryArea(31.515, -8.05)).toBe(false));

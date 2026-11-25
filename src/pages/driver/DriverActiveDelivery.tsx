@@ -7,8 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
 import { Phone, Navigation, MapPin, Package, Banknote, CreditCard, Loader2, Clock } from "lucide-react";
 import { formatPrice, getStatusInfo } from "@/lib/format";
-import MapboxMap, { getMapboxToken } from "@/components/MapboxMap";
-import mapboxgl from "mapbox-gl";
+import OpenStreetMap from "@/components/OpenStreetMap";
+import L from "leaflet";
+import { addMapMarker, mapPoint, getRoadRoute } from "@/lib/open-map";
 
 interface OrderData {
   id: string;
@@ -39,8 +40,9 @@ const DriverActiveDelivery = () => {
   const [distance, setDistance] = useState<string | null>(null);
   const [driverProfile, setDriverProfile] = useState<any>(null);
 
-  const mapRef = useRef<mapboxgl.Map | null>(null);
-  const driverMarkerRef = useRef<mapboxgl.Marker | null>(null);
+  const mapRef = useRef<L.Map | null>(null);
+  const routeLineRef = useRef<L.Polyline | null>(null);
+  const driverMarkerRef = useRef<L.Marker | null>(null);
   const routeUpdateRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -78,55 +80,36 @@ const DriverActiveDelivery = () => {
     if (!snapshot?.latitude || !snapshot?.longitude) return;
 
     try {
-      const token = await getMapboxToken();
-      const res = await fetch(
-        `https://api.mapbox.com/directions/v5/mapbox/driving/${driverLng},${driverLat};${snapshot.longitude},${snapshot.latitude}?geometries=geojson&access_token=${token}`
-      );
-      const data = await res.json();
-      if (!data.routes?.[0]) return;
-
-      const route = data.routes[0];
+      const route = await getRoadRoute([driverLng, driverLat], [snapshot.longitude, snapshot.latitude]);
       setEta(`~${Math.ceil(route.duration / 60)} min`);
       setDistance(`${(route.distance / 1000).toFixed(1)} km`);
 
       const map = mapRef.current;
-      if (map.getSource("route")) {
-        (map.getSource("route") as mapboxgl.GeoJSONSource).setData({
-          type: "Feature",
-          properties: {},
-          geometry: route.geometry,
-        });
-      } else {
-        map.addSource("route", {
-          type: "geojson",
-          data: { type: "Feature", properties: {}, geometry: route.geometry },
-        });
-        map.addLayer({
-          id: "route",
-          type: "line",
-          source: "route",
-          layout: { "line-join": "round", "line-cap": "round" },
-          paint: { "line-color": "#A855F7", "line-width": 4, "line-opacity": 0.8 },
-        });
-      }
+      if (!map || !map.getContainer().isConnected) return;
+      const points = route.geometry.coordinates.map(mapPoint);
+      if (routeLineRef.current) routeLineRef.current.setLatLngs(points);
+      else routeLineRef.current = L.polyline(points, { color: "hsl(var(--primary))", weight: 4, opacity: 0.8 }).addTo(map);
     } catch (err) {
+      setEta(null);
+      setDistance(null);
       console.error("Route update error:", err);
     }
   }, [order]);
 
-  const handleMapReady = (map: mapboxgl.Map) => {
+  const handleMapReady = (map: L.Map) => {
     mapRef.current = map;
     const snapshot = order?.delivery_address_snapshot;
     if (snapshot?.latitude && snapshot?.longitude) {
-      new mapboxgl.Marker({ color: "#D3111A" })
-        .setLngLat([snapshot.longitude, snapshot.latitude])
-        .addTo(map);
+      addMapMarker(map, [snapshot.longitude, snapshot.latitude]);
     }
 
     // Start route updates
     if (driverProfile?.latitude && driverProfile?.longitude) {
       updateDriverPosition(driverProfile.latitude, driverProfile.longitude);
       updateRoute(driverProfile.latitude, driverProfile.longitude);
+      if (snapshot?.latitude && snapshot?.longitude) {
+        map.fitBounds([[driverProfile.latitude, driverProfile.longitude], [snapshot.latitude, snapshot.longitude]], { padding: [45, 45], maxZoom: 15 });
+      }
     }
 
     routeUpdateRef.current = setInterval(async () => {
@@ -143,13 +126,13 @@ const DriverActiveDelivery = () => {
   const updateDriverPosition = (lat: number, lng: number) => {
     if (!mapRef.current) return;
     if (driverMarkerRef.current) {
-      driverMarkerRef.current.setLngLat([lng, lat]);
+      driverMarkerRef.current.setLatLng([lat, lng]);
     } else {
       const el = document.createElement("div");
       el.innerHTML = `<div style="background:#A855F7;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:3px solid white;box-shadow:0 4px 12px rgba(0,0,0,0.3);">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="18.5" cy="18.5" r="3.5"/><circle cx="5.5" cy="18.5" r="3.5"/><path d="M15 18.5h-6"/><path d="m14 2-3 6h9l-1 4"/><path d="M5.5 15V7h4l3-5"/></svg>
       </div>`;
-      driverMarkerRef.current = new mapboxgl.Marker({ element: el }).setLngLat([lng, lat]).addTo(mapRef.current);
+      driverMarkerRef.current = addMapMarker(mapRef.current, [lng, lat], { element: el });
     }
   };
 
@@ -192,7 +175,7 @@ const DriverActiveDelivery = () => {
     <div className="space-y-0">
       {/* Map */}
       <div className="relative">
-        <MapboxMap
+        <OpenStreetMap
           className="w-full h-64"
           center={snapshot?.longitude && snapshot?.latitude ? [snapshot.longitude, snapshot.latitude] : undefined}
           zoom={14}
@@ -201,7 +184,7 @@ const DriverActiveDelivery = () => {
         />
         {/* ETA Overlay */}
         {(eta || distance) && (
-          <div className="absolute top-3 left-3 right-3">
+          <div className="absolute top-3 left-3 right-14">
             <div className="bg-background/90 backdrop-blur-md rounded-xl px-4 py-2 flex items-center justify-between shadow-lg">
               {eta && <div className="flex items-center gap-1 text-sm font-bold"><Clock className="h-4 w-4 text-primary" />{eta}</div>}
               {distance && <div className="text-sm text-muted-foreground">{distance}</div>}

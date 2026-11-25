@@ -4,8 +4,10 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Package, Clock, Navigation } from "lucide-react";
 import { formatPrice } from "@/lib/format";
-import MapboxMap from "@/components/MapboxMap";
-import mapboxgl from "mapbox-gl";
+import OpenStreetMap from "@/components/OpenStreetMap";
+import L from "leaflet";
+import { addMapMarker } from "@/lib/open-map";
+import { STORE_MAP_COORDINATES } from "@/lib/delivery-area";
 
 interface DeliveryRequestProps {
   assignment: {
@@ -27,8 +29,7 @@ interface DeliveryRequestProps {
   onExpire: () => void;
 }
 
-const SHOP_LAT = 31.6295;
-const SHOP_LNG = -8.0083;
+const [SHOP_LNG, SHOP_LAT] = STORE_MAP_COORDINATES;
 
 const DeliveryRequest = ({ assignment, order, onAccept, onReject, onExpire }: DeliveryRequestProps) => {
   const [timeLeft, setTimeLeft] = useState(60);
@@ -67,25 +68,16 @@ const DeliveryRequest = ({ assignment, order, onAccept, onReject, onExpire }: De
   const destLat = snapshot?.latitude;
   const destLng = snapshot?.longitude;
 
-  const handleMapReady = (map: mapboxgl.Map) => {
-    // Shop marker
-    new mapboxgl.Marker({ color: "#D3111A" })
-      .setLngLat([SHOP_LNG, SHOP_LAT])
-      .setPopup(new mapboxgl.Popup().setText("CHEZ MIMA"))
-      .addTo(map);
-
-    // Destination marker
+  const handleMapReady = (map: L.Map) => {
+    addMapMarker(map, [SHOP_LNG, SHOP_LAT], { popup: "CHEZ MIMA" });
     if (destLat && destLng) {
-      new mapboxgl.Marker({ color: "#3B82F6" })
-        .setLngLat([destLng, destLat])
-        .setPopup(new mapboxgl.Popup().setText(snapshot?.full_address || "Destination"))
-        .addTo(map);
+      addMapMarker(map, [destLng, destLat], { color: "hsl(var(--success))", popup: snapshot?.full_address || "Destination" });
 
       // Fit bounds
-      const bounds = new mapboxgl.LngLatBounds();
-      bounds.extend([SHOP_LNG, SHOP_LAT]);
-      bounds.extend([destLng, destLat]);
-      map.fitBounds(bounds, { padding: 60 });
+      const bounds = L.latLngBounds([]);
+      bounds.extend([SHOP_LAT, SHOP_LNG]);
+      bounds.extend([destLat, destLng]);
+      map.fitBounds(bounds, { padding: [35, 35], maxZoom: 15 });
     }
   };
 
@@ -125,7 +117,7 @@ const DeliveryRequest = ({ assignment, order, onAccept, onReject, onExpire }: De
 
       {/* Map */}
       <div className="px-4">
-        <MapboxMap
+        <OpenStreetMap
           className="w-full h-40 rounded-xl"
           center={[SHOP_LNG, SHOP_LAT]}
           zoom={12}

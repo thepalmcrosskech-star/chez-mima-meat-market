@@ -1,0 +1,27 @@
+.open-map { position: relative; z-index: 0; }
+.open-map .leaflet-popup-content-wrapper,
+.open-map .leaflet-popup-tip {
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+.open-map-marker { background: transparent; border: 0; }
+.open-map-zone-label {
+  width: max-content;
+  max-width: 180px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  background: var(--pin-color, hsl(var(--primary)));
+  color: hsl(var(--primary-foreground));
+  box-shadow: 0 2px 8px hsl(var(--foreground) / 0.25);
+}
+.open-map-pin {
+  width: 28px;
+  height: 28px;
+  margin: 4px;
+  border-radius: 50%;
+  background: var(--pin-color, hsl(var(--primary)));
+  border: 3px solid hsl(var(--background));
+  box-shadow: 0 2px 8px hsl(var(--foreground) / 0.25);
+}

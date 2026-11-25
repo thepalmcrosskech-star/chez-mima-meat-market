@@ -1,5 +1,8 @@
 import coordinates from "./glovo-delivery-area.json";
 
+/** Store point supplied with the official Glovo polygon, in [longitude, latitude]. */
+export const STORE_MAP_COORDINATES: [number, number] = [-8.019188, 31.588938];
+
 /** Exact store delivery polygon supplied by Glovo. Coordinates are [latitude, longitude]. */
 export const DELIVERY_AREA: [number, number][] = coordinates.map(([lat, lng]) => [lat, lng]);
 

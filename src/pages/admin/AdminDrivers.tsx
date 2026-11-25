@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,8 +10,9 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, Bike, Car, Truck, Star, Users, TrendingUp, MapPin } from "lucide-react";
-import MapboxMap from "@/components/MapboxMap";
-import mapboxgl from "mapbox-gl";
+import OpenStreetMap from "@/components/OpenStreetMap";
+import L from "leaflet";
+import { addMapMarker, mapPoint } from "@/lib/open-map";
 
 interface Profile { id: string; name: string; email: string; phone: string | null; role: string; }
 interface DriverProfile {
@@ -32,7 +33,8 @@ const AdminDrivers = () => {
   const [vehicleType, setVehicleType] = useState("moto");
   const [licensePlate, setLicensePlate] = useState("");
   const [showMap, setShowMap] = useState(false);
-  const markersRef = useState<mapboxgl.Marker[]>([])[0];
+  const markersRef = useRef<L.Marker[]>([]);
+  const mapRef = useRef<L.Map | null>(null);
 
   useEffect(() => { fetchData(); }, []);
 
@@ -117,19 +119,26 @@ const AdminDrivers = () => {
     return <Badge variant={v[s] || "secondary"}>{l[s] || s}</Badge>;
   };
 
-  const handleMapReady = (map: mapboxgl.Map) => {
-    // Add markers for active drivers
+  const renderDrivers = (map: L.Map) => {
+    markersRef.current.forEach((marker) => marker.remove());
+    markersRef.current = [];
     drivers.forEach((d) => {
-      if (d.latitude && d.longitude && d.status !== "offline") {
+      if (d.latitude != null && d.longitude != null && d.status !== "offline") {
         const color = d.status === "available" ? "hsl(var(--success))" : "hsl(var(--primary))";
-        const marker = new mapboxgl.Marker({ color })
-          .setLngLat([Number(d.longitude), Number(d.latitude)])
-          .setPopup(new mapboxgl.Popup().setHTML(`<b>${d.profiles?.name || "Livreur"}</b><br/>${d.status === "available" ? "Disponible" : "En livraison"}`))
-          .addTo(map);
-        markersRef.push(marker);
+        markersRef.current.push(addMapMarker(map, [Number(d.longitude), Number(d.latitude)], {
+          color, popup: `${d.profiles?.name || "Livreur"} · ${d.status === "available" ? "Disponible" : "En livraison"}`,
+        }));
       }
     });
+    if (markersRef.current.length) {
+      map.fitBounds(L.latLngBounds(markersRef.current.map((marker) => marker.getLatLng())), { padding: [50, 50], maxZoom: 14 });
+    }
   };
+  const handleMapReady = (map: L.Map) => { mapRef.current = map; renderDrivers(map); };
+  useEffect(() => {
+    if (showMap && mapRef.current) renderDrivers(mapRef.current);
+    if (!showMap) mapRef.current = null;
+  }, [drivers, showMap]);
 
   if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary" /></div>;
 
@@ -236,7 +245,7 @@ const AdminDrivers = () => {
       {/* Realtime Map */}
       {showMap && (
         <Card className="overflow-hidden">
-          <MapboxMap
+          <OpenStreetMap
             className="w-full h-[300px]"
             center={[-8.0083, 31.6295]}
             zoom={12}

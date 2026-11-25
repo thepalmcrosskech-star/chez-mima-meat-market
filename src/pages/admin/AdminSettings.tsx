@@ -9,8 +9,9 @@ import { toast } from "@/hooks/use-toast";
 import { Save, MapPin, Clock, Store, Phone, Mail, MessageCircle, Coins } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { DAY_LABELS, parseWeeklyHours, type DayHours, type WeeklyHours } from "@/lib/store-hours";
-import MapboxMap from "@/components/MapboxMap";
-import mapboxgl from "mapbox-gl";
+import OpenStreetMap from "@/components/OpenStreetMap";
+import L from "leaflet";
+import { addMapMarker, mapPoint } from "@/lib/open-map";
 
 interface AppSetting {
   id: string;
@@ -35,8 +36,8 @@ const AdminSettings = () => {
   const [week, setWeek] = useState<WeeklyHours>(() => parseWeeklyHours(null));
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const markerRef = useRef<mapboxgl.Marker | null>(null);
-  const mapRef = useRef<mapboxgl.Map | null>(null);
+  const markerRef = useRef<L.Marker | null>(null);
+  const mapRef = useRef<L.Map | null>(null);
 
   useEffect(() => { fetchSettings(); }, []);
 
@@ -78,19 +79,19 @@ const AdminSettings = () => {
 
   const updateSetting = (key: string, value: string) => setSettings((prev) => ({ ...prev, [key]: value }));
 
-  const handleMapReady = (map: mapboxgl.Map) => {
+  const handleMapReady = (map: L.Map) => {
     mapRef.current = map;
     const lat = parseFloat(settings.store_latitude) || 31.589;
     const lng = parseFloat(settings.store_longitude) || -8.019;
     placeMarker([lng, lat], map);
-    map.flyTo({ center: [lng, lat], zoom: 15 });
+    map.flyTo([lat, lng], 15);
   };
 
-  const placeMarker = (coords: [number, number], map?: mapboxgl.Map) => {
+  const placeMarker = (coords: [number, number], map?: L.Map) => {
     const m = map || mapRef.current;
     if (!m) return;
     if (markerRef.current) markerRef.current.remove();
-    markerRef.current = new mapboxgl.Marker({ color: "#D3111A" }).setLngLat(coords).addTo(m);
+    markerRef.current = addMapMarker(m, coords);
   };
 
   const handleMapClick = (lngLat: { lng: number; lat: number }) => {
@@ -179,7 +180,7 @@ const AdminSettings = () => {
             <div><Label>Latitude</Label><Input value={settings.store_latitude} onChange={(e) => updateSetting("store_latitude", e.target.value)} /></div>
             <div><Label>Longitude</Label><Input value={settings.store_longitude} onChange={(e) => updateSetting("store_longitude", e.target.value)} /></div>
           </div>
-          <MapboxMap
+          <OpenStreetMap
             className="w-full h-72"
             center={[parseFloat(settings.store_longitude) || -8.019, parseFloat(settings.store_latitude) || 31.589]}
             zoom={15}

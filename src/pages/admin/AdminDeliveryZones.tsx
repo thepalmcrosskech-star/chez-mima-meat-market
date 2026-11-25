@@ -10,8 +10,10 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, MapPin } from "lucide-react";
-import MapboxMap from "@/components/MapboxMap";
-import mapboxgl from "mapbox-gl";
+import OpenStreetMap from "@/components/OpenStreetMap";
+import L from "leaflet";
+import { addMapMarker } from "@/lib/open-map";
+import { DELIVERY_AREA } from "@/lib/delivery-area";
 import { generateCircleGeoJSON } from "@/lib/geo";
 import { formatPrice } from "@/lib/format";
 
@@ -43,7 +45,7 @@ const AdminDeliveryZones = () => {
   const [minRadiusKm, setMinRadiusKm] = useState("0");
   const [storeLocation, setStoreLocation] = useState<{ lat: number; lng: number }>({ lat: 31.589, lng: -8.019 });
   const [storeLoaded, setStoreLoaded] = useState(false);
-  const overviewMapRef = useRef<mapboxgl.Map | null>(null);
+  const overviewMapRef = useRef<L.Map | null>(null);
 
   useEffect(() => {
     initData();
@@ -84,66 +86,35 @@ const AdminDeliveryZones = () => {
     setIsDialogOpen(true);
   };
 
-  const handleOverviewMapReady = (map: mapboxgl.Map) => {
+  const handleOverviewMapReady = (map: L.Map) => {
     overviewMapRef.current = map;
     renderZonesOnMap(map, zones);
   };
 
-  const renderZonesOnMap = (map: mapboxgl.Map, zonesList: Zone[]) => {
-    // Add store marker
-    new mapboxgl.Marker({ color: "#16a34a" })
-      .setLngLat([storeLocation.lng, storeLocation.lat])
-      .addTo(map);
-
+  const zoneLayersRef = useRef<L.LayerGroup | null>(null);
+  const renderZonesOnMap = (map: L.Map, zonesList: Zone[]) => {
+    zoneLayersRef.current?.remove();
+    const layers = L.layerGroup().addTo(map);
+    zoneLayersRef.current = layers;
+    const coverage = L.polygon(DELIVERY_AREA, { color: "hsl(var(--success))", weight: 2, fillOpacity: 0.08, interactive: false }).addTo(layers);
+    addMapMarker(map, [storeLocation.lng, storeLocation.lat], { color: "hsl(var(--success))" }).addTo(layers);
     zonesList.forEach((zone) => {
       if (!zone.radius_km) return;
-      const sourceId = `zone-${zone.id}`;
-      if (map.getSource(sourceId)) return;
-
-      const circleGeoJSON = generateCircleGeoJSON(storeLocation.lng, storeLocation.lat, zone.radius_km);
-
-      map.addSource(sourceId, { type: "geojson", data: circleGeoJSON });
-      map.addLayer({
-        id: `${sourceId}-fill`,
-        type: "fill",
-        source: sourceId,
-        paint: { "fill-color": zone.color || "#D3111A", "fill-opacity": 0.15 },
-      });
-      map.addLayer({
-        id: `${sourceId}-outline`,
-        type: "line",
-        source: sourceId,
-        paint: { "line-color": zone.color || "#D3111A", "line-width": 2 },
-      });
-
-      // Add zone label at the edge
-      const labelLng = storeLocation.lng;
-      const labelLat = storeLocation.lat + (zone.radius_km / 110.574);
-      new mapboxgl.Marker({
-        element: (() => {
-          const el = document.createElement("div");
-          el.className = "text-xs font-bold px-2 py-0.5 rounded shadow";
-          el.style.backgroundColor = zone.color || "#D3111A";
-          el.style.color = "white";
-          el.textContent = zone.name;
-          return el;
-        })(),
-      })
-        .setLngLat([labelLng, labelLat])
-        .addTo(map);
+      L.geoJSON(generateCircleGeoJSON(storeLocation.lng, storeLocation.lat, zone.radius_km), {
+        style: { color: zone.color || "hsl(var(--primary))", weight: 2, fillOpacity: 0.15 },
+      }).addTo(layers);
+      const label = document.createElement("div");
+      label.className = "open-map-zone-label";
+      label.textContent = zone.name;
+      if (zone.color) label.style.setProperty("--pin-color", zone.color);
+      addMapMarker(map, [storeLocation.lng, storeLocation.lat + zone.radius_km / 110.574], { element: label, popup: zone.name }).addTo(layers);
     });
-
-    // Fit bounds
-    const maxRadius = Math.max(...zonesList.map((z) => z.radius_km || 0), 1);
-    const offset = maxRadius / 110.574;
-    map.fitBounds(
-      [
-        [storeLocation.lng - offset * 1.5, storeLocation.lat - offset * 1.5],
-        [storeLocation.lng + offset * 1.5, storeLocation.lat + offset * 1.5],
-      ],
-      { padding: 30 }
-    );
+    map.fitBounds(coverage.getBounds(), { padding: [30, 30] });
   };
+
+  useEffect(() => {
+    if (overviewMapRef.current) renderZonesOnMap(overviewMapRef.current, zones);
+  }, [zones, storeLocation]);
 
   const handleSave = async () => {
     if (!name || !deliveryFee || !minimumOrder || !radiusKm) {
@@ -260,11 +231,11 @@ const AdminDeliveryZones = () => {
       </div>
 
       {/* Overview Map with circles */}
-      {zones.some((z) => z.radius_km && z.radius_km > 0) && (
+      {storeLoaded && (
         <Card>
           <CardContent className="pt-4">
-            <Label className="mb-2 block flex items-center gap-2"><MapPin className="h-4 w-4" /> Aperçu des zones (rayons autour du magasin)</Label>
-            <MapboxMap
+            <Label className="mb-2 block flex items-center gap-2"><MapPin className="h-4 w-4" /> Couverture Glovo et zones tarifaires</Label>
+            <OpenStreetMap
               className="w-full h-72"
               center={[storeLocation.lng, storeLocation.lat]}
               zoom={11}
