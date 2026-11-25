@@ -84,6 +84,7 @@
 - [x] Fidélité : 1 point par 10 DH, 50 points = 10 DH, gagnés après livraison.
 - [x] Carte fidélité boutique à 2 % dans cette application : activation profil, QR scanné par caméra, téléphone exact, crédit/débit protégé et solde partagé. Deux tickets fictifs (500 DH puis 250 DH avec 10 DH de remise) relus côté client ; doublons/découvert/client non autorisé refusés ; 10 tests passent, mobile et desktop vérifiés, données fictives supprimées. Saisie du ticket et remise dans Gestion restent manuelles ; publication requise, caméra physique du magasin non vérifiée.
 - [x] Présenter la carte virtuelle dans « Ma carte » à la place de Recherche, sans taux ni valeur cumulée, en conservant le calcul des points. Activation et QR vérifiés avec un compte client, retour connexion conservé, carte sans débordement à 320/390 px ; 16 tests passent. Publication nécessaire.
+- [x] Remettre le repère « 10 DH d’achat = 1 point » sur la carte sans taux ni valeur cumulée. Carte client activée et QR visible sur mobile et desktop ; cinq tests passent. Capture de l’ancienne carte reconstituée depuis la version précédente avec solde illustratif nul, sans restaurer l’ancien écran dans l’application.
 - [ ] Parrainage (attend les règles du propriétaire).
 - [ ] Préparation au choix + note au boucher ; créneaux de livraison ; packs.
 - [ ] Avis clients visibles ; photo de la commande préparée.
