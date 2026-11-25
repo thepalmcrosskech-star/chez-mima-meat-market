@@ -6,6 +6,7 @@ import {
   Check,
   CheckCircle2,
   Clock,
+  Copy,
   ExternalLink,
   Loader2,
   MapPin,
@@ -30,6 +31,7 @@ import { formatCartQuantity } from "@/lib/cart-display";
 import { toast } from "@/hooks/use-toast";
 import { canReplaceArticle } from "@/lib/item-unavailable-policy";
 import OrderDeliveryAddress from "@/components/OrderDeliveryAddress";
+import { portalCopyText } from "@/lib/delivery-address";
 
 type StaffOrder = {
   id: string;
@@ -509,7 +511,15 @@ export default function StaffOrders() {
             </div>
 
             {selectedOrder.delivery_mode !== "pickup" && selectedOrder.delivery_address_snapshot && (
-              <OrderDeliveryAddress snapshot={selectedOrder.delivery_address_snapshot} />
+              <>
+                <OrderDeliveryAddress snapshot={selectedOrder.delivery_address_snapshot} />
+                <Button type="button" variant="outline" className="h-12 w-full gap-2" onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(portalCopyText({ ...selectedOrder, customerName: selectedOrder.profiles?.name, customerPhone: selectedOrder.profiles?.phone }));
+                    toast({ title: "Copié", description: "Collez dans le portail du livreur." });
+                  } catch { toast({ title: "Copie impossible", variant: "destructive" }); }
+                }}><Copy className="h-4 w-4" />Copier pour le portail</Button>
+              </>
             )}
             {selectedOrder.notes && <div className="rounded-lg border border-warning/40 bg-warning/10 p-3 text-sm"><strong>Note du client :</strong> {selectedOrder.notes}</div>}
 
