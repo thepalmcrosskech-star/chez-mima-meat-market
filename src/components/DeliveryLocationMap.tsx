@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Button } from "@/components/ui/button";
+import { DELIVERY_AREA } from "@/lib/delivery-area";
 
 interface Props {
   coordinates: [number, number] | null;
@@ -25,6 +26,8 @@ export default function DeliveryLocationMap({ coordinates, onSelect }: Props) {
       maxZoom: 19,
     }).addTo(map);
     tiles.on("tileerror", () => setTileError(true));
+    const zone = L.polygon(DELIVERY_AREA, { className: "delivery-area-outline", interactive: false }).addTo(map);
+    if (!coordinates) map.fitBounds(zone.getBounds(), { padding: [16, 16] });
     map.on("click", (event: L.LeafletMouseEvent) => selectRef.current([event.latlng.lng, event.latlng.lat]));
     const resize = new ResizeObserver(() => map.invalidateSize());
     resize.observe(container.current);

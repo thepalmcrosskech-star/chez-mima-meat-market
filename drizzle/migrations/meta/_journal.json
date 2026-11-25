@@ -169,6 +169,13 @@
       "when": 1795627710556,
       "tag": "0023_enforce_glovo_delivery_area",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1795633767465,
+      "tag": "0024_definitive_glovo_store_boundary",
+      "breakpoints": true
     }
   ]
 }

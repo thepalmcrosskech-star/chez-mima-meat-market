@@ -1,69 +1,17 @@
-/** Contour Glovo On-Demand (recopié approximativement d'après la carte fournie). [lat, lng] */
-export const DELIVERY_AREA: [number, number][] = [
-  [31.65125, -8.08223],
-  [31.66179, -8.06435],
-  [31.66850, -8.04199],
-  [31.67176, -8.02187],
-  [31.67042, -8.00175],
-  [31.66563, -7.98163],
-  [31.65796, -7.96375],
-  [31.64837, -7.95704],
-  [31.64166, -7.94363],
-  [31.63399, -7.94698],
-  [31.63879, -7.95257],
-  [31.63687, -7.96151],
-  [31.63016, -7.97381],
-  [31.62345, -7.97045],
-  [31.61482, -7.96822],
-  [31.60428, -7.96933],
-  [31.59948, -7.96375],
-  [31.60140, -7.95480],
-  [31.59852, -7.95145],
-  [31.59661, -7.94363],
-  [31.58510, -7.93357],
-  [31.57264, -7.92574],
-  [31.57264, -7.93021],
-  [31.58031, -7.93915],
-  [31.59469, -7.95257],
-  [31.59373, -7.95704],
-  [31.58606, -7.95436],
-  [31.58510, -7.95927],
-  [31.58894, -7.96598],
-  [31.59277, -7.96933],
-  [31.59373, -7.97828],
-  [31.55922, -7.97716],
-  [31.55922, -7.98387],
-  [31.56114, -7.99616],
-  [31.57072, -8.00175],
-  [31.57743, -8.00622],
-  [31.57168, -8.01069],
-  [31.56401, -8.01405],
-  [31.56018, -8.01964],
-  [31.57552, -8.01964],
-  [31.57743, -8.02411],
-  [31.57360, -8.02970],
-  [31.57072, -8.03640],
-  [31.57552, -8.04087],
-  [31.57072, -8.04870],
-  [31.56593, -8.05093],
-  [31.56018, -8.05876],
-  [31.56593, -8.06323],
-  [31.57552, -8.05764],
-  [31.58510, -8.05876],
-  [31.59661, -8.05876],
-  [31.60428, -8.06435],
-  [31.60907, -8.06994],
-  [31.61770, -8.07217],
-  [31.61866, -8.08111],
-  [31.63112, -8.08447],
-];
+import coordinates from "./glovo-delivery-area.json";
 
-/** Vrai si le point est dans la zone livrable (algorithme du rayon). */
+/** Exact store delivery polygon supplied by Glovo. Coordinates are [latitude, longitude]. */
+export const DELIVERY_AREA: [number, number][] = coordinates.map(([lat, lng]) => [lat, lng]);
+
+/** Ray casting with an inclusive boundary, without rounding or expanding the official polygon. */
 export function isInDeliveryArea(lat: number, lng: number, area: [number, number][] = DELIVERY_AREA): boolean {
+  if (!Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180 || area.length < 3) return false;
   let inside = false;
   for (let i = 0, j = area.length - 1; i < area.length; j = i++) {
     const [yi, xi] = area[i];
     const [yj, xj] = area[j];
+    const cross = (lng - xi) * (yj - yi) - (lat - yi) * (xj - xi);
+    if (Math.abs(cross) <= 1e-12 && lng >= Math.min(xi, xj) && lng <= Math.max(xi, xj) && lat >= Math.min(yi, yj) && lat <= Math.max(yi, yj)) return true;
     if ((yi > lat) !== (yj > lat) && lng < ((xj - xi) * (lat - yi)) / (yj - yi) + xi) inside = !inside;
   }
   return inside;

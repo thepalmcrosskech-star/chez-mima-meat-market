@@ -1,4 +1,4 @@
-import { isInDeliveryArea } from "@/lib/delivery-area";
+import { deliveryZoneForPoint } from "@/lib/delivery-zone";
 import { CustomerHeader } from "@/components/OriginPromise";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -43,7 +43,6 @@ interface DeliveryZone {
 
 import { formatPrice } from "@/lib/format";
 import { usablePoints, pointsValue } from "@/lib/loyalty";
-import { haversineDistance } from "@/lib/geo";
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
@@ -139,19 +138,7 @@ const CheckoutPage = () => {
 
   const findZone = (lat: number, lng: number): DeliveryZone | null => {
     if (!storeLocation) return null;
-    if (!isInDeliveryArea(lat, lng)) return null;
-    const dist = haversineDistance(storeLocation.lat, storeLocation.lng, lat, lng);
-    // Find the matching zone where dist is between min_radius_km and radius_km
-    // Sort by radius_km ascending to find the tightest match
-    const sorted = [...zones]
-      .filter((z) => z.radius_km !== null)
-      .sort((a, b) => (a.radius_km || 0) - (b.radius_km || 0));
-    for (const zone of sorted) {
-      const minR = zone.min_radius_km || 0;
-      const maxR = zone.radius_km || 0;
-      if (dist >= minR && dist <= maxR) return zone;
-    }
-    return null;
+    return deliveryZoneForPoint(lat, lng, storeLocation, zones);
   };
 
   const getSelectedAddress = (): SavedAddress | null => {

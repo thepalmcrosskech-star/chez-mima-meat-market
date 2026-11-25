@@ -196,3 +196,10 @@
   box-shadow: var(--shadow-card);
   transform: rotate(-45deg);
 }
+
+.delivery-area-outline {
+  stroke: hsl(var(--success));
+  fill: hsl(var(--success));
+  fill-opacity: 0.12;
+  stroke-width: 2;
+}
