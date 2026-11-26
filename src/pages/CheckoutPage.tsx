@@ -32,11 +32,33 @@ interface SavedAddress {
 }
 
 import { formatPrice } from "@/lib/format";
+import { compareCartWithCatalogue, expectedPrices, type CartChange } from "@/lib/cart-catalogue";
 import { usablePoints } from "@/lib/loyalty";
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
-  const { items, subtotal, clearCart, updateUnavailablePolicy } = useCart();
+  const { items, subtotal, clearCart, replaceItems, updateUnavailablePolicy } = useCart();
+  const [catalogueChecked, setCatalogueChecked] = useState(false);
+  const [catalogueChanges, setCatalogueChanges] = useState<CartChange[]>([]);
+  const [pendingCart, setPendingCart] = useState<typeof items | null>(null);
+  const checkCatalogue = async () => {
+    if (items.length === 0) return;
+    setCatalogueChecked(false);
+    const { data, error } = await supabase.from("products").select("id, name, price, unit_type, is_active").in("id", items.map(i => i.id));
+    if (error) { toast({ title: "Catalogue indisponible", description: "Impossible de vérifier les prix actuels. Réessayez.", variant: "destructive" }); return; }
+    const { changes, updated } = compareCartWithCatalogue(items, data ?? []);
+    setCatalogueChanges(changes);
+    setPendingCart(changes.length ? updated : null);
+    setCatalogueChecked(true);
+  };
+  useEffect(() => { checkCatalogue(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, []);
+  const acceptCatalogueChanges = () => {
+    if (!pendingCart) return;
+    replaceItems(pendingCart);
+    setCatalogueChanges([]);
+    setPendingCart(null);
+    if (pendingCart.length === 0) navigate("/cart");
+  };
 
   const [userId, setUserId] = useState<string | null>(null);
   const [storeLocation, setStoreLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -150,7 +172,8 @@ const CheckoutPage = () => {
 
   const hasAddress = selectedAddressId || newAddress;
   const isValidPhone = whatsappPhone.replace(/\s/g, "").length >= 9;
-  const canOrder = isPickup ? isValidPhone : (paymentMethod === "card" ? false : (hasAddress && deliveryZone && deliveryFee !== null && meetsMinimum && isValidPhone));
+  const catalogueOk = catalogueChecked && catalogueChanges.length === 0;
+  const canOrder = !catalogueOk ? false : isPickup ? isValidPhone : (paymentMethod === "card" ? false : (hasAddress && deliveryZone && deliveryFee !== null && meetsMinimum && isValidPhone));
 
   const handleSubmit = async () => {
     if (!userId) return;
@@ -158,7 +181,7 @@ const CheckoutPage = () => {
       toast({ title: "Numéro requis", description: "Veuillez renseigner votre numéro WhatsApp", variant: "destructive" });
       return;
     }
-    if (!isPickup && !canOrder) return;
+    if (!canOrder) return;
     setSubmitting(true);
 
     try {
@@ -191,7 +214,8 @@ const CheckoutPage = () => {
         }
       }
 
-      const { data: orderId, error: orderErr } = await supabase.rpc("create_customer_order", {
+      const { data: orderId, error: orderErr } = await supabase.rpc("create_customer_order_checked", {
+        _expected_prices: expectedPrices(items),
         _items: orderItemPayload(items),
         _delivery_mode: deliveryMode,
         _delivery_address_id: isPickup ? undefined : addressId ?? undefined,
@@ -215,10 +239,16 @@ const CheckoutPage = () => {
         }).catch(() => {}); // Don't block checkout on email failure
       }
 
+      const { data: saved } = await supabase.from("orders").select("total_price").eq("id", orderId).maybeSingle();
       clearCart();
-      toast({ title: "Commande passée !", description: "Votre commande a été envoyée avec succès" });
+      toast({ title: "Commande passée !", description: saved ? `Total enregistré : ${formatPrice(Number(saved.total_price))}` : "Votre commande a été envoyée avec succès" });
       navigate(`/order-tracking/${orderId}`);
     } catch (err) {
+      if (String(err?.message ?? "").includes("CATALOGUE_CHANGED")) {
+        await checkCatalogue();
+        toast({ title: "Le catalogue a changé", description: "Un prix ou un article a été modifié. Vérifiez votre récapitulatif avant de commander.", variant: "destructive" });
+        return;
+      }
       toast({ title: "Erreur", description: err.message || "Impossible de passer la commande", variant: "destructive" });
     } finally {
       setSubmitting(false);
@@ -483,6 +513,22 @@ const CheckoutPage = () => {
         {/* Order Summary */}
         <Card className="p-4 space-y-2">
           <h3 className="font-bold mb-2">Résumé</h3>
+          {!catalogueChecked && <p className="text-xs text-muted-foreground flex items-center gap-1"><Loader2 className="h-3 w-3 animate-spin" /> Vérification des prix actuels…</p>}
+          {catalogueChanges.length > 0 && (
+            <div role="alert" className="rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm space-y-2">
+              <p className="font-semibold text-destructive">Votre panier a changé depuis l’ajout des articles</p>
+              <ul className="space-y-1">
+                {catalogueChanges.map(c => (
+                  <li key={c.id}>
+                    {c.kind === "price" && <>{c.name} : {formatPrice(c.oldPrice)} → <strong>{formatPrice(c.newPrice)}</strong></>}
+                    {c.kind === "unavailable" && <>{c.name} : <strong>n’est plus disponible</strong> et sera retiré</>}
+                    {c.kind === "details" && <>{c.name} : description mise à jour ({c.newName})</>}
+                  </li>
+                ))}
+              </ul>
+              <Button size="sm" onClick={acceptCatalogueChanges}>Mettre à jour mon panier</Button>
+            </div>
+          )}
           {items.map((item) => (
             <div key={item.id} className="space-y-2 border-b border-border pb-3 text-sm">
               <div className="flex justify-between gap-3">

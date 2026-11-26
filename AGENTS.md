@@ -33,3 +33,4 @@
 - The Gestion till reaches loyalty only through the HMAC-signed pos-loyalty function (signature over timestamp.body, 5-minute window) and service-role-only pos_* RPCs; till operations are idempotent by sale/refund ID and refunds are compensating ledger rows, never deletions.
 - Admin order status, manual driver assignment and customer cancellation go through update_staff_order_status, admin_assign_order_driver and cancel_my_order; screens never write orders or notifications directly.
 - Zone minimum_order is checked on the article subtotal before delivery fee and discounts, pickup exempt, in both minimumOrderStatus and create_customer_order.
+- Checkout re-reads cart products from the catalogue on open and orders through create_customer_order_checked, which locks products and refuses (CATALOGUE_CHANGED) when displayed unit prices differ before delegating to create_customer_order; the server always computes totals.

@@ -218,6 +218,13 @@
       "when": 1795699620886,
       "tag": "0030_enforce_zone_minimum_order",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1795699914732,
+      "tag": "0031_checked_customer_order",
+      "breakpoints": true
     }
   ]
 }

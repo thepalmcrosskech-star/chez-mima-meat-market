@@ -1138,6 +1138,22 @@ export type Database = {
         }
         Returns: string
       }
+      create_customer_order_checked: {
+        Args: {
+          _cash_bill_amount?: number
+          _delivery_address_id?: string
+          _delivery_mode: string
+          _delivery_zone_id?: string
+          _expected_prices: Json
+          _items: Json
+          _loyalty_points?: number
+          _notes?: string
+          _payment_method?: string
+          _promo_code?: string
+          _scheduled_for?: string
+        }
+        Returns: string
+      }
       driver_has_pending_assignment_for_order: {
         Args: { _order_id: string }
         Returns: boolean

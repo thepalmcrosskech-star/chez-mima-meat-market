@@ -24,6 +24,7 @@ interface CartContextType {
   updateQuantity: (id: string, quantity: number) => void;
   updateUnavailablePolicy: (id: string, policy: ItemUnavailablePolicy) => void;
   clearCart: () => void;
+  replaceItems: (items: CartItem[]) => void;
   totalItems: number;
   subtotal: number;
 }
@@ -113,6 +114,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const clearCart = () => setItems([]);
+  const replaceItems = (next: CartItem[]) => setItems(next);
   const updateUnavailablePolicy = (id: string, policy: ItemUnavailablePolicy) =>
     setItems(prev => updateItemPreference(prev, id, policy));
 
@@ -120,7 +122,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
 
   return (
-    <CartContext.Provider value={{ items, addItem, removeItem, updateQuantity, updateUnavailablePolicy, clearCart, totalItems, subtotal }}>
+    <CartContext.Provider value={{ items, addItem, removeItem, updateQuantity, updateUnavailablePolicy, clearCart, replaceItems, totalItems, subtotal }}>
       {children}
     </CartContext.Provider>
   );
