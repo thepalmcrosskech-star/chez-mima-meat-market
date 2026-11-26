@@ -34,3 +34,4 @@
 - Admin order status, manual driver assignment and customer cancellation go through update_staff_order_status, admin_assign_order_driver and cancel_my_order; screens never write orders or notifications directly.
 - Zone minimum_order is checked on the article subtotal before delivery fee and discounts, pickup exempt, in both minimumOrderStatus and create_customer_order.
 - Checkout re-reads cart products from the catalogue on open and orders through create_customer_order_checked, which locks products and refuses (CATALOGUE_CHANGED) when displayed unit prices differ before delegating to create_customer_order; the server always computes totals.
+- Admin, staff and driver pages load as lazy route chunks; customer order history and admin orders load in pages via range() with an « Afficher plus » control; the service worker caches only the HTML shell, never API or order data.

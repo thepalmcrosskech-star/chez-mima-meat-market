@@ -114,6 +114,7 @@ const DriverActiveDelivery = () => {
       }
     }
 
+    if (routeUpdateRef.current) clearInterval(routeUpdateRef.current);
     routeUpdateRef.current = setInterval(async () => {
       try {
         const pos = await new Promise<GeolocationPosition>((resolve, reject) =>

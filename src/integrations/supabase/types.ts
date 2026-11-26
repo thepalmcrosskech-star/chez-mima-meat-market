@@ -1159,6 +1159,14 @@ export type Database = {
         Returns: boolean
       }
       get_my_loyalty_balance: { Args: never; Returns: number }
+      get_public_product_rating_summary: {
+        Args: never
+        Returns: {
+          average_rating: number
+          product_id: string
+          review_count: number
+        }[]
+      }
       get_public_product_ratings: {
         Args: never
         Returns: {

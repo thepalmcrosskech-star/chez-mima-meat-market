@@ -38,6 +38,8 @@ const statusLabels: Record<string, { label: string; variant: "default" | "second
 };
 
 
+const ORDERS_PAGE = 20;
+
 const OrdersPage = () => {
   const navigate = useNavigate();
   const [orders, setOrders] = useState<Order[]>([]);
@@ -68,7 +70,10 @@ const OrdersPage = () => {
     fetchOrders();
   }, []);
 
-  const fetchOrders = async () => {
+  const [pageCount, setPageCount] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const fetchOrders = async (pages = 1) => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       setSignedOut(true);
@@ -80,9 +85,10 @@ const OrdersPage = () => {
       .from("orders")
       .select("*")
       .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .range(0, pages * ORDERS_PAGE - 1);
 
-    if (data) setOrders(data);
+    if (data) { setOrders(data); setHasMore(data.length === pages * ORDERS_PAGE); setPageCount(pages); }
     setLoading(false);
   };
 
@@ -146,6 +152,12 @@ const OrdersPage = () => {
                 </Card>
               );
             })}
+            {hasMore && (
+              <Button variant="outline" className="w-full" disabled={loadingMore}
+                onClick={async () => { setLoadingMore(true); await fetchOrders(pageCount + 1); setLoadingMore(false); }}>
+                {loadingMore && <Loader2 className="h-4 w-4 animate-spin" />} Afficher plus de commandes
+              </Button>
+            )}
           </div>
         )}
       </div>

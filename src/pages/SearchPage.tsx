@@ -32,7 +32,7 @@ const SearchPage = () => {
 
   const fetchData = async () => {
     const [p, c] = await Promise.all([
-      supabase.from("products").select("*"),
+      supabase.from("products").select("id, name, description, price, unit_type, image_url, category_id, is_active, family"),
       supabase.from("categories").select("id, name, emoji").eq("is_active", true).order("sort_order"),
     ]);
     if (p.data) { const vis = new Set((c.data ?? []).map((x) => x.id)); setProducts(p.data.filter((x) => !x.category_id || vis.has(x.category_id))); }

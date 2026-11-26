@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -18,30 +18,30 @@ import LoginPage from "./pages/auth/LoginPage";
 import AdminSetupPage from "./pages/auth/AdminSetupPage";
 import ResetPasswordPage from "./pages/auth/ResetPasswordPage";
 import { getAccountAccess, destinationForRoles } from "@/lib/account-access";
-import AdminLayout from "./pages/admin/AdminLayout";
-import AdminOverview from "./pages/admin/AdminOverview";
-import AdminOrders from "./pages/admin/AdminOrders";
-import AdminProducts from "./pages/admin/AdminProducts";
-import AdminCategories from "./pages/admin/AdminCategories";
-import AdminDrivers from "./pages/admin/AdminDrivers";
-import AdminUsers from "./pages/admin/AdminUsers";
-import AdminDeliveryZones from "./pages/admin/AdminDeliveryZones";
-import AdminBanners from "./pages/admin/AdminBanners";
+const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
+const AdminOverview = lazy(() => import("./pages/admin/AdminOverview"));
+const AdminOrders = lazy(() => import("./pages/admin/AdminOrders"));
+const AdminProducts = lazy(() => import("./pages/admin/AdminProducts"));
+const AdminCategories = lazy(() => import("./pages/admin/AdminCategories"));
+const AdminDrivers = lazy(() => import("./pages/admin/AdminDrivers"));
+const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
+const AdminDeliveryZones = lazy(() => import("./pages/admin/AdminDeliveryZones"));
+const AdminBanners = lazy(() => import("./pages/admin/AdminBanners"));
 import ContactPage from "./pages/ContactPage";
-import AdminSettings from "./pages/admin/AdminSettings";
-import AdminBannedIPs from "./pages/admin/AdminBannedIPs";
-import DriverLayout from "./pages/driver/DriverLayout";
-import DriverDashboard from "./pages/driver/DriverDashboard";
-import DriverActiveDelivery from "./pages/driver/DriverActiveDelivery";
-import DriverHistory from "./pages/driver/DriverHistory";
-import DriverProfilePage from "./pages/driver/DriverProfilePage";
+const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
+const AdminBannedIPs = lazy(() => import("./pages/admin/AdminBannedIPs"));
+const DriverLayout = lazy(() => import("./pages/driver/DriverLayout"));
+const DriverDashboard = lazy(() => import("./pages/driver/DriverDashboard"));
+const DriverActiveDelivery = lazy(() => import("./pages/driver/DriverActiveDelivery"));
+const DriverHistory = lazy(() => import("./pages/driver/DriverHistory"));
+const DriverProfilePage = lazy(() => import("./pages/driver/DriverProfilePage"));
 import ProductPage from "./pages/ProductPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import RequireCheckoutSession from "./components/RequireCheckoutSession";
 import OrderTrackingPage from "./pages/OrderTrackingPage";
-import StaffLayout from "./pages/staff/StaffLayout";
-import StaffOrders from "./pages/staff/StaffOrders";
-import StaffLoyalty from "./pages/staff/StaffLoyalty";
+const StaffLayout = lazy(() => import("./pages/staff/StaffLayout"));
+const StaffOrders = lazy(() => import("./pages/staff/StaffOrders"));
+const StaffLoyalty = lazy(() => import("./pages/staff/StaffLoyalty"));
 import ErrorBoundary from "./components/ErrorBoundary";
 import { supabase } from "@/integrations/supabase/client";
 const queryClient = new QueryClient();
@@ -93,6 +93,7 @@ const AppContent = () => {
       <Sonner />
       <BrowserRouter>
         <RoleRedirect />
+        <Suspense fallback={<div className="min-h-screen bg-background flex items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" aria-label="Chargement" /></div>}>
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/index" element={<Navigate to="/" replace />} />
@@ -135,6 +136,7 @@ const AppContent = () => {
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </Suspense>
       </BrowserRouter>
     </>
   );

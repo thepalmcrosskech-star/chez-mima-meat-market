@@ -59,6 +59,8 @@ interface OrderItem {
 }
 
 
+const ADMIN_ORDERS_PAGE = 30;
+
 const AdminOrders = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [drivers, setDrivers] = useState<DriverProfile[]>([]);
@@ -71,14 +73,21 @@ const AdminOrders = () => {
   const [banDialogOpen, setBanDialogOpen] = useState(false);
   const [receiptUrl, setReceiptUrl] = useState<string | null>(null);
 
-  useEffect(() => { fetchData(); }, []);
+  const [pageCount, setPageCount] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
 
-  const fetchData = async () => {
+  useEffect(() => { fetchData(1); }, [filterStatus]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const fetchData = async (pages = pageCount) => {
+    let query = supabase.from("orders").select("*, profiles!user_id(name, email, phone)").order("created_at", { ascending: false }).range(0, pages * ADMIN_ORDERS_PAGE - 1);
+    if (filterStatus !== "all") query = query.eq("status", filterStatus);
     const [ordersRes, driversRes] = await Promise.all([
-      supabase.from("orders").select("*, profiles!user_id(name, email, phone)").order("created_at", { ascending: false }),
+      query,
       supabase.from("driver_profiles").select("id, user_id, profiles(name)"),
     ]);
-    if (ordersRes.data) setOrders(ordersRes.data as unknown as Order[]);
+    if (ordersRes.error) toast({ title: "Erreur", description: "Impossible de charger les commandes", variant: "destructive" });
+    if (ordersRes.data) { setOrders(ordersRes.data as unknown as Order[]); setHasMore(ordersRes.data.length === pages * ADMIN_ORDERS_PAGE); setPageCount(pages); }
     if (driversRes.data) setDrivers(driversRes.data as unknown as DriverProfile[]);
     setLoading(false);
   };
@@ -226,6 +235,14 @@ const AdminOrders = () => {
               )}
             </TableBody>
           </Table>
+          {hasMore && (
+            <div className="flex justify-center pt-4">
+              <Button variant="outline" disabled={loadingMore}
+                onClick={async () => { setLoadingMore(true); await fetchData(pageCount + 1); setLoadingMore(false); }}>
+                Afficher plus de commandes
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
 

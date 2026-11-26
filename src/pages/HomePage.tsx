@@ -121,10 +121,10 @@ const HomePage = () => {
     setLoading(true);
     try {
       const [categoriesRes, productsRes, bannersRes, reviewsRes] = await Promise.all([
-        supabase.from("categories").select("*").eq("is_active", true).order("sort_order"),
-        supabase.from("products").select("*").order("created_at"),
+        supabase.from("categories").select("id, name, emoji").eq("is_active", true).order("sort_order"),
+        supabase.from("products").select("id, name, description, price, unit_type, image_url, category_id, is_active, family").order("created_at"),
         supabase.from("banners").select("*").eq("is_active", true).order("sort_order"),
-        supabase.rpc("get_public_product_ratings"),
+        supabase.rpc("get_public_product_rating_summary"),
       ]);
 
       const hadErrors = [categoriesRes, productsRes, bannersRes, reviewsRes].some(({ error }) => error);
@@ -133,17 +133,8 @@ const HomePage = () => {
       setProducts((productsRes.data ?? []).filter((p) => !p.category_id || visibleCats.has(p.category_id)));
       setBanners((bannersRes.data ?? []) as Banner[]);
 
-      const ratingsMap: Record<string, { sum: number; count: number }> = {};
-      for (const review of reviewsRes.data ?? []) {
-        if (!ratingsMap[review.product_id]) ratingsMap[review.product_id] = { sum: 0, count: 0 };
-        ratingsMap[review.product_id].sum += review.rating;
-        ratingsMap[review.product_id].count += 1;
-      }
-
       const avgMap: Record<string, number> = {};
-      for (const [productId, value] of Object.entries(ratingsMap)) {
-        avgMap[productId] = value.sum / value.count;
-      }
+      for (const row of reviewsRes.data ?? []) avgMap[row.product_id] = Number(row.average_rating);
       setProductRatings(avgMap);
 
       if (hadErrors) {

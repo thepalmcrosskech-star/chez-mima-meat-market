@@ -75,6 +75,7 @@ const OrderTrackingPage = () => {
   const prevPositionRef = useRef<{ lat: number; lng: number } | null>(null);
   const animFrameRef = useRef<number | null>(null);
   const routeIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const deliveredTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const channels: ReturnType<typeof supabase.channel>[] = [];
@@ -85,6 +86,7 @@ const OrderTrackingPage = () => {
       channels.forEach((c) => supabase.removeChannel(c));
       if (routeIntervalRef.current) clearInterval(routeIntervalRef.current);
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+      if (deliveredTimerRef.current) clearTimeout(deliveredTimerRef.current);
     };
   }, [id]);
 
@@ -129,7 +131,8 @@ const OrderTrackingPage = () => {
 
         if (updated.status === "delivered") {
           setShowDelivered(true);
-          setTimeout(() => {
+          if (deliveredTimerRef.current) clearTimeout(deliveredTimerRef.current);
+          deliveredTimerRef.current = setTimeout(() => {
             setShowDelivered(false);
             setShowRating(true);
           }, 3000);
@@ -269,6 +272,7 @@ const OrderTrackingPage = () => {
         updateRoute(lat, lng);
 
         // Start route update interval
+        if (routeIntervalRef.current) clearInterval(routeIntervalRef.current);
         routeIntervalRef.current = setInterval(async () => {
           const { data: newLoc } = await supabase
             .from("driver_locations")
