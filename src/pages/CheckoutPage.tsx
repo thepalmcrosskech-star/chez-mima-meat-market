@@ -445,7 +445,7 @@ const CheckoutPage = () => {
         {!isPickup && deliveryZone && deliveryFee !== null && deliveryFee > 0 && deliveryZone.free_delivery_threshold && (
           <Card className="p-3 border-warning/50 bg-warning/10">
             <p className="text-sm text-warning font-medium">
-              💡 Commande minimum de {formatPrice(deliveryZone.free_delivery_threshold)} pour obtenir la livraison GRATUITE dans cette zone.
+              💡 Livraison offerte dès {formatPrice(deliveryZone.free_delivery_threshold)}.
             </p>
           </Card>
         )}
