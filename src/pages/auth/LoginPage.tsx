@@ -11,7 +11,7 @@ import { brandLogo as logo } from "@/lib/brand";
 import BrandHeader from "@/components/BrandHeader";
 import { getAccountAccess } from "@/lib/account-access";
 import { loginDestination } from "@/lib/checkout-access";
-import { normalizeMoroccanPhone } from "@/lib/phone";
+import { isPhoneTakenError, normalizeMoroccanPhone, PHONE_TAKEN_MESSAGE } from "@/lib/phone";
 
 const LoginPage = () => {
   const [mode, setMode] = useState<"login" | "register" | "forgot">("login");
@@ -89,7 +89,8 @@ const LoginPage = () => {
         });
         if (error) throw error;
         if (signUpData.session) {
-          await supabase.from("profiles").update({ phone: normalizedPhone }).eq("id", signUpData.session.user.id);
+          const { error: phoneError } = await supabase.from("profiles").update({ phone: normalizedPhone }).eq("id", signUpData.session.user.id);
+          if (isPhoneTakenError(phoneError)) toast({ title: "Numéro déjà utilisé", description: PHONE_TAKEN_MESSAGE, variant: "destructive" });
           const access = await getAccountAccess();
           toast({ title: "Bienvenue chez Mima !", description: "Votre compte est créé." });
           navigate(loginDestination(access?.roles ?? [], params.get("next")), { replace: true });

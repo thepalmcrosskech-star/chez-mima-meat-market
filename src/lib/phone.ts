@@ -9,3 +9,8 @@ export function normalizeMoroccanPhone(input: string): string | null {
   if (!/^[5-7]\d{8}$/.test(local)) return null;
   return `+212${local}`;
 }
+
+export const PHONE_TAKEN_MESSAGE = "Ce numéro est déjà utilisé par un autre compte. Connectez-vous avec ce compte ou contactez la boutique.";
+export function isPhoneTakenError(error: { message?: string } | null | undefined): boolean {
+  return Boolean(error?.message?.includes("PHONE_ALREADY_USED"));
+}

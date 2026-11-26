@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { normalizeMoroccanPhone } from "@/lib/phone";
+import { isPhoneTakenError, normalizeMoroccanPhone, PHONE_TAKEN_MESSAGE } from "@/lib/phone";
 
 const SKIP_KEY = "chezmima-phone-prompt-skipped";
 const HIDDEN = /^\/(admin|staff|driver|login|reset-password)/;
@@ -31,7 +31,7 @@ export default function PhonePrompt() {
       const { data: profile } = await supabase.from("profiles").select("phone").eq("id", uid).maybeSingle();
       if (!active || !profile || profile.phone) return;
       const meta = normalizeMoroccanPhone(String(session.user.user_metadata?.phone ?? ""));
-      if (meta) { await supabase.from("profiles").update({ phone: meta }).eq("id", uid); return; }
+      if (meta) { const { error: e } = await supabase.from("profiles").update({ phone: meta }).eq("id", uid); if (!e) return; }
       setUserId(uid);
       if (HIDDEN.test(location.pathname) || sessionStorage.getItem(SKIP_KEY)) return;
       setOpen(true);
@@ -48,6 +48,7 @@ export default function PhonePrompt() {
     setSaving(true);
     const { error: err } = await supabase.from("profiles").update({ phone: normalized }).eq("id", userId);
     setSaving(false);
+    if (isPhoneTakenError(err)) { setError(PHONE_TAKEN_MESSAGE); return; }
     if (err) { toast({ title: "Erreur", description: "Enregistrement impossible, réessayez.", variant: "destructive" }); return; }
     toast({ title: "Merci !", description: "Votre numéro est enregistré." });
     setOpen(false);

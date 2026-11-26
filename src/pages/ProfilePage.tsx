@@ -1,3 +1,4 @@
+import { isPhoneTakenError, PHONE_TAKEN_MESSAGE } from "@/lib/phone";
 import { CustomerHeader } from "@/components/OriginPromise";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -49,7 +50,7 @@ const ProfilePage = () => {
     if (!profile) return;
     setSaving(true);
     const { error } = await supabase.from("profiles").update({ name, phone: phone || null }).eq("id", profile.id);
-    if (error) toast({ title: "Erreur", description: error.message, variant: "destructive" });
+    if (error) toast({ title: "Erreur", description: isPhoneTakenError(error) ? PHONE_TAKEN_MESSAGE : error.message, variant: "destructive" });
     else { toast({ title: "Profil mis à jour" }); setEditing(false); fetchProfile(); }
     setSaving(false);
   };
