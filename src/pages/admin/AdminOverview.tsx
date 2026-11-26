@@ -1,3 +1,5 @@
+import type { Tables } from "@/integrations/supabase/types";
+type RecentOrder = Tables<"orders"> & { profiles: { name: string | null; email: string | null } | null };
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,7 +15,7 @@ const AdminOverview = () => {
     availableDrivers: 0,
     revenue: 0,
   });
-  const [recentOrders, setRecentOrders] = useState<any[]>([]);
+  const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -101,9 +103,9 @@ const AdminOverview = () => {
               {recentOrders.map((order) => (
                 <div key={order.id} className="flex items-center justify-between p-3 rounded-lg bg-accent/50">
                   <div>
-                    <p className="font-medium">{(order.profiles as any)?.name || "Client"}</p>
+                    <p className="font-medium">{order.profiles?.name || "Client"}</p>
                     <p className="text-xs text-muted-foreground">
-                      {new Date(order.created_at).toLocaleDateString("fr-FR")}
+                      {new Date(order.created_at ?? "").toLocaleDateString("fr-FR")}
                     </p>
                   </div>
                   <div className="text-right">

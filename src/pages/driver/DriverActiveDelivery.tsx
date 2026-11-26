@@ -1,3 +1,5 @@
+import type { Tables } from "@/integrations/supabase/types";
+import type { AddressSnapshot } from "@/lib/address-snapshot";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,7 +21,7 @@ interface OrderData {
   payment_method: string;
   cash_bill_amount: number | null;
   notes: string | null;
-  delivery_address_snapshot: any;
+  delivery_address_snapshot: AddressSnapshot | null;
   profiles?: { name: string; phone: string | null };
 }
 
@@ -34,11 +36,11 @@ const DriverActiveDelivery = () => {
   const navigate = useNavigate();
   const [order, setOrder] = useState<OrderData | null>(null);
   const [assignment, setAssignment] = useState<AssignmentData | null>(null);
-  const [orderItems, setOrderItems] = useState<any[]>([]);
+  const [orderItems, setOrderItems] = useState<Tables<"order_items">[]>([]);
   const [loading, setLoading] = useState(true);
   const [eta, setEta] = useState<string | null>(null);
   const [distance, setDistance] = useState<string | null>(null);
-  const [driverProfile, setDriverProfile] = useState<any>(null);
+  const [driverProfile, setDriverProfile] = useState<Tables<"driver_profiles"> | null>(null);
 
   const mapRef = useRef<L.Map | null>(null);
   const routeLineRef = useRef<L.Polyline | null>(null);
@@ -68,9 +70,9 @@ const DriverActiveDelivery = () => {
         .eq("order_id", orderId).eq("driver_id", dp.id).eq("status", "accepted").limit(1),
     ]);
 
-    if (orderRes.data) setOrder(orderRes.data as any);
+    if (orderRes.data) setOrder(orderRes.data as unknown as OrderData);
     if (itemsRes.data) setOrderItems(itemsRes.data);
-    if (assignRes.data?.[0]) setAssignment(assignRes.data[0] as any);
+    if (assignRes.data?.[0]) setAssignment(assignRes.data[0] as AssignmentData);
     setLoading(false);
   };
 
@@ -119,7 +121,9 @@ const DriverActiveDelivery = () => {
         );
         updateDriverPosition(pos.coords.latitude, pos.coords.longitude);
         updateRoute(pos.coords.latitude, pos.coords.longitude);
-      } catch {}
+      } catch {
+        // Position momentanément indisponible : on réessaie au prochain intervalle.
+      }
     }, 30000);
   };
 

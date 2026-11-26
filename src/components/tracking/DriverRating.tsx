@@ -38,7 +38,7 @@ const DriverRating = ({ orderId, driverId, onComplete }: DriverRatingProps) => {
 
       toast({ title: "Merci pour votre note ! ⭐" });
       onComplete();
-    } catch (err: any) {
+    } catch (err) {
       toast({ title: "Erreur", description: err.message, variant: "destructive" });
     } finally {
       setSubmitting(false);

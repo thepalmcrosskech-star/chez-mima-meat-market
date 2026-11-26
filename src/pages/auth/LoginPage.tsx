@@ -92,7 +92,7 @@ const LoginPage = () => {
           setSentTo(email);
         }
       }
-    } catch (error: any) {
+    } catch (error) {
       toast({
         title: "Erreur",
         description: error.message,

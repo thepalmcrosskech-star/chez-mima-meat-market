@@ -6,7 +6,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-async function getOrCreateVapidKeys(supabaseAdmin: any) {
+async function getOrCreateVapidKeys(supabaseAdmin: ReturnType<typeof createClient>) {
   // Check if keys already exist
   const { data } = await supabaseAdmin
     .from('app_settings')

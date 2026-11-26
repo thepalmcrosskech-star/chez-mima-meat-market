@@ -1,3 +1,4 @@
+import type { AddressSnapshot } from "@/lib/address-snapshot";
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -21,7 +22,7 @@ interface DeliveryRequestProps {
     id: string;
     total_price: number;
     delivery_fee: number;
-    delivery_address_snapshot: any;
+    delivery_address_snapshot: AddressSnapshot | null;
     profiles?: { name: string; phone: string | null };
   };
   onAccept: () => void;

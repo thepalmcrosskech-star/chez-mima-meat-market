@@ -215,7 +215,7 @@ Deno.serve(async (req) => {
     const chosen = eligibleDrivers[0];
 
     // Calculate estimated duration (rough: 3 min/km)
-    const destSnapshot = order.delivery_address_snapshot as any;
+    const destSnapshot = order.delivery_address_snapshot as { full_address?: string; latitude?: number; longitude?: number } | null;
     let estimatedDuration: number | null = null;
     if (destSnapshot?.latitude && destSnapshot?.longitude) {
       const deliveryDistance = haversineDistance(SHOP_LAT, SHOP_LNG, destSnapshot.latitude, destSnapshot.longitude);
@@ -254,7 +254,7 @@ Deno.serve(async (req) => {
 
     const clientName = clientProfile?.name || "Client";
     const orderTotal = order.total_price;
-    const deliveryAddress = (order.delivery_address_snapshot as any)?.full_address || "Adresse non disponible";
+    const deliveryAddress = (order.delivery_address_snapshot as { full_address?: string; latitude?: number; longitude?: number } | null)?.full_address || "Adresse non disponible";
 
     // Send push notification to driver
     if (driverProfile) {
@@ -265,7 +265,7 @@ Deno.serve(async (req) => {
           body: `Commande de ${clientName} — ${orderTotal.toFixed(2)} MAD • ${chosen.distance.toFixed(1)} km`,
           data: { order_id, type: "delivery_request" },
         },
-      }).catch((err: any) => console.error("Push to driver failed:", err));
+      }).catch((err: unknown) => console.error("Push to driver failed:", err));
     }
 
     // Send email notification to driver
@@ -318,7 +318,7 @@ Deno.serve(async (req) => {
             subject: `🚚 Nouvelle livraison — ${clientName.replace(/[\r\n]/g, " ").slice(0, 80)} (${orderTotal.toFixed(2)} MAD)`,
             html: emailHtml,
           }),
-        }).catch((err: any) => console.error("Email to driver failed:", err));
+        }).catch((err: unknown) => console.error("Email to driver failed:", err));
       }
     }
 
@@ -329,7 +329,7 @@ Deno.serve(async (req) => {
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
-  } catch (err: any) {
+  } catch (err) {
     return new Response(JSON.stringify({ error: err.message }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },

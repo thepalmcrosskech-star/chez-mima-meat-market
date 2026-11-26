@@ -77,7 +77,7 @@ const AdminDrivers = () => {
       });
       if (e2) throw e2;
       toast({ title: "Livreur ajouté" }); setIsAddOpen(false); resetForm(); fetchData();
-    } catch (e: any) { toast({ title: "Erreur", description: e.message, variant: "destructive" }); }
+    } catch (e) { toast({ title: "Erreur", description: e.message, variant: "destructive" }); }
   };
 
   const updateDriver = async () => {
@@ -86,7 +86,7 @@ const AdminDrivers = () => {
       const { error } = await supabase.from("driver_profiles").update({ vehicle_type: vehicleType, license_plate: licensePlate || null }).eq("id", selected.id);
       if (error) throw error;
       toast({ title: "Livreur mis à jour" }); setIsEditOpen(false); resetForm(); fetchData();
-    } catch (e: any) { toast({ title: "Erreur", description: e.message, variant: "destructive" }); }
+    } catch (e) { toast({ title: "Erreur", description: e.message, variant: "destructive" }); }
   };
 
   const deleteDriver = async (d: DriverProfile) => {
@@ -100,7 +100,7 @@ const AdminDrivers = () => {
       });
       if (roleError) throw roleError;
       toast({ title: "Livreur supprimé" }); fetchData();
-    } catch (e: any) { toast({ title: "Erreur", description: e.message, variant: "destructive" }); }
+    } catch (e) { toast({ title: "Erreur", description: e.message, variant: "destructive" }); }
   };
 
   const openEdit = (d: DriverProfile) => {

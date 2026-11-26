@@ -460,14 +460,14 @@ const ProductPage = () => {
             </AccordionItem>
           )}
 
-          {(product as any).conservation_tips && (
+          {product.conservation_tips && (
             <AccordionItem value="conservation" className="border-border/50">
               <AccordionTrigger className="text-foreground font-semibold hover:no-underline">
                 ❄️ Conseil de conservation
               </AccordionTrigger>
               <AccordionContent>
                 <p className="text-muted-foreground text-sm leading-relaxed whitespace-pre-line">
-                  {(product as any).conservation_tips}
+                  {product.conservation_tips}
                 </p>
               </AccordionContent>
             </AccordionItem>

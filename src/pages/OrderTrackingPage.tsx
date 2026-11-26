@@ -1,3 +1,5 @@
+import type { Tables } from "@/integrations/supabase/types";
+import type { AddressSnapshot } from "@/lib/address-snapshot";
 import { CustomerHeader } from "@/components/OriginPromise";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -28,7 +30,7 @@ interface Order {
   loyalty_discount?: number | null;
   loyalty_points_used?: number | null;
   created_at: string | null;
-  delivery_address_snapshot: any;
+  delivery_address_snapshot: AddressSnapshot | null;
   driver_id: string | null;
   notes: string | null;
   payment_method: string;
@@ -103,7 +105,7 @@ const OrderTrackingPage = () => {
 
     if (error || !data) { navigate("/orders"); return; }
 
-    setOrder(data as any);
+    setOrder(data as unknown as Order);
     setLoading(false);
 
     // Fetch driver info
@@ -113,7 +115,7 @@ const OrderTrackingPage = () => {
         .select("id, vehicle_type, rating, profiles(name, phone)")
         .eq("id", data.driver_id)
         .single();
-      if (driver) setDriverInfo(driver as any);
+      if (driver) setDriverInfo(driver as DriverInfo);
     }
 
     if (isCancelled()) return;
@@ -122,7 +124,7 @@ const OrderTrackingPage = () => {
     const orderChannel = supabase
       .channel(`order-${id}-${suffix}`)
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "orders", filter: `id=eq.${id}` }, (payload) => {
-        const updated = payload.new as any;
+        const updated = payload.new as Partial<Order>;
         setOrder((prev) => prev ? { ...prev, ...updated } : null);
 
         if (updated.status === "delivered") {
@@ -139,7 +141,7 @@ const OrderTrackingPage = () => {
             .select("id, vehicle_type, rating, profiles(name, phone)")
             .eq("id", updated.driver_id)
             .single()
-            .then(({ data: d }) => { if (d) setDriverInfo(d as any); });
+            .then(({ data: d }) => { if (d) setDriverInfo(d as DriverInfo); });
         }
       })
       .subscribe();
@@ -155,7 +157,7 @@ const OrderTrackingPage = () => {
           table: "driver_locations",
           filter: `driver_id=eq.${data.driver_id}`,
         }, (payload) => {
-          const { latitude, longitude, heading } = payload.new as any;
+          const { latitude, longitude, heading } = payload.new as Partial<Tables<"driver_locations">>;
           if (latitude && longitude) {
             animateDriverMarker(Number(latitude), Number(longitude));
           }
@@ -221,7 +223,7 @@ const OrderTrackingPage = () => {
 
   const updateRoute = useCallback(async (driverLat: number, driverLng: number) => {
     if (!mapRef.current || !order) return;
-    const snapshot = order.delivery_address_snapshot as any;
+    const snapshot = order.delivery_address_snapshot as AddressSnapshot | null;
     if (!snapshot?.latitude || !snapshot?.longitude) return;
 
     try {
@@ -243,7 +245,7 @@ const OrderTrackingPage = () => {
   const handleMapReady = async (map: L.Map) => {
     mapRef.current = map;
 
-    const snapshot = order?.delivery_address_snapshot as any;
+    const snapshot = order?.delivery_address_snapshot as AddressSnapshot | null;
     if (snapshot?.latitude && snapshot?.longitude) {
       destMarkerRef.current = addMapMarker(map, [snapshot.longitude, snapshot.latitude]);
       map.flyTo([snapshot.latitude, snapshot.longitude], 14);
@@ -294,7 +296,7 @@ const OrderTrackingPage = () => {
   useEffect(() => {
     if (!isPickupOrder) return;
     supabase.from("app_settings").select("key,value").in("key", ["store_latitude", "store_longitude", "store_address"]).then(({ data }) => {
-      const m = Object.fromEntries((data || []).map((r: any) => [r.key, String(r.value).replace(/"/g, "")]));
+      const m = Object.fromEntries((data || []).map((r) => [r.key, String(r.value).replace(/"/g, "")]));
       setShop({ lat: parseFloat(m.store_latitude) || 31.58902, lng: parseFloat(m.store_longitude) || -8.019172, address: m.store_address || "Boucherie Chez Mima" });
     });
   }, [isPickupOrder]);
@@ -377,8 +379,8 @@ const OrderTrackingPage = () => {
               <OpenStreetMap
                 className="w-full h-64"
                 center={
-                  (order.delivery_address_snapshot as any)?.longitude
-                    ? [(order.delivery_address_snapshot as any).longitude, (order.delivery_address_snapshot as any).latitude]
+                  order.delivery_address_snapshot?.longitude && order.delivery_address_snapshot.latitude
+                    ? [order.delivery_address_snapshot.longitude, order.delivery_address_snapshot.latitude]
                     : undefined
                 }
                 zoom={14}

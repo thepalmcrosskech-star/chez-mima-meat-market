@@ -1,3 +1,4 @@
+import type { Tables } from "@/integrations/supabase/types";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,8 +10,8 @@ import { Bike, Car, Truck, Star, Phone, Mail, LogOut, Loader2 } from "lucide-rea
 
 const DriverProfilePage = () => {
   const navigate = useNavigate();
-  const [driverProfile, setDriverProfile] = useState<any>(null);
-  const [profile, setProfile] = useState<any>(null);
+  const [driverProfile, setDriverProfile] = useState<Tables<"driver_profiles"> | null>(null);
+  const [profile, setProfile] = useState<Pick<Tables<"profiles">, "name" | "email" | "phone"> | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

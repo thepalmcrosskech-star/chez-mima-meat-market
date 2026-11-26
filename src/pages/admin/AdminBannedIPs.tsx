@@ -45,7 +45,7 @@ const AdminBannedIPs = () => {
       );
 
       setBannedIPs(enriched);
-    } catch (err: any) {
+    } catch (err) {
       toast({ title: "Erreur", description: err.message, variant: "destructive" });
     } finally {
       setLoading(false);
@@ -66,7 +66,7 @@ const AdminBannedIPs = () => {
       if (error) throw error;
       toast({ title: "IP débannée", description: `${unbanTarget.ip_address} a été retirée de la liste noire.` });
       setBannedIPs((prev) => prev.filter((ip) => ip.id !== unbanTarget.id));
-    } catch (err: any) {
+    } catch (err) {
       toast({ title: "Erreur", description: err.message, variant: "destructive" });
     } finally {
       setUnbanning(false);
@@ -128,7 +128,7 @@ const AdminBannedIPs = () => {
                       <div className="space-y-0.5">
                         {ip.linked_users.map((u) => (
                           <div key={u.user_id} className="text-xs text-muted-foreground">
-                            {(u.profile as any)?.name || "—"} ({(u.profile as any)?.email || "—"})
+                            {u.profile?.name || "—"} ({u.profile?.email || "—"})
                           </div>
                         ))}
                       </div>
@@ -137,7 +137,7 @@ const AdminBannedIPs = () => {
                     )}
                   </TableCell>
                   <TableCell className="text-sm">
-                    {(ip.banned_by_profile as any)?.name || "—"}
+                    {ip.banned_by_profile?.name || "—"}
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
                     {ip.created_at ? new Date(ip.created_at).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric" }) : "—"}

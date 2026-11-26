@@ -26,6 +26,7 @@ interface Product {
   product_info: string | null;
   cooking_tips: string | null;
   conservation_tips: string | null;
+  family?: string | null;
 }
 
 interface Category {
@@ -86,11 +87,11 @@ const AdminProducts = () => {
     setEditingProduct(p);
     setName(p.name); setDescription(p.description || ""); setPrice(String(p.price));
     setUnitType(p.unit_type); setCategoryId(p.category_id || ""); setImageUrl(p.image_url || "");
-    setImagePreview(p.image_url || ""); setIsActive(p.is_active ?? true); setFamily((p as any).family || "");
+    setImagePreview(p.image_url || ""); setIsActive(p.is_active ?? true); setFamily(p.family || "");
     setProductInfo(p.product_info || ""); setCookingTips(p.cooking_tips || "");
-    setConservationTips((p as any).conservation_tips || "");
+    setConservationTips(p.conservation_tips || "");
     setShowCookingTips(!!p.cooking_tips);
-    setShowConservationTips(!!(p as any).conservation_tips);
+    setShowConservationTips(!!p.conservation_tips);
     setIsDialogOpen(true);
   };
 
@@ -117,7 +118,7 @@ const AdminProducts = () => {
       const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/product-images/${fileName}`;
       setImageUrl(publicUrl);
       toast({ title: "Image téléversée" });
-    } catch (err: any) {
+    } catch (err) {
       toast({ title: "Erreur", description: err.message, variant: "destructive" });
       setImagePreview("");
     } finally {
@@ -157,7 +158,7 @@ const AdminProducts = () => {
         toast({ title: "Produit ajouté" });
       }
       setIsDialogOpen(false); resetForm(); fetchData();
-    } catch (e: any) {
+    } catch (e) {
       toast({ title: "Erreur", description: e.message, variant: "destructive" });
     }
   };

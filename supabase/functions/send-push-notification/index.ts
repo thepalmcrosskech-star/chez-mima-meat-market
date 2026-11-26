@@ -130,7 +130,7 @@ serve(async (req) => {
     if (!supabaseUrl || !serviceRoleKey || !anonKey) throw new Error('Server configuration missing');
     const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
 
-    let { user_id, title, body, data } = await req.json();
+    const { user_id, title, body, data } = await req.json();
 
     if (typeof user_id !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(user_id)) {
       return new Response(JSON.stringify({ error: 'Invalid user_id' }), {

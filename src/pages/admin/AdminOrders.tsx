@@ -1,3 +1,4 @@
+import type { AddressSnapshot } from "@/lib/address-snapshot";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -43,7 +44,7 @@ interface Order {
   receipt_uploaded_at: string | null;
   courier_called_at: string | null;
   profiles?: { name: string; email: string; phone: string | null };
-  delivery_address_snapshot?: any;
+  delivery_address_snapshot?: AddressSnapshot | null;
 }
 
 interface OrderItem {
@@ -387,7 +388,7 @@ const AdminOrders = () => {
                           } else {
                             toast({ title: "Aucune IP trouvée", description: "Aucune adresse IP n'est associée à ce compte.", variant: "destructive" });
                           }
-                        } catch (err: any) {
+                        } catch (err) {
                           toast({ title: "Erreur", description: err.message, variant: "destructive" });
                         }
                       }}

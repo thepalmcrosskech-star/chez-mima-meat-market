@@ -1,3 +1,4 @@
+import type { AddressSnapshot } from "@/lib/address-snapshot";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
@@ -14,7 +15,7 @@ interface HistoryItem {
   orders: {
     total_price: number;
     delivery_fee: number;
-    delivery_address_snapshot: any;
+    delivery_address_snapshot: AddressSnapshot | null;
     profiles: { name: string } | null;
   } | null;
 }
@@ -42,7 +43,7 @@ const DriverHistory = () => {
       .order("delivered_at", { ascending: false })
       .limit(50);
 
-    if (data) setHistory(data as any);
+    if (data) setHistory(data as unknown as HistoryItem[]);
     setLoading(false);
   };
 

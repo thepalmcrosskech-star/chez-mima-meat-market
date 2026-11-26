@@ -157,7 +157,7 @@ const AdminDeliveryZones = () => {
         toast({ title: "Zone ajoutée" });
       }
       setIsDialogOpen(false); resetForm(); initData();
-    } catch (e: any) {
+    } catch (e) {
       toast({ title: "Erreur", description: e.message, variant: "destructive" });
     }
   };

@@ -1,3 +1,4 @@
+import type { Json } from "@/integrations/supabase/types";
 import { useState, useEffect, useRef } from "react";
 import { toast as sonnerToast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,7 +17,7 @@ import { addMapMarker, mapPoint } from "@/lib/open-map";
 interface AppSetting {
   id: string;
   key: string;
-  value: any;
+  value: Json;
 }
 
 const AdminSettings = () => {
@@ -64,10 +65,10 @@ const AdminSettings = () => {
         store_closing_hour: open.length ? open.map((d) => d.close).sort().slice(-1)[0] : settings.store_closing_hour,
       };
       for (const [key, value] of Object.entries(all)) {
-        await supabase.from("app_settings").upsert({ key, value: value as any }, { onConflict: "key" });
+        await supabase.from("app_settings").upsert({ key, value: value as Json }, { onConflict: "key" });
       }
       toast({ title: "Paramètres enregistrés" });
-    } catch (e: any) {
+    } catch (e) {
       toast({ title: "Erreur", description: e.message, variant: "destructive" });
     } finally {
       setSaving(false);

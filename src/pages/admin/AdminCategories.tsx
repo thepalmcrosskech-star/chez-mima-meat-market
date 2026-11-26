@@ -58,7 +58,7 @@ const AdminCategories = () => {
         toast({ title: "Catégorie ajoutée" });
       }
       setIsDialogOpen(false); resetForm(); fetchCategories();
-    } catch (e: any) {
+    } catch (e) {
       toast({ title: "Erreur", description: e.message, variant: "destructive" });
     }
   };

@@ -1,3 +1,8 @@
+import type { Tables } from "@/integrations/supabase/types";
+import type { ComponentProps } from "react";
+import type DeliveryRequestComponent from "@/components/driver/DeliveryRequest";
+type IncomingOrderData = ComponentProps<typeof DeliveryRequestComponent>["order"];
+import type { AddressSnapshot } from "@/lib/address-snapshot";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -27,7 +32,7 @@ interface ActiveOrder {
   id: string;
   status: string;
   total_price: number;
-  delivery_address_snapshot: any;
+  delivery_address_snapshot: AddressSnapshot | null;
   profiles?: { name: string; phone: string | null };
 }
 
@@ -51,7 +56,7 @@ const DriverDashboard = () => {
   const [todayEarnings, setTodayEarnings] = useState(0);
   const [activeOrder, setActiveOrder] = useState<ActiveOrder | null>(null);
   const [incomingAssignment, setIncomingAssignment] = useState<IncomingAssignment | null>(null);
-  const [incomingOrder, setIncomingOrder] = useState<any>(null);
+  const [incomingOrder, setIncomingOrder] = useState<IncomingOrderData | null>(null);
 
   const watchIdRef = useRef<number | null>(null);
   const slowIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -74,7 +79,7 @@ const DriverDashboard = () => {
         table: "delivery_assignments",
         filter: `driver_id=eq.${driverProfile.id}`,
       }, async (payload) => {
-        const assignment = payload.new as any;
+        const assignment = payload.new as IncomingAssignment;
         if (assignment.status === "pending") {
           // Fetch the order details
           const { data: orderData } = await supabase
@@ -85,7 +90,7 @@ const DriverDashboard = () => {
           
           if (orderData) {
             setIncomingAssignment(assignment);
-            setIncomingOrder(orderData);
+            setIncomingOrder(orderData as unknown as IncomingOrderData);
           }
         }
       })
@@ -140,7 +145,7 @@ const DriverDashboard = () => {
         .eq("driver_id", dp.id)
         .in("status", ["confirmed", "preparing", "ready", "delivering"])
         .limit(1);
-      if (activeOrders?.[0]) setActiveOrder(activeOrders[0] as any);
+      if (activeOrders?.[0]) setActiveOrder(activeOrders[0] as unknown as ActiveOrder);
     }
 
     // Check for pending assignments
@@ -158,8 +163,8 @@ const DriverDashboard = () => {
         .eq("id", pendingAssignment[0].order_id)
         .single();
       if (orderData) {
-        setIncomingAssignment(pendingAssignment[0] as any);
-        setIncomingOrder(orderData);
+        setIncomingAssignment(pendingAssignment[0] as IncomingAssignment);
+        setIncomingOrder(orderData as unknown as IncomingOrderData);
       }
     }
 
@@ -196,7 +201,7 @@ const DriverDashboard = () => {
         updated_at: new Date().toISOString(),
       }, { onConflict: "driver_id" });
 
-    } catch (err: any) {
+    } catch (err) {
       console.error("GPS error:", err.message);
     }
   }, [driverProfile?.id]);
@@ -212,7 +217,9 @@ const DriverDashboard = () => {
         longitude: pos.coords.longitude,
         location_updated_at: new Date().toISOString(),
       }).eq("id", driverProfile.id);
-    } catch {}
+    } catch {
+      // Position momentanément indisponible : on réessaie au prochain envoi.
+    }
   }, [driverProfile?.id]);
 
   const startGps = useCallback(() => {

@@ -1,3 +1,4 @@
+import type { AddressSnapshot } from "@/lib/address-snapshot";
 import { deliveryZoneForPoint } from "@/lib/delivery-zone";
 import { CustomerHeader } from "@/components/OriginPromise";
 import { useState, useEffect } from "react";
@@ -205,7 +206,7 @@ const CheckoutPage = () => {
       // Save WhatsApp phone to profile
       await supabase.from("profiles").update({ phone: whatsappPhone.trim() }).eq("id", userId);
       let addressId = selectedAddressId;
-      let addressSnapshot: any = null;
+      let addressSnapshot: AddressSnapshot | null = null;
 
       if (!isPickup) {
         // Save new address if needed
@@ -258,7 +259,7 @@ const CheckoutPage = () => {
       clearCart();
       toast({ title: "Commande passée !", description: "Votre commande a été envoyée avec succès" });
       navigate(`/order-tracking/${orderId}`);
-    } catch (err: any) {
+    } catch (err) {
       toast({ title: "Erreur", description: err.message || "Impossible de passer la commande", variant: "destructive" });
     } finally {
       setSubmitting(false);
