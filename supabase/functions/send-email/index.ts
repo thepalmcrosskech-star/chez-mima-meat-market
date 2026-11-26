@@ -1,15 +1,12 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { getOrderConfirmationEmail } from "../_shared/order-confirmation-email.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
-
-const escapeHtml = (value: unknown) => String(value ?? "").replace(/[&<>"']/g, (char) => ({
-  "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
-}[char] ?? char));
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -76,11 +73,17 @@ serve(async (req) => {
 
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
     if (!RESEND_API_KEY) throw new Error("RESEND_API_KEY is not configured");
-    const itemRows = items.map((item) => `<li>${escapeHtml(item.product_name)} — ${escapeHtml(item.quantity)} (${Number(item.line_total).toFixed(2)} MAD)</li>`).join("");
-    const customerName = escapeHtml(profile.name || "Client");
-    const total = Number(order.total_price).toFixed(2);
+    const snapshot = (order.delivery_address_snapshot ?? {}) as Record<string, unknown>;
+    const deliveryAddress = [snapshot.full_address ?? snapshot.address ?? snapshot.label, snapshot.city]
+      .filter((part) => typeof part === "string" && part.trim()).join(", ") || "Retrait en boutique";
     const subject = "Confirmation de votre commande - Chez Mima";
-    const html = `<h2>Merci ${customerName} !</h2><p>Votre commande de <strong>${total} MAD</strong> a été reçue et est en cours de traitement.</p><ul>${itemRows}</ul><p>À bientôt !<br/>L'équipe Chez Mima</p>`;
+    const html = getOrderConfirmationEmail({
+      customerName: profile.name || "Client",
+      orderId: order.id,
+      items: items.map((item) => ({ name: item.product_name, quantity: Number(item.quantity), price: Number(item.line_total) })),
+      total: Number(order.total_price),
+      deliveryAddress,
+    });
 
     // Always use fixed from address — never allow caller override
     const response = await fetch("https://api.resend.com/emails", {

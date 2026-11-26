@@ -1,3 +1,4 @@
+import { formatPrice } from "@/lib/format";
 import { productThumbnail } from "@/lib/productThumbnail";
 import { CustomerHeader } from "@/components/OriginPromise";
 import { useNavigate } from "react-router-dom";
@@ -10,8 +11,6 @@ import { adjustQuantity, getQuantityRules } from "@/lib/product-units";
 import { formatCartQuantity } from "@/lib/cart-display";
 import ItemUnavailableChoice from "@/components/ItemUnavailableChoice";
 
-const formatPrice = (n: number) =>
-  new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(n) + " MAD";
 
 const CartPage = () => {
   const navigate = useNavigate();

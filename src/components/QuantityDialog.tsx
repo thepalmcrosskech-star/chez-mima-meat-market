@@ -1,3 +1,4 @@
+import { formatPrice } from "@/lib/format";
 import { productThumbnail } from "@/lib/productThumbnail";
 import { getDefaultQuantity, getWeightOptions, isWeightUnit } from "@/lib/product-units";
 import { useState } from "react";
@@ -23,8 +24,6 @@ interface QuantityDialogProps {
   onConfirm: (product: Product, quantity: number) => void;
 }
 
-const formatPrice = (price: number) =>
-  new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(price) + " MAD";
 
 const QuantityContent = ({
   product,

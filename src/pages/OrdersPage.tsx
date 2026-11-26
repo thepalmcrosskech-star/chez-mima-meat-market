@@ -1,3 +1,4 @@
+import { formatPrice } from "@/lib/format";
 import { CustomerHeader } from "@/components/OriginPromise";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -36,8 +37,6 @@ const statusLabels: Record<string, { label: string; variant: "default" | "second
   cancelled: { label: "Annulée", variant: "destructive" },
 };
 
-const formatPrice = (n: number) =>
-  new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(n) + " MAD";
 
 const OrdersPage = () => {
   const navigate = useNavigate();

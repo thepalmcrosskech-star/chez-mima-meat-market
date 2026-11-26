@@ -1,3 +1,4 @@
+import { formatPrice } from "@/lib/format";
 import type { Tables } from "@/integrations/supabase/types";
 type RecentOrder = Tables<"orders"> & { profiles: { name: string | null; email: string | null } | null };
 import { useState, useEffect } from "react";
@@ -47,8 +48,6 @@ const AdminOverview = () => {
     setLoading(false);
   };
 
-  const formatPrice = (n: number) =>
-    new Intl.NumberFormat("fr-MA", { minimumFractionDigits: 2 }).format(n) + " MAD";
 
   const statCards = [
     { label: "Commandes", value: stats.totalOrders, icon: ShoppingBag, color: "text-primary" },

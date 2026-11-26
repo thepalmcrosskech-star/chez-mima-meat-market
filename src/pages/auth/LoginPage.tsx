@@ -212,12 +212,12 @@ const LoginPage = () => {
                 id="password"
                 name="password"
                 autoComplete={mode === "register" ? "new-password" : "current-password"}
-                placeholder="6 caractères minimum"
+                placeholder={mode === "register" ? "8 caractères minimum" : undefined}
                 className="focus:placeholder:text-transparent"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                minLength={6}
+                minLength={mode === "register" ? 8 : undefined}
               />
             </div>
           )}

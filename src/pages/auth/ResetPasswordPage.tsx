@@ -30,8 +30,8 @@ export default function ResetPasswordPage() {
   }}>
     <h1 className="text-2xl font-bold">Nouveau mot de passe</h1>
     {!valid ? <p role="alert">Ouvrez le lien reçu par e-mail pour réinitialiser votre mot de passe.</p> : <>
-      <Label htmlFor="new-password">Mot de passe</Label><PasswordInput id="new-password" autoComplete="new-password" required minLength={6} value={password} onChange={e => setPassword(e.target.value)} />
-      <Label htmlFor="confirm-password">Confirmer le mot de passe</Label><PasswordInput id="confirm-password" autoComplete="new-password" required minLength={6} value={confirmation} onChange={e => setConfirmation(e.target.value)} />
+      <Label htmlFor="new-password">Mot de passe</Label><PasswordInput id="new-password" autoComplete="new-password" required minLength={8} placeholder="8 caractères minimum" value={password} onChange={e => setPassword(e.target.value)} />
+      <Label htmlFor="confirm-password">Confirmer le mot de passe</Label><PasswordInput id="confirm-password" autoComplete="new-password" required minLength={8} placeholder="8 caractères minimum" value={confirmation} onChange={e => setConfirmation(e.target.value)} />
       <Button className="w-full" disabled={busy} type="submit">Enregistrer</Button>
     </>}
     {error && <p role="alert" className="text-destructive">{error}</p>}
