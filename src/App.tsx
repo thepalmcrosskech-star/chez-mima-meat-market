@@ -3,6 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import PhonePrompt from "@/components/PhonePrompt";
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 import { CartProvider } from "@/contexts/CartContext";
 import { useIpBanCheck } from "@/hooks/useIpBanCheck";
@@ -93,6 +94,7 @@ const AppContent = () => {
       <Sonner />
       <BrowserRouter>
         <RoleRedirect />
+        <PhonePrompt />
         <Suspense fallback={<div className="min-h-screen bg-background flex items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" aria-label="Chargement" /></div>}>
         <Routes>
           <Route path="/" element={<HomePage />} />

@@ -11,12 +11,14 @@ import { brandLogo as logo } from "@/lib/brand";
 import BrandHeader from "@/components/BrandHeader";
 import { getAccountAccess } from "@/lib/account-access";
 import { loginDestination } from "@/lib/checkout-access";
+import { normalizeMoroccanPhone } from "@/lib/phone";
 
 const LoginPage = () => {
   const [mode, setMode] = useState<"login" | "register" | "forgot">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const [params] = useSearchParams();
@@ -75,16 +77,19 @@ const LoginPage = () => {
         
         navigate(adminSetup && !access.roles.includes("admin") ? "/admin/setup" : loginDestination(access.roles, params.get("next")), { replace: true });
       } else {
+        const normalizedPhone = normalizeMoroccanPhone(phone);
+        if (!normalizedPhone) throw new Error("Numéro de téléphone invalide. Exemple : 06 12 34 56 78");
         const { data: signUpData, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            data: { name },
+            data: { name, phone: normalizedPhone },
             emailRedirectTo: checkoutRequested ? `${window.location.origin}/checkout` : window.location.origin,
           },
         });
         if (error) throw error;
         if (signUpData.session) {
+          await supabase.from("profiles").update({ phone: normalizedPhone }).eq("id", signUpData.session.user.id);
           const access = await getAccountAccess();
           toast({ title: "Bienvenue chez Mima !", description: "Votre compte est créé." });
           navigate(loginDestination(access?.roles ?? [], params.get("next")), { replace: true });
@@ -186,6 +191,21 @@ const LoginPage = () => {
                 placeholder="Votre nom"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                required
+              />
+            </div>
+          )}
+          {mode === "register" && (
+            <div className="space-y-1.5">
+              <Label htmlFor="phone">Téléphone / WhatsApp</Label>
+              <Input
+                id="phone"
+                type="tel"
+                inputMode="tel"
+                autoComplete="tel"
+                placeholder="06 12 34 56 78"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
                 required
               />
             </div>
