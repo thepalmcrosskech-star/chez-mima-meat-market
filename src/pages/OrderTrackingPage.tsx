@@ -594,10 +594,7 @@ const OrderTrackingPage = () => {
                     disabled={cancelling}
                     onClick={async () => {
                       setCancelling(true);
-                      const { error } = await supabase
-                        .from("orders")
-                        .update({ status: "cancelled" })
-                        .eq("id", order.id);
+                      const { error } = await supabase.rpc("cancel_my_order", { _order_id: order.id });
                       setCancelling(false);
                       if (error) {
                         toast({ title: "Erreur", description: error.message, variant: "destructive" });

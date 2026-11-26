@@ -1095,6 +1095,10 @@ export type Database = {
     }
     Functions: {
       activate_my_loyalty_card: { Args: never; Returns: string }
+      admin_assign_order_driver: {
+        Args: { _driver_id: string; _order_id: string }
+        Returns: undefined
+      }
       assert_order_ip_allowed: { Args: never; Returns: undefined }
       attach_order_receipt: {
         Args: { _order_id: string; _photo_path: string }
@@ -1104,6 +1108,7 @@ export type Database = {
         Args: { _customer_id: string }
         Returns: boolean
       }
+      cancel_my_order: { Args: { _order_id: string }; Returns: undefined }
       check_promo_code: { Args: { _code: string }; Returns: number }
       claim_first_admin: { Args: never; Returns: undefined }
       cleanup_finished_order_notifications: {

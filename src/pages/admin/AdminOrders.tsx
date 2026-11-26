@@ -97,67 +97,36 @@ const AdminOrders = () => {
 
   const updateStatus = async (orderId: string, status: string) => {
     const order = orders.find(o => o.id === orderId);
-    const { error } = await supabase.from("orders").update({ status }).eq("id", orderId);
+    // The RPC validates the transition and creates the customer notification server-side.
+    const { error } = await supabase.rpc("update_staff_order_status", { _order_id: orderId, _new_status: status });
     if (error) {
-      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+      toast({ title: "Changement refusé", description: error.message, variant: "destructive" });
       return;
     }
-
-    // Send in-app notification to the client
     if (order) {
-      const statusLabel = (await import("@/lib/format")).getStatusInfo(status).label;
-      const notifMessages: Record<string, { title: string; message: string }> = {
-        confirmed: { title: "Commande confirmée ✅", message: "Votre commande a été confirmée et sera bientôt préparée." },
-        preparing: { title: "En préparation 🍖", message: "Votre commande est en cours de préparation." },
-        ready: { title: "Commande prête ! 🎉", message: order.delivery_mode === "pickup" ? "Votre commande est prête. Vous pouvez venir la récupérer en boucherie." : "Votre commande est prête et va être confiée au livreur." },
-        delivering: { title: "En livraison 🚚", message: "Votre commande est en route !" },
-        delivered: order.delivery_mode === "pickup" ? { title: "Commande récupérée ✅", message: "Votre commande a été récupérée. Merci !" } : { title: "Commande livrée ✅", message: "Votre commande a été livrée. Bon appétit !" },
-        cancelled: { title: "Commande annulée ❌", message: "Votre commande a été annulée." },
-      };
-      const notif = notifMessages[status];
-      if (notif) {
-        await supabase.from("notifications").insert({
-          user_id: order.user_id,
-          order_id: orderId,
-          title: notif.title,
-          message: notif.message,
-        });
+      // Push content is derived server-side from the stored notification of this order.
+      supabase.functions.invoke("send-push-notification", {
+        body: { user_id: order.user_id, title: "Mise à jour de commande", body: "Votre commande a été mise à jour.", data: { order_id: orderId } },
+      }).catch(err => console.error("Push notification failed:", err));
 
-        const pushStatuses = ['confirmed', 'preparing', 'ready', 'delivering', 'delivered', 'cancelled'];
-        if (pushStatuses.includes(status)) {
-          supabase.functions.invoke('send-push-notification', {
-            body: {
-              user_id: order.user_id,
-              title: notif.title,
-              body: notif.message,
-              data: { order_id: orderId },
-            },
-          }).catch(err => console.error('Push notification failed:', err));
-        }
-      }
-
-      // Auto-assign driver when order is ready (delivery mode only)
       if (status === "ready" && order.delivery_mode !== "pickup") {
         supabase.functions.invoke("assign-driver", { body: { order_id: orderId } })
-          .then(() => {
-            toast({ title: "🔍 Recherche d'un livreur...", description: "Attribution automatique en cours" });
-          })
-          .catch((err) => {
-            console.error("Auto-assign failed:", err);
-          });
+          .then(() => toast({ title: "🔍 Recherche d'un livreur...", description: "Attribution automatique en cours" }))
+          .catch((err) => console.error("Auto-assign failed:", err));
       }
     }
-
     toast({ title: "Statut mis à jour" });
     fetchData();
   };
 
   const assignDriver = async (orderId: string, driverId: string) => {
-    const { error } = await supabase.from("orders").update({ driver_id: driverId === "none" ? null : driverId }).eq("id", orderId);
-    if (error) toast({ title: "Erreur", description: error.message, variant: "destructive" });
-    else { toast({ title: "Livreur assigné" }); fetchData(); }
+    const { error } = await supabase.rpc("admin_assign_order_driver", {
+      _order_id: orderId,
+      _driver_id: (driverId === "none" ? null : driverId) as string,
+    });
+    if (error) toast({ title: "Affectation refusée", description: error.message, variant: "destructive" });
+    else { toast({ title: driverId === "none" ? "Livreur retiré" : "Livreur assigné" }); fetchData(); }
   };
-
 
   const filtered = orders.filter((o) => {
     const matchStatus = filterStatus === "all" || o.status === filterStatus;
