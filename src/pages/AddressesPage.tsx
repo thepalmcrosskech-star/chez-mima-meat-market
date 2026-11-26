@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Loader2, MapPin, Pencil, Plus } from "lucide-react";
+import { ArrowLeft, Loader2, MapPin, Pencil, Plus, Star, Trash2 } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { CustomerHeader } from "@/components/OriginPromise";
 import BottomNav from "@/components/BottomNav";
@@ -28,6 +29,29 @@ export default function AddressesPage() {
   const [apartment, setApartment] = useState("");
   const [instructions, setInstructions] = useState("");
   const [saving, setSaving] = useState(false);
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [toDelete, setToDelete] = useState<Address | null>(null);
+
+  const makeDefault = async (address: Address) => {
+    if (!userId || busyId) return;
+    setBusyId(address.id);
+    const { error: failure } = await supabase.rpc("set_my_default_address", { _address_id: address.id });
+    setBusyId(null);
+    if (failure) { toast({ title: "Modification impossible", description: "Veuillez réessayer.", variant: "destructive" }); return; }
+    toast({ title: "Adresse principale mise à jour" });
+    await load(userId);
+  };
+  const confirmDelete = async () => {
+    const address = toDelete;
+    setToDelete(null);
+    if (!userId || !address || busyId) return;
+    setBusyId(address.id);
+    const { error: failure } = await supabase.rpc("delete_my_address", { _address_id: address.id });
+    setBusyId(null);
+    if (failure) { toast({ title: "Suppression impossible", description: "Veuillez réessayer.", variant: "destructive" }); return; }
+    toast({ title: "Adresse supprimée" });
+    await load(userId);
+  };
 
   const load = async (id: string) => {
     const { data, error: failure } = await supabase.from("user_addresses").select("*").eq("user_id", id).order("is_default", { ascending: false }).order("created_at", { ascending: false });
@@ -87,9 +111,26 @@ export default function AddressesPage() {
         </form> : addresses.length === 0 ? <div className="py-10 text-center text-muted-foreground"><MapPin className="mx-auto mb-3 h-8 w-8" /><p>Aucune adresse enregistrée</p></div> : <ul className="space-y-3">{addresses.map(address => <li key={address.id} className="flex items-start gap-3 rounded-lg border border-border bg-card p-4">
           <MapPin className="mt-1 h-5 w-5 shrink-0 text-primary" />
           <div className="min-w-0 flex-1 break-words"><h2 className="font-semibold">{address.label || "Adresse"}</h2>{address.is_default && <p className="text-xs text-primary">Adresse principale</p>}<p className="mt-1 text-sm">{address.full_address}</p>{address.apartment && <p className="text-sm text-muted-foreground">{address.apartment}</p>}{address.instructions && <p className="mt-1 text-sm text-muted-foreground">{address.instructions}</p>}</div>
-          <Button variant="ghost" size="icon" className="shrink-0" aria-label={`Modifier ${address.label || "l’adresse"}`} onClick={() => openForm(address)}><Pencil className="h-4 w-4" /></Button>
+          <div className="flex shrink-0 flex-col gap-1">
+            <Button variant="ghost" size="icon" className="h-11 w-11" aria-label={`Modifier ${address.label || "l’adresse"}`} onClick={() => openForm(address)}><Pencil className="h-4 w-4" /></Button>
+            {!address.is_default && <Button variant="ghost" size="icon" className="h-11 w-11" disabled={busyId === address.id} aria-label={`Choisir ${address.label || "cette adresse"} comme adresse principale`} onClick={() => void makeDefault(address)}><Star className="h-4 w-4" /></Button>}
+            <Button variant="ghost" size="icon" className="h-11 w-11 text-destructive" disabled={busyId === address.id} aria-label={`Supprimer ${address.label || "l’adresse"}`} onClick={() => setToDelete(address)}><Trash2 className="h-4 w-4" /></Button>
+          </div>
         </li>)}</ul>}
       </>}
-    </main><BottomNav />
+    </main>
+    <AlertDialog open={!!toDelete} onOpenChange={open => { if (!open) setToDelete(null); }}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Supprimer cette adresse ?</AlertDialogTitle>
+          <AlertDialogDescription>« {toDelete?.label || "Adresse"} » sera retirée de votre carnet. Vos commandes passées gardent l’adresse avec laquelle elles ont été livrées.</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Annuler</AlertDialogCancel>
+          <AlertDialogAction onClick={() => void confirmDelete()}>Supprimer</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    <BottomNav />
   </div>;
 }

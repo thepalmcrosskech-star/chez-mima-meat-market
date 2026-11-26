@@ -1154,6 +1154,7 @@ export type Database = {
         }
         Returns: string
       }
+      delete_my_address: { Args: { _address_id: string }; Returns: undefined }
       driver_has_pending_assignment_for_order: {
         Args: { _order_id: string }
         Returns: boolean
@@ -1240,6 +1241,10 @@ export type Database = {
       respond_to_driver_assignment: {
         Args: { _order_id: string; _response: string }
         Returns: string
+      }
+      set_my_default_address: {
+        Args: { _address_id: string }
+        Returns: undefined
       }
       set_order_unavailable_policy: {
         Args: { _order_id: string; _policy: string }

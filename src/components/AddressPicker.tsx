@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { searchAddress, AddressSearchError, MIN_QUERY_LENGTH, type AddressResult } from "@/lib/address-search";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { MapPin, Map, Loader2, Crosshair, Check } from "lucide-react";
+import { MapPin, Map, Loader2, Crosshair, Check, Search } from "lucide-react";
 import DeliveryLocationMap from "@/components/DeliveryLocationMap";
 
 interface AddressPickerProps {
@@ -19,6 +20,41 @@ const AddressPicker = ({ onSelect, defaultValue }: AddressPickerProps) => {
   const [locating, setLocating] = useState(false);
   const [error, setError] = useState("");
   const [accuracy, setAccuracy] = useState<number | null>(null);
+
+  const [query, setQuery] = useState("");
+  const [searching, setSearching] = useState(false);
+  const [results, setResults] = useState<AddressResult[] | null>(null);
+  const [searchError, setSearchError] = useState("");
+  const abortRef = useRef<AbortController | null>(null);
+  useEffect(() => () => abortRef.current?.abort(), []);
+
+  const runSearch = async () => {
+    if (searching) return;
+    setSearchError("");
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+    setSearching(true);
+    try {
+      const found = await searchAddress(query, controller.signal);
+      setResults(found);
+      if (found.length === 0) setSearchError("Aucune adresse trouvée. Placez le repère sur le plan.");
+    } catch (e) {
+      if ((e as Error).name !== "AbortError") setSearchError(e instanceof AddressSearchError ? e.message : "La recherche est indisponible.");
+    } finally { if (abortRef.current === controller) setSearching(false); }
+  };
+
+  const pickResult = (r: AddressResult) => {
+    const point: [number, number] = [r.longitude, r.latitude];
+    const text = addressText.trim() ? addressText : r.label.split(",").slice(0, 3).join(",");
+    setAddressText(text);
+    setCoordinates(point);
+    setAccuracy(null);
+    setError("");
+    setResults(null);
+    setShowMap(true);
+    notify(point, text);
+  };
 
   const notify = (point: [number, number], text: string) => {
     onSelect({
@@ -71,6 +107,21 @@ const AddressPicker = ({ onSelect, defaultValue }: AddressPickerProps) => {
         <Map className="h-5 w-5 shrink-0" />
         {showMap ? "Masquer le plan" : "Choisir sur le plan"}
       </Button>
+    </div>
+    <div className="space-y-2">
+      <Label htmlFor="address-search" className="text-xs">Rechercher une adresse à Marrakech</Label>
+      <div className="flex gap-2">
+        <Input id="address-search" value={query} onChange={e => setQuery(e.target.value)} enterKeyHint="search" autoComplete="off"
+          onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); void runSearch(); } }} placeholder="Ex. Avenue Mohammed VI, Guéliz" />
+        <Button type="button" variant="outline" onClick={() => void runSearch()} disabled={searching || query.trim().length < MIN_QUERY_LENGTH} className="min-h-10 shrink-0 gap-2" aria-label="Rechercher l’adresse">
+          {searching ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}<span className="hidden sm:inline">Rechercher</span>
+        </Button>
+      </div>
+      {searchError && <p role="alert" className="text-sm text-destructive">{searchError}</p>}
+      {results && results.length > 0 && <ul className="divide-y divide-border rounded-md border border-border" aria-label="Résultats de recherche">
+        {results.map(r => <li key={`${r.latitude},${r.longitude}`}><button type="button" onClick={() => pickResult(r)} className="w-full min-h-11 px-3 py-2 text-left text-sm hover:bg-muted focus-visible:bg-muted focus-visible:outline-none">{r.label}</button></li>)}
+      </ul>}
+      <p className="text-[11px] text-muted-foreground">Recherche © contributeurs OpenStreetMap. Vérifiez puis ajustez le repère sur le plan.</p>
     </div>
     {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
     {showMap && <DeliveryLocationMap coordinates={coordinates} onSelect={selectPoint} />}

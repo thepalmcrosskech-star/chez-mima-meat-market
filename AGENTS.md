@@ -35,3 +35,4 @@
 - Zone minimum_order is checked on the article subtotal before delivery fee and discounts, pickup exempt, in both minimumOrderStatus and create_customer_order.
 - Checkout re-reads cart products from the catalogue on open and orders through create_customer_order_checked, which locks products and refuses (CATALOGUE_CHANGED) when displayed unit prices differ before delegating to create_customer_order; the server always computes totals.
 - Admin, staff and driver pages load as lazy route chunks; customer order history and admin orders load in pages via range() with an « Afficher plus » control; the service worker caches only the HTML shell, never API or order data.
+- Address search uses public OSM Nominatim only on explicit submit (no autocomplete), throttled to 1 req/s, cached and capped per session, bounded to Marrakech; address-book delete/default go through delete_my_address and set_my_default_address, which keep past order snapshots.
