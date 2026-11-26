@@ -47,7 +47,7 @@ export default function LoyaltyCard() {
       <p className="mt-2 flex items-baseline justify-center gap-2 text-primary" aria-live="polite"><strong className="text-5xl leading-none tabular-nums">{balance === null ? "…" : balance}</strong><span className="text-base font-medium">points</span></p>
       <p className="mt-3 text-sm text-muted-foreground">10 DH d’achat = 1 point</p>
       <div className="mt-5 flex min-h-52 items-center justify-center">
-        {token ? <div className="loyalty-qr p-3 rounded-md"><QRCodeSVG value={`MIMA:${token}`} size={184} level="M" title="Carte fidélité Chez Mima" /></div> : <Button className="w-full whitespace-normal" disabled={busy} onClick={activate}>{busy ? "Activation…" : "Activer ma carte"}</Button>}
+        {token ? <div className="loyalty-qr p-3 rounded-md"><QRCodeSVG value={`MIMA:${token}`} size={184} level="M" title="Carte fidélité Chez Mima" /></div> : <Button className="w-full whitespace-normal" disabled={busy} onClick={activate}>{busy ? "Chargement…" : "Réessayer"}</Button>}
       </div>
     </div>
     <div className="bg-primary px-6 py-3 text-center text-primary-foreground"><span className="font-display text-lg">CHEZ MIMA · MARRAKECH</span></div>
