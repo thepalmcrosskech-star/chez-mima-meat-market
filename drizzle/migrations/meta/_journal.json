@@ -211,6 +211,13 @@
       "when": 1795699463173,
       "tag": "0029_order_action_rpcs",
       "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1795699620886,
+      "tag": "0030_enforce_zone_minimum_order",
+      "breakpoints": true
     }
   ]
 }

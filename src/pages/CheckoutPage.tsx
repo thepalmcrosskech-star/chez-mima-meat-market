@@ -135,7 +135,7 @@ const CheckoutPage = () => {
   const selectedAddress = getSelectedAddress();
   const {
     deliveryZone, deliveryFee, discount, loyaltyPoints, loyaltyDiscount, total,
-    isStoreOpen, openingHour, getNextOpeningDate,
+    isStoreOpen, openingHour, getNextOpeningDate, minimumOrder, minimumRemaining, meetsMinimum,
   } = useCheckoutSummary({
     subtotal, isPickup, deliveryPoint: selectedAddress ?? newAddress, storeLocation, zones,
     promoCode, useLoyalty, loyaltyBalance, weeklyHours,
@@ -150,7 +150,7 @@ const CheckoutPage = () => {
 
   const hasAddress = selectedAddressId || newAddress;
   const isValidPhone = whatsappPhone.replace(/\s/g, "").length >= 9;
-  const canOrder = isPickup ? isValidPhone : (paymentMethod === "card" ? false : (hasAddress && deliveryZone && deliveryFee !== null && isValidPhone));
+  const canOrder = isPickup ? isValidPhone : (paymentMethod === "card" ? false : (hasAddress && deliveryZone && deliveryFee !== null && meetsMinimum && isValidPhone));
 
   const handleSubmit = async () => {
     if (!userId) return;
@@ -429,6 +429,16 @@ const CheckoutPage = () => {
         {!isPickup && hasAddress && !deliveryZone && (
           <Card className="p-3 border-destructive/50 bg-destructive/10">
             <p className="text-sm text-destructive font-medium">⚠️ Cette adresse n'est pas dans nos zones de livraison.</p>
+          </Card>
+        )}
+
+        {!isPickup && deliveryZone && minimumOrder > 0 && (
+          <Card className={meetsMinimum ? "p-3 border-success/50 bg-success/10" : "p-3 border-destructive/50 bg-destructive/10"}>
+            <p className={meetsMinimum ? "text-sm text-success font-medium" : "text-sm text-destructive font-medium"}>
+              {meetsMinimum
+                ? `✅ Minimum de commande atteint (${formatPrice(minimumOrder)} d'articles pour cette zone).`
+                : `Minimum de commande pour cette zone : ${formatPrice(minimumOrder)} d'articles (hors livraison). Il vous reste ${formatPrice(minimumRemaining)} à ajouter.`}
+            </p>
           </Card>
         )}
 

@@ -1,5 +1,6 @@
 import { deliveryZoneForPoint } from "@/lib/delivery-zone";
 import { isOpenAt, nextOpening, type WeeklyHours } from "@/lib/store-hours";
+import { minimumOrderStatus } from "@/lib/minimum-order";
 import { usablePoints, pointsValue } from "@/lib/loyalty";
 
 export interface CheckoutDeliveryZone {
@@ -58,10 +59,12 @@ export function useCheckoutSummary(input: CheckoutSummaryInput) {
   const loyaltyDiscount = pointsValue(loyaltyPoints);
   const total = -loyaltyDiscount + (isPickup ? subtotal : (deliveryFee !== null ? subtotal + deliveryFee : subtotal)) - discount;
 
+  const { minimum: minimumOrder, remaining: minimumRemaining, meetsMinimum } = minimumOrderStatus(subtotal, deliveryZone?.minimum_order, isPickup);
+
   const isStoreOpen = isOpenAt(weeklyHours);
   const nextOpen = nextOpening(weeklyHours);
   const openingHour = formatOpening(nextOpen);
   const getNextOpeningDate = () => nextOpen ?? new Date();
 
-  return { deliveryZone, deliveryFee, discount, loyaltyPoints, loyaltyDiscount, total, isStoreOpen, openingHour, getNextOpeningDate };
+  return { minimumOrder, minimumRemaining, meetsMinimum, deliveryZone, deliveryFee, discount, loyaltyPoints, loyaltyDiscount, total, isStoreOpen, openingHour, getNextOpeningDate };
 }
