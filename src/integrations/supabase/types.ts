@@ -912,38 +912,60 @@ export type Database = {
       store_loyalty_transactions: {
         Row: {
           articles_total: number
+          channel: string
           created_at: string
           id: string
           points_earned: number
           points_used: number
           receipt_reference: string
+          refund_id: string | null
           request_id: string
-          staff_id: string
+          reverses_id: string | null
+          source_sale_id: string | null
+          staff_id: string | null
+          staff_label: string | null
           user_id: string
         }
         Insert: {
           articles_total: number
+          channel?: string
           created_at?: string
           id?: string
           points_earned: number
           points_used?: number
           receipt_reference: string
+          refund_id?: string | null
           request_id: string
-          staff_id: string
+          reverses_id?: string | null
+          source_sale_id?: string | null
+          staff_id?: string | null
+          staff_label?: string | null
           user_id: string
         }
         Update: {
           articles_total?: number
+          channel?: string
           created_at?: string
           id?: string
           points_earned?: number
           points_used?: number
           receipt_reference?: string
+          refund_id?: string | null
           request_id?: string
-          staff_id?: string
+          reverses_id?: string | null
+          source_sale_id?: string | null
+          staff_id?: string | null
+          staff_label?: string | null
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "store_loyalty_transactions_reverses_id_fkey"
+            columns: ["reverses_id"]
+            isOneToOne: false
+            referencedRelation: "store_loyalty_transactions"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "store_loyalty_transactions_staff_id_fkey"
             columns: ["staff_id"]
@@ -1150,6 +1172,38 @@ export type Database = {
       }
       normalize_loyalty_phone: { Args: { _phone: string }; Returns: string }
       order_request_ips: { Args: never; Returns: unknown[] }
+      pos_check_spend: {
+        Args: { _articles_total: number; _points_used: number; _token: string }
+        Returns: Json
+      }
+      pos_find_loyalty_card: {
+        Args: { _query: string }
+        Returns: {
+          balance: number
+          customer_name: string
+          phone: string
+          token: string
+        }[]
+      }
+      pos_record_sale: {
+        Args: {
+          _articles_total: number
+          _points_used: number
+          _receipt: string
+          _sale_id: string
+          _staff_label: string
+          _token: string
+        }
+        Returns: Json
+      }
+      pos_reverse_sale: {
+        Args: {
+          _articles_refunded: number
+          _refund_id: string
+          _sale_id: string
+        }
+        Returns: Json
+      }
       recalculate_order_totals: {
         Args: { _order_id: string }
         Returns: undefined

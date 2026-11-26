@@ -197,6 +197,13 @@
       "when": 1795694584833,
       "tag": "0027_automatic_loyalty_card",
       "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1795699176940,
+      "tag": "0028_pos_loyalty_link",
+      "breakpoints": true
     }
   ]
 }
