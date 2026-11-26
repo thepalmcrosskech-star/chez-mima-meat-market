@@ -12,3 +12,20 @@ export const usablePoints = (balance: number, articlesAfterPromo: number) => {
 };
 
 export const pointsValue = (points: number) => (points / POINTS_PER_BLOCK) * DH_PER_BLOCK;
+
+/** Cumulative points to reverse, based on the cash refunded after the loyalty discount. */
+export const loyaltyReversalTargets = (
+  articlesTotal: number,
+  pointsUsed: number,
+  earnedPoints: number,
+  refundedAmount: number,
+) => {
+  const paidTotal = articlesTotal - pointsValue(pointsUsed);
+  if (Math.abs(refundedAmount - paidTotal) < 0.005) {
+    return { pointsUsed, earnedPoints };
+  }
+  return {
+    pointsUsed: Math.floor((pointsUsed * refundedAmount) / paidTotal),
+    earnedPoints: Math.floor((earnedPoints * refundedAmount) / paidTotal),
+  };
+};
