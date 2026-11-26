@@ -181,6 +181,11 @@ const LoginPage = () => {
           </div>
         )}
 
+        <p className="text-xs text-center text-muted-foreground">
+          En continuant, vous acceptez notre{" "}
+          <a href="/privacy" className="underline">politique de confidentialité</a>.
+        </p>
+
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           {mode === "register" && (

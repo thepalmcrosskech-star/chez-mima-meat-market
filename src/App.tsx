@@ -15,6 +15,7 @@ import ProfilePage from "./pages/ProfilePage";
 import LoyaltyPage from "./pages/LoyaltyPage";
 import AddressesPage from "./pages/AddressesPage";
 import NotFound from "./pages/NotFound";
+import PrivacyPage from "./pages/PrivacyPage";
 import LoginPage from "./pages/auth/LoginPage";
 import AdminSetupPage from "./pages/auth/AdminSetupPage";
 import ResetPasswordPage from "./pages/auth/ResetPasswordPage";
@@ -100,6 +101,7 @@ const AppContent = () => {
           <Route path="/" element={<HomePage />} />
           <Route path="/index" element={<Navigate to="/" replace />} />
           <Route path="/contact" element={<ContactPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/product/:id" element={<ProductPage />} />
           <Route path="/cart" element={<CartPage />} />

@@ -8,7 +8,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, LogOut, User, Mail, Phone, MapPin, ChevronRight } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Loader2, LogOut, Trash2, Shield, User, Mail, Phone, MapPin, ChevronRight } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import { brandLogo as logo } from "@/lib/brand";
 
@@ -28,6 +29,20 @@ const ProfilePage = () => {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDeleteAccount = async () => {
+    setDeleting(true);
+    const { data, error } = await supabase.functions.invoke("delete-account", { method: "POST" });
+    if (error || !data?.ok) {
+      setDeleting(false);
+      toast({ title: "Suppression impossible", description: "Réessayez ou contactez la boutique au +212 7 07 46 26 30.", variant: "destructive" });
+      return;
+    }
+    await supabase.auth.signOut();
+    toast({ title: "Compte supprimé", description: "Vos informations personnelles ont été effacées." });
+    navigate("/", { replace: true });
+  };
 
   useEffect(() => {
     fetchProfile();
@@ -132,6 +147,13 @@ const ProfilePage = () => {
               </div>
               <ChevronRight className="h-4 w-4 text-muted-foreground" />
             </Button>
+            <Button variant="ghost" onClick={() => navigate("/privacy")} className="w-full h-auto flex items-center justify-between py-3 rounded-lg px-2">
+              <div className="flex items-center gap-3">
+                <Shield className="h-5 w-5 text-muted-foreground" />
+                <span className="font-medium text-sm">Politique de confidentialité</span>
+              </div>
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            </Button>
           </CardContent>
         </Card>
 
@@ -140,6 +162,25 @@ const ProfilePage = () => {
           <LogOut className="h-4 w-4" />
           Se déconnecter
         </Button>
+
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="ghost" className="w-full gap-2 text-destructive" disabled={deleting}>
+              <Trash2 className="h-4 w-4" />
+              {deleting ? "Suppression..." : "Supprimer mon compte"}
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Supprimer définitivement votre compte ?</AlertDialogTitle>
+              <AlertDialogDescription>Votre nom, téléphone, e-mail, adresses et points de fidélité seront effacés. Cette action est irréversible.</AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Annuler</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDeleteAccount} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Supprimer</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
 
       <BottomNav />
