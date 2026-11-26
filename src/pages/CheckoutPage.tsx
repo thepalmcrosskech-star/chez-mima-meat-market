@@ -234,13 +234,13 @@ const CheckoutPage = () => {
       const { data: orderId, error: orderErr } = await supabase.rpc("create_customer_order", {
         _items: orderItemPayload(items),
         _delivery_mode: deliveryMode,
-        _delivery_address_id: isPickup ? null : addressId,
-        _delivery_zone_id: isPickup ? null : deliveryZone?.id ?? null,
-        _notes: notes || null,
-        _scheduled_for: isScheduled ? getNextOpeningDate().toISOString() : null,
+        _delivery_address_id: isPickup ? undefined : addressId ?? undefined,
+        _delivery_zone_id: isPickup ? undefined : deliveryZone?.id ?? undefined,
+        _notes: notes || undefined,
+        _scheduled_for: isScheduled ? getNextOpeningDate().toISOString() : undefined,
         _payment_method: isPickup ? "on_site" : paymentMethod,
-        _cash_bill_amount: !isPickup && paymentMethod === "cash" ? cashBillAmount : null,
-        _promo_code: promoCode,
+        _cash_bill_amount: !isPickup && paymentMethod === "cash" ? cashBillAmount ?? undefined : undefined,
+        _promo_code: promoCode ?? undefined,
         _loyalty_points: loyaltyPoints,
       });
 

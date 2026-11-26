@@ -32,7 +32,7 @@ const DriverRating = ({ orderId, driverId, onComplete }: DriverRatingProps) => {
         _order_id: orderId,
         _driver_id: driverId,
         _rating: rating,
-        _comment: comment.trim() || null,
+        _comment: comment.trim() || undefined,
       });
       if (error) throw error;
 

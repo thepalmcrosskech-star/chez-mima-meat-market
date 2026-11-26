@@ -53,8 +53,8 @@ const NotificationBell = () => {
   }, [userId]);
 
   const fetchNotifications = async (uid: string) => {
-    await (supabase as any).rpc("cleanup_my_finished_order_notifications");
-    const { data } = await (supabase as any)
+    await supabase.rpc("cleanup_my_finished_order_notifications");
+    const { data } = await supabase
       .from("notifications")
       .select("*")
       .eq("user_id", uid)
@@ -67,7 +67,7 @@ const NotificationBell = () => {
 
   const markAllRead = async () => {
     if (!userId || unreadCount === 0) return;
-    await (supabase as any)
+    await supabase
       .from("notifications")
       .update({ is_read: true })
       .eq("user_id", userId)
@@ -77,14 +77,14 @@ const NotificationBell = () => {
 
   const deleteOne = async (id: string) => {
     setNotifications((prev) => prev.filter((n) => n.id !== id));
-    await (supabase as any).from("notifications").delete().eq("id", id);
+    await supabase.from("notifications").delete().eq("id", id);
   };
 
   const deleteAll = async () => {
     if (!userId || notifications.length === 0) return;
     if (!window.confirm("Effacer toutes les notifications ?")) return;
     setNotifications([]);
-    await (supabase as any).from("notifications").delete().eq("user_id", userId);
+    await supabase.from("notifications").delete().eq("user_id", userId);
   };
 
   const handleClick = (notif: Notification) => {

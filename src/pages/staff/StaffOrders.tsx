@@ -649,7 +649,7 @@ export default function StaffOrders() {
               )}
             </div>
           )}
-          <Button size="lg" className="h-14 w-full" disabled={!replaceProduct || saving || (priceChanges && !clientAgreed)} onClick={confirmReplace}>
+          <Button size="lg" className="h-14 w-full" disabled={!replaceProduct || saving || (!!priceChanges && !clientAgreed)} onClick={confirmReplace}>
             {saving ? <Loader2 className="animate-spin" /> : <Check />}Confirmer le remplacement
           </Button>
         </DialogContent>

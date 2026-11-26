@@ -138,7 +138,7 @@ const DriverActiveDelivery = () => {
 
   const handlePickup = async () => {
     if (!assignment) return;
-    const { error } = await supabase.rpc("mark_driver_order_picked_up", { _order_id: orderId });
+    const { error } = await supabase.rpc("mark_driver_order_picked_up", { _order_id: orderId! });
     if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
     setAssignment({ ...assignment, picked_up_at: new Date().toISOString() });
     toast({ title: "📦 Commande récupérée !", description: "Rendez-vous chez le client" });
@@ -211,7 +211,7 @@ const DriverActiveDelivery = () => {
                   size="icon"
                   className="rounded-full"
                   aria-label="Appeler le client"
-                  onClick={() => { window.location.href = `tel:${order.profiles.phone}`; }}
+                  onClick={() => { window.location.href = `tel:${order.profiles?.phone ?? ""}`; }}
                 >
                   <Phone className="h-4 w-4" />
                 </Button>

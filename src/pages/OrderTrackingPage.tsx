@@ -434,7 +434,7 @@ const OrderTrackingPage = () => {
                   size="icon"
                   className="rounded-full"
                   aria-label="Appeler le livreur"
-                  onClick={() => { window.location.href = `tel:${driverInfo.profiles.phone}`; }}
+                  onClick={() => { window.location.href = `tel:${driverInfo.profiles?.phone ?? ""}`; }}
                 >
                   <Phone className="h-4 w-4" />
                 </Button>
