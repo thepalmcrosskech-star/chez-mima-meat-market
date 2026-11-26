@@ -1084,6 +1084,14 @@ export type Database = {
       }
       check_promo_code: { Args: { _code: string }; Returns: number }
       claim_first_admin: { Args: never; Returns: undefined }
+      cleanup_finished_order_notifications: {
+        Args: { _user: string }
+        Returns: undefined
+      }
+      cleanup_my_finished_order_notifications: {
+        Args: never
+        Returns: undefined
+      }
       complete_driver_delivery: {
         Args: { _order_id: string }
         Returns: undefined

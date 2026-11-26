@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Bell } from "lucide-react";
+import { Bell, X, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -53,6 +53,7 @@ const NotificationBell = () => {
   }, [userId]);
 
   const fetchNotifications = async (uid: string) => {
+    await (supabase as any).rpc("cleanup_my_finished_order_notifications");
     const { data } = await (supabase as any)
       .from("notifications")
       .select("*")
@@ -72,6 +73,18 @@ const NotificationBell = () => {
       .eq("user_id", userId)
       .eq("is_read", false);
     setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
+  };
+
+  const deleteOne = async (id: string) => {
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+    await (supabase as any).from("notifications").delete().eq("id", id);
+  };
+
+  const deleteAll = async () => {
+    if (!userId || notifications.length === 0) return;
+    if (!window.confirm("Effacer toutes les notifications ?")) return;
+    setNotifications([]);
+    await (supabase as any).from("notifications").delete().eq("user_id", userId);
   };
 
   const handleClick = (notif: Notification) => {
@@ -107,11 +120,18 @@ const NotificationBell = () => {
         <SheetHeader>
           <div className="flex items-center justify-between">
             <SheetTitle>Notifications</SheetTitle>
-            {unreadCount > 0 && (
-              <Button variant="ghost" size="sm" onClick={markAllRead} className="text-xs text-primary">
-                Tout marquer comme lu
-              </Button>
-            )}
+            <div className="flex items-center gap-1 pr-6">
+              {unreadCount > 0 && (
+                <Button variant="ghost" size="sm" onClick={markAllRead} className="text-xs text-primary">
+                  Tout lu
+                </Button>
+              )}
+              {notifications.length > 0 && (
+                <Button variant="ghost" size="sm" onClick={deleteAll} className="text-xs text-muted-foreground">
+                  <Trash2 className="h-3.5 w-3.5 mr-1" /> Tout effacer
+                </Button>
+              )}
+            </div>
           </div>
         </SheetHeader>
         <div className="mt-4 space-y-2 overflow-y-auto max-h-[calc(100vh-120px)]">
@@ -137,6 +157,14 @@ const NotificationBell = () => {
                     <p className="text-xs text-muted-foreground mt-0.5">{notif.message}</p>
                   </div>
                   {!notif.is_read && <span className="w-2 h-2 rounded-full bg-primary flex-shrink-0 mt-1.5" />}
+                  <button
+                    type="button"
+                    aria-label="Supprimer la notification"
+                    onClick={(e) => { e.stopPropagation(); deleteOne(notif.id); }}
+                    className="flex-shrink-0 -mr-1 -mt-1 p-1.5 rounded-full text-muted-foreground hover:bg-muted"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
                 </div>
                 <p className="text-[10px] text-muted-foreground mt-1">{timeAgo(notif.created_at)}</p>
               </div>
