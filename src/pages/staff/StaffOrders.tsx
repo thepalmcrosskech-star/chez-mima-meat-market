@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import {
   Banknote,
   Bike,
@@ -26,51 +26,13 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from "@/components/ui/input";
 import { formatPrice, getStatusInfo } from "@/lib/format";
 import { canAdjustItems, canCancelAtCounter, nextStaffOrderAction, staffOrderSteps, unavailablePolicyLabel } from "@/lib/staff-order-workflow";
-import { getWeightOptions, isWeightUnit } from "@/lib/product-units";
 import { formatCartQuantity } from "@/lib/cart-display";
 import { toast } from "@/hooks/use-toast";
 import { canReplaceArticle } from "@/lib/item-unavailable-policy";
 import OrderDeliveryAddress from "@/components/OrderDeliveryAddress";
 import { portalCopyText } from "@/lib/delivery-address";
-
-type StaffOrder = {
-  id: string;
-  user_id: string;
-  status: string;
-  subtotal: number;
-  delivery_fee: number;
-  total_price: number;
-  notes: string | null;
-  created_at: string | null;
-  delivery_mode: string;
-  payment_method: string;
-  cash_bill_amount: number | null;
-  scheduled_for: string | null;
-  delivery_address_snapshot: Record<string, unknown> | null;
-  receipt_photo_path: string | null;
-  receipt_uploaded_at: string | null;
-  courier_called_at: string | null;
-  unavailable_policy: string;
-  availability_checked_at: string | null;
-  payment_confirmed_at: string | null;
-  profiles?: { name: string; email: string; phone: string | null } | null;
-};
-
-type StaffOrderItem = {
-  id: string;
-  product_id: string | null;
-  product_name: string;
-  quantity: string;
-  quantity_value: number;
-  unit_price: number;
-  line_total: number;
-  item_status: string;
-  original_product_name: string | null;
-  ordered_quantity_value: number | null;
-  unavailable_policy: string | null;
-};
-
-type CatalogueProduct = { id: string; name: string; price: number; unit_type: string; category_id: string | null };
+import { useStaffOrders, type StaffOrder, type StaffOrderItem } from "@/hooks/useStaffOrders";
+import ReplaceOrderItemDialog from "@/components/staff/ReplaceOrderItemDialog";
 
 const filters = [
   { value: "pending", label: "Nouvelles commandes" },
@@ -89,98 +51,19 @@ const formatDate = (date: string | null) => date
   : "—";
 
 export default function StaffOrders() {
-  const [orders, setOrders] = useState<StaffOrder[]>([]);
-  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("pending");
   const [search, setSearch] = useState("");
   const [selectedOrder, setSelectedOrder] = useState<StaffOrder | null>(null);
+  const { orders, loading, live, soundEnabled, toggleSound, fetchOrders } = useStaffOrders(nextOrders =>
+    setSelectedOrder(current => current ? nextOrders.find(order => order.id === current.id) ?? null : null));
   const [items, setItems] = useState<StaffOrderItem[]>([]);
   const [detailOpen, setDetailOpen] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
   const [receiptUrl, setReceiptUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [soundEnabled, setSoundEnabled] = useState(false);
-  const [live, setLive] = useState(false);
-  const [catalogue, setCatalogue] = useState<CatalogueProduct[]>([]);
   const [replacing, setReplacing] = useState<StaffOrderItem | null>(null);
-  const [replaceSearch, setReplaceSearch] = useState("");
-  const [replaceProduct, setReplaceProduct] = useState<CatalogueProduct | null>(null);
-  const [replaceQuantity, setReplaceQuantity] = useState(1);
-  const [clientAgreed, setClientAgreed] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const soundEnabledRef = useRef(false);
-
-  const fetchOrders = useCallback(async () => {
-    const { data, error } = await supabase
-      .from("orders")
-      .select("*, profiles!user_id(name, email, phone)")
-      .order("created_at", { ascending: false });
-    if (error) {
-      toast({ title: "Commandes indisponibles", description: error.message, variant: "destructive" });
-    } else {
-      const nextOrders = (data ?? []) as unknown as StaffOrder[];
-      setOrders(nextOrders);
-      setSelectedOrder(current => current ? nextOrders.find(order => order.id === current.id) ?? null : null);
-    }
-    setLoading(false);
-  }, []);
-
-  const playAlert = useCallback(() => {
-    const context = audioContextRef.current;
-    if (!context || !soundEnabledRef.current) return;
-    const oscillator = context.createOscillator();
-    const gain = context.createGain();
-    oscillator.type = "sine";
-    oscillator.frequency.setValueAtTime(880, context.currentTime);
-    oscillator.frequency.setValueAtTime(660, context.currentTime + 0.18);
-    gain.gain.setValueAtTime(0.001, context.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.22, context.currentTime + 0.03);
-    gain.gain.exponentialRampToValueAtTime(0.001, context.currentTime + 0.55);
-    oscillator.connect(gain);
-    gain.connect(context.destination);
-    oscillator.start();
-    oscillator.stop(context.currentTime + 0.56);
-  }, []);
-
-  useEffect(() => {
-    fetchOrders();
-    const channel = supabase
-      .channel(`staff-orders-${Math.random().toString(36).slice(2)}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "orders" }, payload => {
-        if (payload.eventType === "INSERT" && (payload.new as { status?: string }).status === "pending") {
-          toast({ title: "Nouvelle commande !", description: "Ouvrez les nouvelles commandes pour l’accepter." });
-          playAlert();
-        }
-        fetchOrders();
-      })
-      .subscribe(status => setLive(status === "SUBSCRIBED"));
-    const polling = window.setInterval(fetchOrders, 30_000);
-    return () => {
-      window.clearInterval(polling);
-      supabase.removeChannel(channel);
-      audioContextRef.current?.close();
-    };
-  }, [fetchOrders, playAlert]);
-
-  const enableSound = async () => {
-    if (soundEnabled) {
-      soundEnabledRef.current = false;
-      setSoundEnabled(false);
-      return;
-    }
-    try {
-      audioContextRef.current ??= new AudioContext();
-      await audioContextRef.current.resume();
-      soundEnabledRef.current = true;
-      setSoundEnabled(true);
-      playAlert();
-      toast({ title: "Alerte sonore activée", description: "Laissez cette page ouverte sur la tablette." });
-    } catch {
-      toast({ title: "Le son n’a pas pu être activé", variant: "destructive" });
-    }
-  };
 
   const loadReceipt = async (path: string | null) => {
     setReceiptUrl(null);
@@ -221,38 +104,14 @@ export default function StaffOrders() {
     await Promise.all([fetchOrders(), loadItems(selectedOrder.id)]);
   };
 
-  const openReplace = async (item: StaffOrderItem) => {
-    setReplacing(item);
-    setReplaceSearch("");
-    setReplaceProduct(null);
-    setClientAgreed(false);
-    if (catalogue.length === 0) {
-      const { data } = await supabase.from("products").select("id, name, price, unit_type, category_id").eq("is_active", true).order("name");
-      setCatalogue((data ?? []) as CatalogueProduct[]);
-    }
-  };
-
-  const chooseReplacement = (product: CatalogueProduct) => {
-    setReplaceProduct(product);
-    setClientAgreed(false);
-    if (!replacing) return;
-    if (isWeightUnit(product.unit_type)) {
-      const options = getWeightOptions(product.category_id).map(option => option.value);
-      const same = options.find(value => value === Number(replacing.quantity_value));
-      setReplaceQuantity(same ?? options[0]);
-    } else {
-      setReplaceQuantity(Math.max(1, Math.round(Number(replacing.quantity_value))));
-    }
-  };
-
-  const confirmReplace = async () => {
-    if (!replacing || !replaceProduct || !selectedOrder) return;
+  const confirmReplace = async (choice: { productId: string; quantityValue: number; clientAgreed: boolean }) => {
+    if (!replacing || !selectedOrder) return;
     setSaving(true);
     const { error } = await supabase.rpc("staff_replace_order_item", {
       _item_id: replacing.id,
-      _product_id: replaceProduct.id,
-      _quantity_value: replaceQuantity,
-      _client_agreed: clientAgreed,
+      _product_id: choice.productId,
+      _quantity_value: choice.quantityValue,
+      _client_agreed: choice.clientAgreed,
     });
     setSaving(false);
     if (error) {
@@ -384,12 +243,6 @@ export default function StaffOrders() {
 
   const nextAction = selectedOrder ? nextStaffOrderAction(selectedOrder) : null;
   const adjustable = selectedOrder ? canAdjustItems(selectedOrder) : false;
-  const replacementPrice = replaceProduct ? Math.round(replaceProduct.price * replaceQuantity * 100) / 100 : null;
-  const priceChanges = replacing && replacementPrice !== null && replacementPrice !== Math.round(Number(replacing.line_total) * 100) / 100;
-  const replaceMatches = catalogue
-    .filter(product => product.id !== replacing?.product_id && !items.some(item => item.product_id === product.id && item.item_status !== "removed"))
-    .filter(product => !replaceSearch.trim() || product.name.toLowerCase().includes(replaceSearch.trim().toLowerCase()))
-    .slice(0, 30);
   const pendingCount = orders.filter(order => order.status === "pending").length;
   const activeCount = orders.filter(order => !["delivered", "cancelled"].includes(order.status)).length;
 
@@ -410,7 +263,7 @@ export default function StaffOrders() {
             {live ? "Réception en direct" : "Actualisation automatique"} · {activeCount} en cours
           </p>
         </div>
-        <Button variant={soundEnabled ? "secondary" : "default"} size="lg" onClick={enableSound}>
+        <Button variant={soundEnabled ? "secondary" : "default"} size="lg" onClick={toggleSound}>
           {soundEnabled ? <Volume2 /> : <VolumeX />}
           {soundEnabled ? "Alerte activée" : "Activer l’alerte"}
         </Button>
@@ -540,7 +393,7 @@ export default function StaffOrders() {
                     </div>
                     {adjustable && !removed && (
                       <div className="grid grid-cols-2 gap-2">
-                        <Button variant="outline" size="sm" disabled={saving || !canReplaceArticle(item.unavailable_policy)} onClick={() => openReplace(item)}>Remplacer</Button>
+                        <Button variant="outline" size="sm" disabled={saving || !canReplaceArticle(item.unavailable_policy)} onClick={() => setReplacing(item)}>Remplacer</Button>
                         <Button variant="outline" size="sm" className="text-destructive" disabled={saving} onClick={() => removeItem(item)}>Retirer</Button>
                       </div>
                     )}
@@ -606,54 +459,14 @@ export default function StaffOrders() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={Boolean(replacing)} onOpenChange={open => { if (!open) setReplacing(null); }}>
-        <DialogContent className="max-w-lg p-4 sm:p-6">
-          <DialogHeader>
-            <DialogTitle className="font-sans text-xl">Remplacer « {replacing?.product_name} »</DialogTitle>
-            <DialogDescription>Choisissez un article similaire disponible.</DialogDescription>
-          </DialogHeader>
-          {(replacing?.unavailable_policy ?? selectedOrder?.unavailable_policy) !== "replace" && (
-            <p className="rounded-lg border border-warning/40 bg-warning/10 p-3 text-sm font-semibold text-warning">Le client a demandé : {unavailablePolicyLabel(replacing?.unavailable_policy ?? selectedOrder?.unavailable_policy ?? "call")}. Appelez-le avant de remplacer.</p>
-          )}
-          <Input value={replaceSearch} onChange={event => setReplaceSearch(event.target.value)} placeholder="Rechercher un produit…" className="h-12" />
-          <div className="max-h-56 space-y-1 overflow-y-auto rounded-lg border p-1">
-            {replaceMatches.map(product => (
-              <Button key={product.id} variant={replaceProduct?.id === product.id ? "default" : "ghost"} className="h-auto w-full justify-between whitespace-normal py-2 text-left" onClick={() => chooseReplacement(product)}>
-                <span>{product.name}</span>
-                <span className="shrink-0 text-xs">{formatPrice(product.price)}/{isWeightUnit(product.unit_type) ? "kg" : "pièce"}</span>
-              </Button>
-            ))}
-            {replaceMatches.length === 0 && <p className="p-3 text-center text-sm text-muted-foreground">Aucun produit trouvé</p>}
-          </div>
-          {replaceProduct && (
-            <div className="space-y-3">
-              {isWeightUnit(replaceProduct.unit_type) ? (
-                <div className="grid grid-cols-4 gap-2">
-                  {getWeightOptions(replaceProduct.category_id).map(option => (
-                    <Button key={option.value} variant={replaceQuantity === option.value ? "default" : "secondary"} onClick={() => { setReplaceQuantity(option.value); setClientAgreed(false); }}>{option.label}</Button>
-                  ))}
-                </div>
-              ) : (
-                <div className="flex items-center justify-center gap-4">
-                  <Button variant="secondary" disabled={replaceQuantity <= 1} onClick={() => { setReplaceQuantity(q => Math.max(1, q - 1)); setClientAgreed(false); }}>−</Button>
-                  <span className="min-w-12 text-center text-lg font-bold">{replaceQuantity}</span>
-                  <Button variant="secondary" onClick={() => { setReplaceQuantity(q => q + 1); setClientAgreed(false); }}>+</Button>
-                </div>
-              )}
-              <p className="text-sm">Ancien prix : <strong>{formatPrice(Number(replacing?.line_total ?? 0))}</strong> · Nouveau prix : <strong className="text-primary">{formatPrice(replacementPrice ?? 0)}</strong></p>
-              {priceChanges && (
-                <label className="flex items-start gap-3 rounded-lg border border-warning/40 bg-warning/10 p-3 text-sm font-semibold">
-                  <input type="checkbox" className="mt-1 h-5 w-5 accent-primary" checked={clientAgreed} onChange={event => setClientAgreed(event.target.checked)} />
-                  Le prix change : j’ai appelé le client et il accepte ce remplacement.
-                </label>
-              )}
-            </div>
-          )}
-          <Button size="lg" className="h-14 w-full" disabled={!replaceProduct || saving || (!!priceChanges && !clientAgreed)} onClick={confirmReplace}>
-            {saving ? <Loader2 className="animate-spin" /> : <Check />}Confirmer le remplacement
-          </Button>
-        </DialogContent>
-      </Dialog>
+      <ReplaceOrderItemDialog
+        item={replacing}
+        orderItems={items}
+        orderPolicy={selectedOrder?.unavailable_policy}
+        saving={saving}
+        onClose={() => setReplacing(null)}
+        onConfirm={confirmReplace}
+      />
     </div>
   );
 }

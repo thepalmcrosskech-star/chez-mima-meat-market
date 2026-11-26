@@ -29,3 +29,4 @@
 - Persist per-article unavailable choices in the cart and atomically through the order-creation RPC; staff reads order-item preferences and server replacement guards respect them, with a nullable legacy fallback so historical orders remain unchanged.
 - Post-delivery shop feedback uses configured shop phone/WhatsApp contacts and the full order reference, independent of an internal driver; both professional contact settings must be readable without admin access, while only admins can edit them. Opening WhatsApp is not confirmation that a message was sent.
 - Render order delivery details from the stored address snapshot through OrderDeliveryAddress in customer, staff and admin views; never substitute subsequently edited address-book instructions.
+- Keep checkout pricing/opening-hours derivation in useCheckoutSummary and staff order loading/live alerts in useStaffOrders; pages stay presentational so display totals and the order payload share one calculation.

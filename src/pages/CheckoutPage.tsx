@@ -1,9 +1,9 @@
 import type { AddressSnapshot } from "@/lib/address-snapshot";
-import { deliveryZoneForPoint } from "@/lib/delivery-zone";
 import { CustomerHeader } from "@/components/OriginPromise";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { defaultWeeklyHours, isOpenAt, nextOpening, parseWeeklyHours, type WeeklyHours } from "@/lib/store-hours";
+import { defaultWeeklyHours, parseWeeklyHours, type WeeklyHours } from "@/lib/store-hours";
+import { useCheckoutSummary, type CheckoutDeliveryZone as DeliveryZone } from "@/hooks/useCheckoutSummary";
 import { supabase } from "@/integrations/supabase/client";
 import { isWeightUnit } from "@/lib/product-units";
 import { orderItemPayload } from "@/lib/item-unavailable-policy";
@@ -31,19 +31,8 @@ interface SavedAddress {
   is_default: boolean | null;
 }
 
-interface DeliveryZone {
-  id: string;
-  name: string;
-  delivery_fee: number;
-  minimum_order: number;
-  free_delivery_threshold: number | null;
-  radius_km: number | null;
-  min_radius_km: number | null;
-  is_active: boolean | null;
-}
-
 import { formatPrice } from "@/lib/format";
-import { usablePoints, pointsValue } from "@/lib/loyalty";
+import { usablePoints } from "@/lib/loyalty";
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
@@ -137,44 +126,20 @@ const CheckoutPage = () => {
     setLoading(false);
   };
 
-  const findZone = (lat: number, lng: number): DeliveryZone | null => {
-    if (!storeLocation) return null;
-    return deliveryZoneForPoint(lat, lng, storeLocation, zones);
-  };
-
   const getSelectedAddress = (): SavedAddress | null => {
     if (selectedAddressId) return savedAddresses.find((a) => a.id === selectedAddressId) || null;
     return null;
   };
 
-  const getDeliveryInfo = () => {
-    const addr = getSelectedAddress();
-    if (addr) {
-      const zone = findZone(addr.latitude, addr.longitude);
-      return { zone, fee: zone ? (zone.free_delivery_threshold && subtotal >= zone.free_delivery_threshold ? 0 : zone.delivery_fee) : null };
-    }
-    if (newAddress) {
-      const zone = findZone(newAddress.latitude, newAddress.longitude);
-      return { zone, fee: zone ? (zone.free_delivery_threshold && subtotal >= zone.free_delivery_threshold ? 0 : zone.delivery_fee) : null };
-    }
-    return { zone: null, fee: null };
-  };
-
-  // Store open/close logic
-  const isStoreOpen = isOpenAt(weeklyHours);
-  const nextOpen = nextOpening(weeklyHours);
-  const getNextOpeningDate = () => nextOpen ?? new Date();
-  const openingHour = (() => {
-    if (!nextOpen) return "prochaine ouverture";
-    const tz = "Africa/Casablanca";
-    const dayKey = (d: Date) => new Intl.DateTimeFormat("en-CA", { timeZone: tz }).format(d);
-    const time = new Intl.DateTimeFormat("fr-FR", { timeZone: tz, hour: "2-digit", minute: "2-digit" }).format(nextOpen).replace(":", " h ");
-    const today = new Date();
-    const tomorrow = new Date(today.getTime() + 86400000);
-    if (dayKey(nextOpen) === dayKey(today)) return `aujourd'hui à ${time}`;
-    if (dayKey(nextOpen) === dayKey(tomorrow)) return `demain à ${time}`;
-    return `${new Intl.DateTimeFormat("fr-FR", { timeZone: tz, weekday: "long" }).format(nextOpen)} à ${time}`;
-  })();
+  const isPickup = deliveryMode === "pickup";
+  const selectedAddress = getSelectedAddress();
+  const {
+    deliveryZone, deliveryFee, discount, loyaltyPoints, loyaltyDiscount, total,
+    isStoreOpen, openingHour, getNextOpeningDate,
+  } = useCheckoutSummary({
+    subtotal, isPickup, deliveryPoint: selectedAddress ?? newAddress, storeLocation, zones,
+    promoCode, useLoyalty, loyaltyBalance, weeklyHours,
+  });
 
   // Auto-enable scheduling when store is closed
   useEffect(() => {
@@ -183,12 +148,6 @@ const CheckoutPage = () => {
     setIsScheduled(!isStoreOpen);
   }, [isStoreOpen, hoursLoaded]);
 
-  const isPickup = deliveryMode === "pickup";
-  const { zone: deliveryZone, fee: deliveryFee } = isPickup ? { zone: null, fee: 0 } : getDeliveryInfo();
-  const discount = promoCode ? Math.round(subtotal * 10) / 100 : 0;
-  const loyaltyPoints = useLoyalty ? usablePoints(loyaltyBalance, subtotal - discount) : 0;
-  const loyaltyDiscount = pointsValue(loyaltyPoints);
-  const total = -loyaltyDiscount + (isPickup ? subtotal : (deliveryFee !== null ? subtotal + deliveryFee : subtotal)) - discount;
   const hasAddress = selectedAddressId || newAddress;
   const isValidPhone = whatsappPhone.replace(/\s/g, "").length >= 9;
   const canOrder = isPickup ? isValidPhone : (paymentMethod === "card" ? false : (hasAddress && deliveryZone && deliveryFee !== null && isValidPhone));
