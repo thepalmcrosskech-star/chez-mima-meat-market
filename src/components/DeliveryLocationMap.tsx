@@ -3,6 +3,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Button } from "@/components/ui/button";
 import { DELIVERY_AREA } from "@/lib/delivery-area";
+import { STREET_ATTRIBUTION } from "@/lib/open-map";
 
 interface Props {
   coordinates: [number, number] | null;
@@ -22,7 +23,7 @@ export default function DeliveryLocationMap({ coordinates, onSelect }: Props) {
     const map = L.map(container.current).setView([31.63, -8.01], 12);
     mapRef.current = map;
     const tiles = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a>',
+      attribution: STREET_ATTRIBUTION,
       maxZoom: 19,
     }).addTo(map);
     tiles.on("tileerror", () => setTileError(true));
@@ -56,6 +57,7 @@ export default function DeliveryLocationMap({ coordinates, onSelect }: Props) {
 
   return <div className="space-y-2">
     <div ref={container} aria-label="Plan de livraison" className="relative z-0 h-64 w-full rounded-lg border border-border" />
+    <Button type="button" variant="link" className="h-auto p-0 text-xs text-muted-foreground" onClick={() => window.open("https://www.openstreetmap.org/copyright", "_blank", "noopener,noreferrer")}>© OpenStreetMap contributors</Button>
     {tileError && <div role="alert" className="space-y-2 text-sm text-destructive">
       <p>Le fond de carte n’a pas pu être chargé. Votre position reste conservée.</p>
       <Button type="button" variant="outline" size="sm" onClick={() => {

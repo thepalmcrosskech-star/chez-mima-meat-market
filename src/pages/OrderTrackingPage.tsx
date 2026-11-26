@@ -494,10 +494,8 @@ const OrderTrackingPage = () => {
                   <p className="text-sm font-semibold">Retrait à la boucherie</p>
                   <p className="text-sm text-muted-foreground">{shop.address}</p>
                 </div>
-                <Button asChild size="sm" className="gap-2">
-                  <a href={`https://www.google.com/maps/dir/?api=1&destination=${shop.lat},${shop.lng}`} target="_blank" rel="noopener noreferrer">
-                    <MapPin className="h-4 w-4" /> Itinéraire vers la boucherie
-                  </a>
+                <Button size="sm" className="gap-2" onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${shop.lat},${shop.lng}`, "_blank", "noopener,noreferrer")}>
+                  <MapPin className="h-4 w-4" /> Itinéraire vers la boucherie
                 </Button>
               </div>
             </div>

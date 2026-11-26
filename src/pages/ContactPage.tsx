@@ -2,6 +2,7 @@ import { CustomerHeader } from "@/components/OriginPromise";
 import BottomNav from "@/components/BottomNav";
 import { Card } from "@/components/ui/card";
 import { Phone, MessageCircle, Mail, MapPin, Clock, Building2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const ContactPage = () => (
   <div className="client-page min-h-screen bg-background pb-24">
@@ -13,9 +14,9 @@ const ContactPage = () => (
     <div className="px-4 py-4 space-y-4">
       <Card className="p-4 space-y-3">
         <h2 className="font-bold">Service client</h2>
-        <a href="tel:+212707462630" className="flex items-center gap-3"><Phone className="h-5 w-5 text-primary" />+212 707 46 26 30</a>
-        <a href="https://wa.me/212707462630" className="flex items-center gap-3"><MessageCircle className="h-5 w-5 text-primary" />WhatsApp : +212 707 46 26 30</a>
-        <a href="mailto:contact@chezmima.app" className="flex items-center gap-3"><Mail className="h-5 w-5 text-primary" />contact@chezmima.app</a>
+        <Button variant="ghost" className="flex h-auto w-full justify-start gap-3 p-0 font-normal hover:bg-transparent" onClick={() => window.location.assign("tel:+212707462630")}><Phone className="h-5 w-5 text-primary" />+212 707 46 26 30</Button>
+        <Button variant="ghost" className="flex h-auto w-full justify-start gap-3 p-0 font-normal hover:bg-transparent" onClick={() => window.location.assign("https://wa.me/212707462630")}><MessageCircle className="h-5 w-5 text-primary" />WhatsApp : +212 707 46 26 30</Button>
+        <Button variant="ghost" className="flex h-auto w-full justify-start gap-3 p-0 font-normal hover:bg-transparent" onClick={() => window.location.assign("mailto:contact@chezmima.app")}><Mail className="h-5 w-5 text-primary" />contact@chezmima.app</Button>
       </Card>
       <Card className="p-4 space-y-3">
         <h2 className="font-bold">Boucherie Chez Mima</h2>
