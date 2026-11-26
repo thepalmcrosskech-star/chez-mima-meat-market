@@ -1,121 +1,30 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+import webpush from "npm:web-push@3.6.7";
 import { canNotifyOrderOwner, orderStatusNotification } from "../_shared/notification-policy.ts";
 
-
-function base64UrlToUint8Array(base64Url: string): Uint8Array {
-  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-  const padding = '='.repeat((4 - base64.length % 4) % 4);
-  const binary = atob(base64 + padding);
-  return new Uint8Array([...binary].map(c => c.charCodeAt(0)));
-}
-
-async function createJwt(privateKeyJwk: JsonWebKey, endpoint: string): Promise<string> {
-  const privateKey = await crypto.subtle.importKey(
-    "jwk",
-    privateKeyJwk,
-    { name: "ECDSA", namedCurve: "P-256" },
-    false,
-    ["sign"]
-  );
-
-  const audience = new URL(endpoint).origin;
-  const now = Math.floor(Date.now() / 1000);
-
-  const header = { typ: "JWT", alg: "ES256" };
-  const payload = {
-    aud: audience,
-    exp: now + 12 * 3600,
-    sub: "mailto:contact@chezmima.com",
-  };
-
-  const encoder = new TextEncoder();
-  const headerB64 = btoa(JSON.stringify(header)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-  const payloadB64 = btoa(JSON.stringify(payload)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-  const unsignedToken = `${headerB64}.${payloadB64}`;
-
-  const signature = await crypto.subtle.sign(
-    { name: "ECDSA", hash: "SHA-256" },
-    privateKey,
-    encoder.encode(unsignedToken)
-  );
-
-  // Convert DER signature to raw r||s format if needed
-  const sigArray = new Uint8Array(signature);
-  const sigB64 = btoa(String.fromCharCode(...sigArray))
-    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-
-  return `${unsignedToken}.${sigB64}`;
-}
 
 async function sendPushNotification(
   subscription: { endpoint: string; p256dh: string; auth: string },
   payload: string,
   vapidKeys: { publicKey: string; privateKeyJwk: JsonWebKey }
 ) {
-  const jwt = await createJwt(vapidKeys.privateKeyJwk, subscription.endpoint);
-
-  // Import subscriber's p256dh key
-  const p256dhKey = await crypto.subtle.importKey(
-    "raw",
-    base64UrlToUint8Array(subscription.p256dh),
-    { name: "ECDH", namedCurve: "P-256" },
-    false,
-    []
-  );
-
-  // Generate local ECDH key pair for encryption
-  const localKeyPair = await crypto.subtle.generateKey(
-    { name: "ECDH", namedCurve: "P-256" },
-    true,
-    ["deriveBits"]
-  );
-
-  const localPublicKeyRaw = await crypto.subtle.exportKey("raw", localKeyPair.publicKey);
-
-  // Derive shared secret
-  const sharedSecret = await crypto.subtle.deriveBits(
-    { name: "ECDH", public: p256dhKey },
-    localKeyPair.privateKey,
-    256
-  );
-
-  const authBytes = base64UrlToUint8Array(subscription.auth);
-
-  // HKDF for IKM
-  const ikmKey = await crypto.subtle.importKey("raw", sharedSecret, { name: "HKDF" }, false, ["deriveBits"]);
-
-  const authInfo = new TextEncoder().encode("Content-Encoding: auth\0");
-  const ikmInfo = new Uint8Array([
-    ...authInfo,
-  ]);
-
-  // PRK = HKDF-Extract(auth, sharedSecret)
-  const prkKey = await crypto.subtle.importKey("raw", authBytes, { name: "HKDF" }, false, ["deriveBits"]);
-
-  // Simplified: use raw encryption approach with aes128gcm
-  // For simplicity, send unencrypted payload via fetch with proper headers
-  // Most push services accept this with proper VAPID auth
-
-  const applicationServerKey = vapidKeys.publicKey;
-
-  const response = await fetch(subscription.endpoint, {
-    method: 'POST',
-    headers: {
-      'Authorization': `vapid t=${jwt}, k=${applicationServerKey}`,
-      'Content-Type': 'application/json',
-      'TTL': '86400',
-    },
-    body: payload,
-  });
-
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`Push failed [${response.status}]: ${text}`);
+  const privateKeyBase64Url = vapidKeys.privateKeyJwk.d;
+  if (!privateKeyBase64Url) throw new Error("VAPID private key missing");
+  webpush.setVapidDetails("mailto:contact@chezmima.app", vapidKeys.publicKey, privateKeyBase64Url);
+  try {
+    // web-push encrypts the payload with aes128gcm (RFC 8291) and signs the VAPID JWT.
+    return await webpush.sendNotification(
+      { endpoint: subscription.endpoint, keys: { p256dh: subscription.p256dh, auth: subscription.auth } },
+      payload,
+      { TTL: 86400 },
+    );
+  } catch (error) {
+    const status = (error as { statusCode?: number }).statusCode;
+    const body = (error as { body?: string }).body ?? (error instanceof Error ? error.message : String(error));
+    throw new Error(`Push failed [${status ?? "unknown"}]: ${body}`);
   }
-
-  return response;
 }
 
 serve(async (req) => {
