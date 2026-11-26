@@ -9,7 +9,7 @@
 Act as a Senior Full-Stack Developer and UI/UX Designer.
 Build a mobile-first web application for a modern butcher shop named **"CHEZ MIMA"**. The app will be deployed on the domain **chezmima.app**.
 
-Tech stack: **React + TypeScript + Tailwind CSS + Supabase (backend/auth/database) + Mapbox GL JS (cartes et géocodage)**.
+Tech stack: **React + TypeScript + Tailwind CSS + Supabase (backend/auth/database) + Leaflet / OpenStreetMap (cartes sans clé)**.
 
 ---
 
@@ -86,12 +86,12 @@ Après login, rediriger automatiquement vers l'interface correspondante au rôle
 - Si le montant atteint le seuil de livraison gratuite : afficher un badge vert "🎉 Livraison gratuite !"
 - Sinon : afficher une barre de progression vers la livraison gratuite : "Plus que XX MAD pour la livraison gratuite !" avec une progress bar rouge.
 
-### 3.5 — Adresse de livraison (Mapbox Integration)
+### 3.5 — Adresse de livraison (Leaflet / OpenStreetMap)
 
 - **Avant la validation de la commande**, l'utilisateur DOIT renseigner son adresse de livraison.
 - Écran/modal "Adresse de livraison" avec :
-  - **Champ de recherche d'adresse** utilisant **Mapbox Geocoding API** (autocomplete). L'utilisateur tape son adresse et sélectionne une suggestion.
-  - **Carte Mapbox GL JS** affichant :
+  - **Champ de recherche d'adresse** utilisant la recherche d'adresse (autocomplete). L'utilisateur tape son adresse et sélectionne une suggestion.
+  - **Carte Leaflet / OpenStreetMap** affichant :
     - Un **marker draggable** sur la position sélectionnée. L'utilisateur peut ajuster manuellement en déplaçant le marker.
     - Les **zones de livraison** affichées en overlay coloré (polygones/cercles) sur la carte pour que l'utilisateur voie dans quelle zone il se trouve.
   - **Bouton "Utiliser ma position actuelle"** (Geolocation API du navigateur) pour pré-remplir automatiquement.
@@ -187,9 +187,9 @@ Deux onglets : **Produits** | **Catégories**
   - Stock affiché en gros : vert si > 0, rouge si = 0.
   - Boutons +10 / −10 et champ input pour saisie directe.
 
-### 4.5 — Gestion des zones de livraison (CRUD avec Mapbox) 🗺️
+### 4.5 — Gestion des zones de livraison (CRUD avec Leaflet) 🗺️
 
-- **Carte Mapbox plein écran** affichant toutes les zones de livraison en overlay (polygones colorés).
+- **carte Leaflet / OpenStreetMap plein écran** affichant toutes les zones de livraison en overlay (polygones colorés).
 - **Liste des zones** à côté de la carte (ou en dessous sur tablette) avec pour chaque zone :
   - Nom de la zone (ex: "Zone 1 — Guéliz Centre")
   - Couleur de la zone sur la carte
@@ -205,7 +205,6 @@ Deux onglets : **Produits** | **Catégories**
   - Frais de livraison (number, MAD)
   - Minimum de commande (number, MAD)
   - Seuil de livraison gratuite (number, MAD)
-  - **Définition de la zone géographique** : L'admin dessine un polygone directement sur la carte Mapbox (utiliser `@mapbox/mapbox-gl-draw` pour le dessin de polygones). L'admin clique point par point pour délimiter la zone. Les coordonnées du polygone sont sauvegardées en GeoJSON dans Supabase.
   - Toggle actif/inactif
   - Bouton Sauvegarder
 
@@ -288,7 +287,7 @@ CREATE TABLE user_addresses (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
   label TEXT DEFAULT 'Maison', -- Ex: "Maison", "Bureau"
-  full_address TEXT NOT NULL, -- Adresse complète retournée par Mapbox
+  full_address TEXT NOT NULL, -- Adresse complète retournée par la carte
   latitude DECIMAL(10,8) NOT NULL,
   longitude DECIMAL(11,8) NOT NULL,
   apartment TEXT, -- Numéro apt/étage
@@ -365,7 +364,7 @@ CREATE TABLE app_settings (
 
 ### Côté Client — Algorithme :
 
-1. L'utilisateur sélectionne/saisit une adresse → on obtient `[longitude, latitude]` via Mapbox Geocoding.
+1. L'utilisateur sélectionne/saisit une adresse → on obtient `[longitude, latitude]` via la carte.
 2. On charge toutes les `delivery_zones` actives depuis Supabase.
 3. On effectue un **point-in-polygon test** (utiliser la librairie `@turf/boolean-point-in-polygon` de Turf.js) pour chaque zone.
 4. **Si le point est dans une zone** :
@@ -382,23 +381,19 @@ CREATE TABLE app_settings (
 
 ### Côté Admin — Dessin de zones :
 
-- Utiliser `@mapbox/mapbox-gl-draw` pour permettre à l'admin de dessiner des polygones sur la carte.
 - Sauvegarder les coordonnées en format GeoJSON dans la colonne `polygon` (JSONB).
 - Permettre la modification du polygone (re-dessiner).
 - Afficher toutes les zones existantes avec leur couleur respective en overlay sur la carte.
 
 ---
 
-## 7. CONFIGURATION MAPBOX
+## 7. CARTES
+- Leaflet + tuiles OpenStreetMap, sans clé ni jeton.
 
-- **Mapbox Access Token** : Stocker dans les variables d'environnement Supabase/Lovable : `VITE_MAPBOX_TOKEN`.
-- **Style de carte** : `mapbox://styles/mapbox/dark-v11` (pour matcher le dark theme).
 - **Centre par défaut** : Marrakech, Maroc → `[-8.0083, 31.6295]`, zoom 12.
 - **Langue de la carte** : Français.
 - **Librairies à installer** :
-  - `mapbox-gl` — Carte interactive
   - `@mapbox/mapbox-gl-geocoder` — Barre de recherche d'adresses
-  - `@mapbox/mapbox-gl-draw` — Dessin de polygones (admin)
   - `@turf/boolean-point-in-polygon` — Test point-in-polygon
   - `@turf/helpers` — Helpers GeoJSON
 
@@ -505,7 +500,7 @@ Insérer ces données de démo pour pouvoir tester l'application immédiatement 
 /admin/orders → Kanban commandes
 /admin/catalog → Gestion catalogue (produits + catégories)
 /admin/stock → Gestion stock quotidien
-/admin/zones → Gestion zones de livraison (carte Mapbox + CRUD)
+/admin/zones → Gestion zones de livraison (carte Leaflet / OpenStreetMap + CRUD)
 /admin/marketing → Gestion bannière
 /admin/crm → Liste clients
 /admin/messages → Messagerie directe
@@ -519,7 +514,6 @@ Insérer ces données de démo pour pouvoir tester l'application immédiatement 
 2. **Dark mode exclusif** : Pas de mode clair. Tout est sombre.
 3. **Aucun paiement en ligne** : Paiement à la livraison uniquement. Aucune intégration Stripe/PayPal.
 4. **Supabase** : Utiliser Supabase pour l'auth, la base de données, et le storage (images futures). Activer RLS sur toutes les tables.
-5. **Mapbox** : Token dans env variable. Style dark. Centré sur Marrakech.
 6. **Performance** : Lazy loading des images, pagination si > 50 produits, optimistic UI updates.
 7. **Toasts** : Utiliser des toasts pour les actions (ajout panier, commande envoyée, message envoyé, etc.).
 8. **Responsive Admin** : Le dashboard admin doit être utilisable sur tablette (sidebar rétractable).

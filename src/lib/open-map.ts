@@ -3,19 +3,15 @@ import L from "leaflet";
 export const STREET_TILES = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
 export const STREET_ATTRIBUTION = "© OpenStreetMap contributors";
 
-/** Public OSRM routing uses OSM road data; unlike tiles, this demo has no SLA. */
-export async function getRoadRoute(start: [number, number], end: [number, number]) {
-  const response = await fetch(
-    `https://router.project-osrm.org/route/v1/driving/${start.join(",")};${end.join(",")}?overview=full&geometries=geojson`,
-    { signal: AbortSignal.timeout(10000) },
-  );
-  if (!response.ok) throw new Error(`Itinéraire indisponible (${response.status})`);
-  const data = await response.json();
-  const route = data.routes?.[0];
-  if (data.code !== "Ok" || !route || !Array.isArray(route.geometry?.coordinates)) {
-    throw new Error("Aucun itinéraire routier disponible");
-  }
-  return route as { duration: number; distance: number; geometry: { coordinates: [number, number][] } };
+import { haversineDistance } from "./geo";
+
+/** Average urban courier speed used for the straight-line ETA estimate. */
+export const COURIER_SPEED_KMH = 25;
+
+/** Direct line between two [lng, lat] points with haversine distance (m) and estimated duration (s). */
+export function getDirectRoute(start: [number, number], end: [number, number]) {
+  const km = haversineDistance(start[1], start[0], end[1], end[0]);
+  return { distance: km * 1000, duration: (km / COURIER_SPEED_KMH) * 3600, geometry: { coordinates: [start, end] } };
 }
 
 export function mapPoint([lng, lat]: [number, number]): L.LatLngTuple {

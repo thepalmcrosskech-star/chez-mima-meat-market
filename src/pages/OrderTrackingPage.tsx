@@ -12,7 +12,7 @@ import { ArrowLeft, Loader2, Package, Bike, CheckCircle2, Clock, MapPin, Phone, 
 import { toast } from "@/hooks/use-toast";
 import OpenStreetMap from "@/components/OpenStreetMap";
 import L from "leaflet";
-import { addMapMarker, mapPoint, getRoadRoute } from "@/lib/open-map";
+import { addMapMarker, mapPoint, getDirectRoute } from "@/lib/open-map";
 import { formatPrice } from "@/lib/format";
 import DriverRating from "@/components/tracking/DriverRating";
 import DeliveryFeedback from "@/components/tracking/DeliveryFeedback";
@@ -227,7 +227,7 @@ const OrderTrackingPage = () => {
     if (!snapshot?.latitude || !snapshot?.longitude) return;
 
     try {
-      const route = await getRoadRoute([driverLng, driverLat], [snapshot.longitude, snapshot.latitude]);
+      const route = getDirectRoute([driverLng, driverLat], [snapshot.longitude, snapshot.latitude]);
       setEta(`~${Math.ceil(route.duration / 60)} min`);
       setDistanceLeft(`${(route.distance / 1000).toFixed(1)} km`);
 

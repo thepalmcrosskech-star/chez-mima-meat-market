@@ -1,8 +1,7 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import L from "leaflet";
-import { addMapMarker, getRoadRoute, mapPoint, STREET_TILES } from "@/lib/open-map";
+import { addMapMarker, getDirectRoute, mapPoint, STREET_TILES } from "@/lib/open-map";
 
-afterEach(() => vi.unstubAllGlobals());
 
 describe("cartes sans clé", () => {
   it("charge les tuiles OpenStreetMap sans jeton", () => {
@@ -11,20 +10,14 @@ describe("cartes sans clé", () => {
   it("préserve les coordonnées longitude/latitude lors du passage à Leaflet", () => {
     expect(mapPoint([-8.019188, 31.588938])).toEqual([31.588938, -8.019188]);
   });
-  it("conserve les distances et délais routiers sans clé Mapbox", async () => {
-    const route = { duration: 600, distance: 4200, geometry: { coordinates: [[-8.019188, 31.588938], [-8.01, 31.6]] } };
-    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ code: "Ok", routes: [route] }) });
-    vi.stubGlobal("fetch", fetchMock);
-    expect(await getRoadRoute([-8.019188, 31.588938], [-8.01, 31.6])).toEqual(route);
-    expect(fetchMock.mock.calls[0][0]).toBe("https://router.project-osrm.org/route/v1/driving/-8.019188,31.588938;-8.01,31.6?overview=full&geometries=geojson");
+  it("trace une ligne directe avec distance haversine et temps estimé à 25 km/h", () => {
+    const route = getDirectRoute([-8.019188, 31.588938], [-8.01, 31.6]);
+    expect(route.geometry.coordinates).toEqual([[-8.019188, 31.588938], [-8.01, 31.6]]);
+    expect(route.distance / 1000).toBeCloseTo(1.5, 1);
+    expect(route.duration).toBeCloseTo((route.distance / 1000 / 25) * 3600, 5);
   });
-  it("ne fabrique pas d’estimation lorsque le service routier est indisponible", async () => {
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false, status: 503 }));
-    await expect(getRoadRoute([-8, 31], [-8.01, 31.1])).rejects.toThrow("503");
-  });
-  it("refuse les réponses sans itinéraire", async () => {
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => ({ code: "NoRoute", routes: [] }) }));
-    await expect(getRoadRoute([-8, 31], [-8.01, 31.1])).rejects.toThrow("Aucun itinéraire");
+  it("donne zéro quand le livreur est arrivé", () => {
+    expect(getDirectRoute([-8, 31], [-8, 31]).distance).toBe(0);
   });
   it("place et déplace les repères sans inverser les coordonnées et sans interpréter les adresses comme du HTML", () => {
     const container = document.createElement("div");

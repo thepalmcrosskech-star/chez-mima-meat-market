@@ -11,7 +11,7 @@ import { Phone, Navigation, MapPin, Package, Banknote, CreditCard, Loader2, Cloc
 import { formatPrice, getStatusInfo } from "@/lib/format";
 import OpenStreetMap from "@/components/OpenStreetMap";
 import L from "leaflet";
-import { addMapMarker, mapPoint, getRoadRoute } from "@/lib/open-map";
+import { addMapMarker, mapPoint, getDirectRoute } from "@/lib/open-map";
 
 interface OrderData {
   id: string;
@@ -82,7 +82,7 @@ const DriverActiveDelivery = () => {
     if (!snapshot?.latitude || !snapshot?.longitude) return;
 
     try {
-      const route = await getRoadRoute([driverLng, driverLat], [snapshot.longitude, snapshot.latitude]);
+      const route = getDirectRoute([driverLng, driverLat], [snapshot.longitude, snapshot.latitude]);
       setEta(`~${Math.ceil(route.duration / 60)} min`);
       setDistance(`${(route.distance / 1000).toFixed(1)} km`);
 
