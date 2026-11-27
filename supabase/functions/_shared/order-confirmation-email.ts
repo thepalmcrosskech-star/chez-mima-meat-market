@@ -6,7 +6,7 @@ export const escapeHtml = (value: unknown) => String(value ?? "").replace(/[&<>"
 export function getOrderConfirmationEmail(orderDetails: {
   customerName: string;
   orderId: string;
-  items: Array<{ name: string; quantity: number; price: number }>;
+  items: Array<{ name: string; quantity: string; price: number }>;
   total: number;
   deliveryAddress: string;
 }) {

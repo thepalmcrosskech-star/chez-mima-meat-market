@@ -80,7 +80,7 @@ serve(async (req) => {
     const html = getOrderConfirmationEmail({
       customerName: profile.name || "Client",
       orderId: order.id,
-      items: items.map((item) => ({ name: item.product_name, quantity: Number(item.quantity), price: Number(item.line_total) })),
+      items: items.map((item) => ({ name: item.product_name, quantity: String(item.quantity ?? ""), price: Number(item.line_total) })),
       total: Number(order.total_price),
       deliveryAddress,
     });
